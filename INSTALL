@@ -1,0 +1,41 @@
+//////////////////////////////////////////////////////
+//                                                  //
+//                                                  //
+//               eMail has created by               //
+//       Center for Information Technologies        //
+//          University of Balearic Islands          //
+//              http://www.cti.uib.es               //
+//                                                  //
+//                                                  //
+//////////////////////////////////////////////////////
+
+
+IMPORTANT: This version is NOT a module for Moodle. 
+This conception has changed. It has happened to be a 
+module to be an integral system of internal mail.
+
+If you're installed Email module, before you uninstall it, after you can
+install eMail integration.
+
+Only install on versions >= 1.7.
+
+BBDD suported has MySQL and Postgressql
+
+
+Here is a basic outline of the installation process, 
+which normally takes me only a few seconds:
+
+1) Copy "email" to root moodle folder, "moodle/email"
+
+2) Copy files language in it's corresponding folder.
+"lang/en/email.php" in "moodle/lang/en/", and for example
+ "lang/ca_utf8" in "moodledata/lang/ca_utf8".
+
+3) Copy block of mail information ("block/email_list") in corresponding
+folder "moodle/blocks/".
+
+4) Click on Notifications link (Administration Block) for install. In this moment
+
+if the bbdd structure not created, it has been created.
+
+For bugs, please contact with Toni Mas (toni.mas@uib.es), thanks.
