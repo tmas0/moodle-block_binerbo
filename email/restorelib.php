@@ -55,7 +55,7 @@ function email_restore_instance($data, $restore) {
 
 function email_restore_mail ($info, $restore) {
 
-    global $CFG;
+    global $CFG, $DB;
 
     $status = true;
 
@@ -93,7 +93,7 @@ function email_restore_mail ($info, $restore) {
 
         $email->body = backup_todb($emailinfo['#']['BODY']['0']['#']);
 
-        if (!$newemailid = insert_record('email_mail', $email)) {
+        if (!$newemailid = $DB->insert_record('email_mail', $email)) {
                 $status = false;
                 break;
         }
@@ -126,7 +126,7 @@ function email_restore_mail ($info, $restore) {
 
                 $newfoldermail->folderid = $newfolderid->new_id;
                 //save the new email/folder association
-                if (!$newfoldermailid = insert_record('email_foldermail', $newfoldermail)) {
+                if (!$newfoldermailid = $DB->insert_record('email_foldermail', $newfoldermail)) {
                     $status = false;
                     break;
                 }
@@ -150,7 +150,7 @@ function email_restore_mail ($info, $restore) {
  */
 function email_folders_restore($info,$restore) {
 
-    global $CFG;
+    global $CFG, $DB;
 
     $status = true;
 
@@ -200,10 +200,10 @@ function email_folders_restore($info,$restore) {
         $folder->timecreated = backup_todb($folderinfo['#']['TIMECREATED']['0']['#']);
 
         //make sure the folder doesn't exists
-        if ($existingfolder = get_record('email_folder', 'userid', $folder->userid, 'name', $folder->name, 'course', $folder->course)) {
+        if ($existingfolder = $DB->get_record('email_folder', 'userid', $folder->userid, 'name', $folder->name, 'course', $folder->course)) {
             $newfolderid = $existingfolder->id;
         } else {
-            if (!$newfolderid = insert_record('email_folder', $folder)) {
+            if (!$newfolderid = $DB->insert_record('email_folder', $folder)) {
                 $status = false;
                 break;
             }
@@ -254,7 +254,7 @@ function email_folders_restore($info,$restore) {
  */
 function email_subfolders_restore($subfolders, $restore) {
 
-    global $CFG;
+    global $CFG, $DB;
 
     $status = true;
 
@@ -269,7 +269,7 @@ function email_subfolders_restore($subfolders, $restore) {
             break;
         }
         //insert the new record
-        if (!$newsubid = insert_record('email_subfolder', $subfolder)) {
+        if (!$newsubid = $DB->insert_record('email_subfolder', $subfolder)) {
             $status = false;
             break;
         }
@@ -364,7 +364,8 @@ function email_foldersmails_restore_mods($folder,$info,$restore) {
  * @return boolean Success/Fail
  */
 function email_sends_restore($info, $restore) {
-
+    global $DB;
+    
     $status = true;
 
     for($i = 0; $i < count($info); $i++) {
@@ -415,7 +416,7 @@ function email_sends_restore($info, $restore) {
 
         $sentemail->answered = backup_todb($sentinfo['#']['ANSWERED']['0']['#']);
 
-        if (!$newsentid = insert_record('email_send', $sentemail)) {
+        if (!$newsentid = $DB->insert_record('email_send', $sentemail)) {
             $status = false;
             break;
         }

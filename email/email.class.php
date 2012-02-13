@@ -180,7 +180,9 @@ class eMail_base {
 	 * This function insert new record on email_mail
 	 */
 	function insert_mail_record() {
-		$mail = new object();
+		global $DB;
+		
+	    $mail = new object();
 
 		$mail->userid = $this->userid;
 		$mail->course = $this->course;
@@ -188,7 +190,7 @@ class eMail_base {
 		$mail->body = $this->body;
 		$mail->timecreated = $this->timecreated;
 
-		if (! $this->id = insert_record('email_mail', $mail) ) {
+		if (! $this->id = $DB->insert_record('email_mail', $mail) ) {
 			print_error('failinsertrecord', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$this->course);
     	}
 	}
@@ -197,7 +199,9 @@ class eMail_base {
 	 * This function update record on email_mail
 	 */
 	function update_mail_record() {
-		$mail = new object();
+		global $DB;
+		
+	    $mail = new object();
 
 		if ( $this->oldmailid <= 0 ) {
 			print_error('failupdaterecord', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$this->course);
@@ -210,7 +214,7 @@ class eMail_base {
 		$mail->body = $this->body;
 		$mail->timecreated = time();
 
-		if (! update_record('email_mail', $mail) ) {
+		if (! $DB->update_record('email_mail', $mail) ) {
 			print_error('failupdaterecord', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$this->course);
     	}
 	}
@@ -252,18 +256,19 @@ class eMail_base {
 	 * @param boolean $silent Display success.
 	 */
 	function mark2answered($userid, $courseid, $mailid=0, $silent=false) {
-
+        global $DB;
+        
 		// Status
 		$success = true;
 
 		if ( $mailid > 0 ) {
 			// Mark answered
-			if (! set_field('email_send', 'answered', 1, 'mailid', $mailid, 'userid', $userid, 'course', $courseid)) {
+			if (! $DB->set_field('email_send', 'answered', 1, 'mailid', $mailid, 'userid', $userid, 'course', $courseid)) {
 			    	$success = false;
 			}
 		} else if ($this->id > 0 ) {
 			// Mark answered
-			if (! set_field('email_send', 'answered', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
+			if (! $DB->set_field('email_send', 'answered', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
 			    	$success = false;
 			}
 		} else {
@@ -271,7 +276,6 @@ class eMail_base {
 		}
 
 		if ( !$silent && !$success ) {
-			echo 'toni:'.$this->id;die;
 			notify(get_string('failmarkanswered', 'block_email_list'));
 		}
 		return $success;
@@ -287,12 +291,13 @@ class eMail_base {
 	 * @todo Finish documenting this function
 	 **/
 	function mark2read($userid, $course, $silent=false) {
-
+        global $DB;
+        
 		$success = true;
 
 		// Mark as read if eMail Id exist
 		if ( $this->id > 0 ) {
-			if (! set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
+			if (! $DB->set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
 				$success = false;
 			}
 		} else {
@@ -322,12 +327,13 @@ class eMail_base {
 	 * @return boolean Success/Fail
 	 **/
 	function mark2unread($userid, $course, $silent=false) {
-
+        global $DB;
+        
 		$success = true;
 
 		// Mark as unread if eMail Id exist
 		if ( $this->id > 0 ) {
-			if (! set_field('email_send', 'readed', 0, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
+			if (! $DB->set_field('email_send', 'readed', 0, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
 				$success = false;
 			}
 		} else {
@@ -359,7 +365,8 @@ class eMail_base {
 	 * @todo Finish documenting this function
 	 **/
 	function reference_mail_folder($userid, $foldername) {
-
+        global $DB;
+        
 		$foldermail = new stdClass();
 
 		$foldermail->mailid = $this->id;
@@ -369,7 +376,7 @@ class eMail_base {
 		$foldermail->folderid = $folder->id;
 
 		// Insert into inbox user
-		if (! insert_record('email_foldermail', $foldermail)) {
+		if (! $DB->insert_record('email_foldermail', $foldermail)) {
 			return false;
 		}
 
@@ -387,7 +394,7 @@ class eMail_base {
 
 	function add_attachments() {
 
-		global $CFG;
+		global $CFG, $DB;
 
 	    /// Note: $attachments is an array, who it's 5 sub-array in here.
 	    /// name, type, tmp_name. size, error who have an arrays.
@@ -398,7 +405,7 @@ class eMail_base {
 	    }
 
 		// Get course for upload manager
-	    if (! $course = get_record('course', 'id', $this->course)) {
+	    if (! $course = $DB->get_record('course', 'id', $this->course)) {
 	        return '';
 	    }
 
@@ -481,9 +488,10 @@ class eMail_base {
 	 * @todo Finish documenting this function
 	 **/
 	function get_file_area_name() {
-
+        global $DB;
+        
 		//Get mail
-		if (! $mail = get_record('email_mail', 'id', $this->id) ) {
+		if (! $mail = $DB->get_record('email_mail', 'id', $this->id) ) {
 			return false;
 		}
 
@@ -587,7 +595,7 @@ class eMail extends eMail_base {
 				}
 				$this->course = $email->course;
 			} else if (is_int($email) ) {
-				if ( $mail = get_record('email_mail', 'id', $email) ) {
+				if ( $mail = $DB->get_record('email_mail', 'id', $email) ) {
 					$this->id = $mail->id;
 					$this->subject = $mail->subject;
 					$this->body = $mail->body;
@@ -634,8 +642,9 @@ class eMail extends eMail_base {
      * Get full name of writer
      */
     function get_fullname_writer($override=false) {
-
-    	if ( $user = get_record('user', 'id', $this->userid) ) {
+        global $DB;
+        
+    	if ( $user = $DB->get_record('user', 'id', $this->userid) ) {
     		return $this->fullname($user, $override);
     	} else {
     		return ''; // User not found
@@ -649,15 +658,16 @@ class eMail extends eMail_base {
      * @todo Finish documenting this function
      */
     function get_users_send($type='', $override=false) {
-    	// Get send's
+    	global $DB;
+        // Get send's
 
     	if ( isset($this->id) ) {
 			if ( $type === 'to' or $type === 'cc' or $type === 'bcc' ) {
-				if (! $sendbox = get_records_select('email_send', 'mailid='.$this->id.' AND type="'.$type.'"') ) {
+				if (! $sendbox = $DB->get_records_select('email_send', 'mailid='.$this->id.' AND type="'.$type.'"') ) {
 					return false;
 				}
 			} else {
-				if (! $sendbox = get_records('email_send', 'mailid', $this->id) ) {
+				if (! $sendbox = $DB->get_records('email_send', 'mailid', $this->id) ) {
 					return false;
 				}
 			}
@@ -666,7 +676,7 @@ class eMail extends eMail_base {
 
 			foreach ( $sendbox as $sendmail ) {
 				// Get user
-				if ( $user = get_record('user', 'id', $sendmail->userid) ) {
+				if ( $user = $DB->get_record('user', 'id', $sendmail->userid) ) {
 					$users .= $this->fullname($user, $override) .', ';
 				}
 			}
@@ -689,13 +699,14 @@ class eMail extends eMail_base {
 	 * @todo Finish documenting this function
 	 */
 	function can_readmail($user) {
-
+        global $DB;
+        
 		// Writer
 		if ( $this->userid == $user->id ) {
 			return true;
 		}
 
-		$senders = get_records('email_send', 'mailid', $this->id);
+		$senders = $DB->get_records('email_send', 'mailid', $this->id);
 
 		if ( $senders ) {
 			foreach( $senders as $sender ) {
@@ -718,9 +729,10 @@ class eMail extends eMail_base {
 	 * @todo Finish documenting this function
 	 **/
 	function is_readed($userid, $courseid) {
-
+        global $DB;
+        
 		// Get mail
-		if (! $send = get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
+		if (! $send = $DB->get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
 			return false;
 		}
 
@@ -737,8 +749,9 @@ class eMail extends eMail_base {
 	 * @todo Finish documenting this function
 	 **/
 	function is_answered($userid, $courseid) {
-
-		if ( ! $send = get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
+        global $DB;
+        
+		if ( ! $send = $DB->get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
 			return false; // User Id is the writer (only apears in email_mail)
 		}
 
@@ -917,7 +930,7 @@ class eMail extends eMail_base {
 	 *
 	 */
 	function send() {
-		global $COURSE, $USER;
+		global $COURSE, $USER, $DB;
 
 		// Mark answered old mail
 	    if ( $this->type === EMAIL_REPLY or $this->type === EMAIL_REPLYALL ) {
@@ -940,7 +953,7 @@ class eMail extends eMail_base {
 	    // If mail has saved in draft, delete this reference.
 	    if ( $folderdraft = email_get_root_folder($this->userid, EMAIL_DRAFT) ) {
 		    if ($foldermail = email_get_reference2foldermail($this->id, $folderdraft->id) ) {
-		    	if (! delete_records('email_foldermail', 'id', $foldermail->id)) {
+		    	if (! $DB->delete_records('email_foldermail', 'id', $foldermail->id)) {
 		    		print_error( 'failremovingdraft', 'block_email_list');
 		    	}
 		    }
@@ -956,7 +969,7 @@ class eMail extends eMail_base {
 		// If mail already exist ... (in draft)
 	    if ( $this->id ) {
 	    	// Drop all records, and insert all again.
-			if (! delete_records('email_send', 'mailid', $this->id)) {
+			if (! $DB->delete_records('email_send', 'mailid', $this->id)) {
 				return false;
 			}
 	    }
@@ -982,7 +995,7 @@ class eMail extends eMail_base {
 
 				$send->type		 = 'to';
 
-				if (! insert_record('email_send', $send)) {
+				if (! $DB->insert_record('email_send', $send)) {
 					print_error('failinsertsendrecord', 'block_email_list');
 					return false;
 			    }
@@ -1006,7 +1019,7 @@ class eMail extends eMail_base {
 
 				$send->type		 = 'cc';
 
-				if (! insert_record('email_send', $send)) {
+				if (! $DB->insert_record('email_send', $send)) {
 					print_error('failinsertsendrecord', 'block_email_list');
 					return false;
 			    }
@@ -1030,7 +1043,7 @@ class eMail extends eMail_base {
 
 				$send->type		 = 'bcc';
 
-				if (! insert_record('email_send', $send)) {
+				if (! $DB->insert_record('email_send', $send)) {
 					print_error('failinsertsendrecord', 'block_email_list');
 					return false;
 			    }
@@ -1057,7 +1070,8 @@ class eMail extends eMail_base {
 	 * @todo Finish documenting this function
 	 **/
 	function save($mailid=NULL) {
-
+        global $DB;
+        
 		$this->timecreated = time();
 
 		if (! $mailid ) {
@@ -1087,7 +1101,7 @@ class eMail extends eMail_base {
 
 					$send->type		 = 'to';
 
-					if (! insert_record('email_send', $send)) {
+					if (! $DB->insert_record('email_send', $send)) {
 						print_error('failinsertsendrecord', 'block_email_list');
 						return false;
 				    }
@@ -1106,7 +1120,7 @@ class eMail extends eMail_base {
 
 					$send->type		 = 'cc';
 
-					if (! insert_record('email_send', $send)) {
+					if (! $DB->insert_record('email_send', $send)) {
 						print_error('failinsertsendrecord', 'block_email_list');
 						return false;
 				    }
@@ -1125,7 +1139,7 @@ class eMail extends eMail_base {
 
 					$send->type		 = 'bcc';
 
-					if (! insert_record('email_send', $send)) {
+					if (! $DB->insert_record('email_send', $send)) {
 						print_error('failinsertsendrecord', 'block_email_list');
 						return false;
 				    }
@@ -1142,7 +1156,7 @@ class eMail extends eMail_base {
 			$this->update_mail_record();
 
 			// Drop all records, and insert all again.
-			if ( delete_records('email_send', 'mailid', $mailid)) {
+			if ( $DB->delete_records('email_send', 'mailid', $mailid)) {
 
 			    // Prepare send mail
 				$send = new stdClass();
@@ -1163,7 +1177,7 @@ class eMail extends eMail_base {
 
 						$send->type		 = 'to';
 
-						if (! insert_record('email_send', $send)) {
+						if (! $DB->insert_record('email_send', $send)) {
 							print_error('failinsertsendrecord', 'block_email_list');
 							return false;
 					    }
@@ -1179,7 +1193,7 @@ class eMail extends eMail_base {
 
 						$send->type		 = 'cc';
 
-						if (! insert_record('email_send', $send)) {
+						if (! $DB->insert_record('email_send', $send)) {
 							print_error('failinsertsendrecord', 'block_email_list');
 							return false;
 					    }
@@ -1195,7 +1209,7 @@ class eMail extends eMail_base {
 
 						$send->type		 = 'bcc';
 
-						if (! insert_record('email_send', $send)) {
+						if (! $DB->insert_record('email_send', $send)) {
 							print_error('failinsertsendrecord', 'block_email_list');
 							return false;
 					    }
@@ -1227,7 +1241,7 @@ class eMail extends eMail_base {
 	 * @todo Finish documenting this function
 	 */
 	function remove($userid, $courseid, $folderid, $silent=false ) {
-
+        global $DB;
 		// First, show if folder remove or not
 
 		$deletemails = false;
@@ -1243,7 +1257,7 @@ class eMail extends eMail_base {
 		// If delete definity mails ...
 		if ( $deletemails ) {
 			// Delete reference mail
-			if (! delete_records('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
+			if (! $DB->delete_records('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
 			    	return false;
 			}
 		} else {
@@ -1259,7 +1273,7 @@ class eMail extends eMail_base {
 					$success = false;
 				} else {
 					// Mark the message as read
-					set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid); 		//Thanks Ann
+					$DB->set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid); 		//Thanks Ann
 				}
 			} else {
 				$success = false;
@@ -1311,7 +1325,7 @@ class eMail extends eMail_base {
 	 */
 	function get_html($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $override=false) {
 
-		global $USER, $CFG;
+		global $USER, $CFG, $DB;
 
 		$html = '';
 
@@ -1320,7 +1334,7 @@ class eMail extends eMail_base {
 	    $html .= '<td style="border-left: 1px solid black; border-top:1px solid black" width="7%" align="center">';
 
 	    // Get user picture
-	    $user = get_record('user', 'id', $this->userid);
+	    $user = $DB->get_record('user', 'id', $this->userid);
 	    $html .= print_user_picture($this->userid, $this->course, $user->picture, 0, true, false);
 
 	    $html .= '</td>';

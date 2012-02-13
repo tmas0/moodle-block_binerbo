@@ -23,7 +23,7 @@ class folder_form extends moodleform {
 
     // Define the form
     function definition () {
-        global $CFG, $USER;
+        global $CFG, $USER, $DB;
 
         $mform =& $this->_form;
 
@@ -65,7 +65,7 @@ class folder_form extends moodleform {
 
 		$mform->addElement('hidden', 'gost');
 
-		if ( $preference = get_record('email_preference', 'userid', $USER->id) ) {
+		if ( $preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
 			if ( $preference->marriedfolders2courses ) {
 				// Get my courses
 				$mycourses = get_my_courses($USER->id);

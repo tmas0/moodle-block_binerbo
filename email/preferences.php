@@ -20,10 +20,10 @@
 
 	$courseid		= optional_param('id', SITEID, PARAM_INT);		// Course ID
 
-	global $CFG, $USER;
+	global $CFG, $USER, $DB;
 
     // If defined course to view
-    if (! $course = get_record('course', 'id', $courseid)) {
+    if (! $course = $DB->get_record('course', 'id', $courseid)) {
     	print_error('courseavailablenot', 'moodle');
     }
 
@@ -117,9 +117,9 @@
 
 		$preference = new stdClass();
 
-	    if ( record_exists('email_preference', 'userid', $USER->id) ) {
+	    if ( $DB->record_exists('email_preference', 'userid', $USER->id) ) {
 
-	    	if (! $preference = get_record('email_preference', 'userid', $USER->id) ) {
+	    	if (! $preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
 	    		print_error('failreadingpreferences', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid);
 	    	}
 
@@ -136,7 +136,7 @@
 	    		$preference->marriedfolders2courses = 0;
 	    	}
 
-	    	if ( update_record('email_preference', $preference) ) {
+	    	if ( $DB->update_record('email_preference', $preference) ) {
 	    		redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, get_string('savedpreferences', 'block_email_list'), '2');
 	    	}
 	    } else {
@@ -156,7 +156,7 @@
 	    		$preference->marriedfolders2courses = 0;
 	    	}
 
-	    	if ( insert_record('email_preference', $preference) ) {
+	    	if ( $DB->insert_record('email_preference', $preference) ) {
 	    		redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, get_string('savedpreferences', 'block_email_list'), '2');
 	    	}
 	    }
@@ -165,7 +165,7 @@
 	} else {
 
 		// Get my preferences, if I have.
-		$preferences = get_record('email_preference', 'userid', $USER->id);
+		$preferences = $DB->get_record('email_preference', 'userid', $USER->id);
 
 		// Add course
 		$preferences->id = $courseid;

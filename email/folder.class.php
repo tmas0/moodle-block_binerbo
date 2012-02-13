@@ -28,7 +28,8 @@ class folder {
 	 * @todo Finish documenting this function
 	 **/
 	function newfolder($folder, $parentfolder) {
-
+        global $DB;
+        
 		// Add actual time
 		$folder->timecreated = time();
 
@@ -38,7 +39,7 @@ class folder {
 		}
 
 		// Insert record
-		if (! $folder->id = insert_record('email_folder', $folder)) {
+		if (! $folder->id = $DB->insert_record('email_folder', $folder)) {
 			return false;
 		}
 
@@ -48,7 +49,7 @@ class folder {
 		$subfolder->folderchildid  = $folder->id;
 
 		// Insert record reference
-		if (! insert_record('email_subfolder', $subfolder)) {
+		if (! $DB->insert_record('email_subfolder', $subfolder)) {
 			return false;
 		}
 

@@ -4,11 +4,12 @@
  * This page return the result of the request of users, if no query returns all users.
  *
  * @author
- * @version 1.0
+ * @version 2.0
  * @package email
  */
 
-
+    global $DB;
+    
 	require_once( "../../../config.php" );
 	require_once($CFG->dirroot.'/blocks/email_list/email/tablelib.php');
 	require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
@@ -27,7 +28,7 @@
 
 
 	// Get course, if exist
-	if (! $course = get_record('course', 'id', $courseid)) {
+	if (! $course = $DB->get_record('course', 'id', $courseid)) {
 		print_error('invalidcourseid', 'block_email_list');
 	}
 
@@ -124,16 +125,16 @@
 	    }
 
 	    if ($context->id != $frontpagectx->id) {
-	        $from   = "FROM {$CFG->prefix}user u
-	                LEFT OUTER JOIN {$CFG->prefix}context ctx
+	        $from   = "FROM {user} u
+	                LEFT OUTER JOIN {context} ctx
 	                    ON (u.id=ctx.instanceid AND ctx.contextlevel = ".CONTEXT_USER.")
-	                JOIN {$CFG->prefix}role_assignments r
+	                JOIN {role_assignments} r
 	                    ON u.id=r.userid
-	                LEFT OUTER JOIN {$CFG->prefix}user_lastaccess ul
+	                LEFT OUTER JOIN {user_lastaccess} ul
 	                    ON (r.userid=ul.userid and ul.courseid = $course->id) ";
 	    } else {
-	        $from = "FROM {$CFG->prefix}user u
-	                LEFT OUTER JOIN {$CFG->prefix}context ctx
+	        $from = "FROM {user} u
+	                LEFT OUTER JOIN {context} ctx
 	                    ON (u.id=ctx.instanceid AND ctx.contextlevel = ".CONTEXT_USER.") ";
 
 	    }
@@ -166,7 +167,7 @@
 	    }
 
 	    if ($currentgroup and $course->groupmode != 0) {    // Displaying a group by choice
-	        $from  .= 'LEFT JOIN '.$CFG->prefix.'groups_members gm ON u.id = gm.userid ';
+	        $from  .= 'LEFT JOIN {groups_members} gm ON u.id = gm.userid ';
 
 	        // $currentgroup can be an array of groups id
 	        if (is_array($currentgroup)) {
@@ -189,7 +190,7 @@
 
 	    // Searching users
 	    $sqlsearch = '';
-	    $like = sql_ilike();
+	    $like = $DB->sql_ilike();
 
 	    // General search
 	    if (! empty($search) ) {
@@ -206,14 +207,14 @@
 			$sqlsearch .= ' AND lastname '. $like .' \''. $lastinitial .'%\'';
         }
 
-		$totalcount = count_records_sql('SELECT COUNT(distinct u.id) '.$from.$where.$sqlsearch);   // Each user could have > 1
+		$totalcount = $DB->count_records_sql('SELECT COUNT(distinct u.id) '.$from.$where.$sqlsearch);   // Each user could have > 1
 	}
 
     // Define long page.
 	$table->pagesize($perpage, $totalcount);
 
     if ( $courseid ) {
-    	$userlist = get_records_sql($select.$from.$where.$sqlsearch.$sort, $table->get_page_start(), $table->get_page_size());
+    	$userlist = $DB->get_records_sql($select.$from.$where.$sqlsearch.$sort, $table->get_page_start(), $table->get_page_size());
 
 	    if ( $userlist ) {
 			foreach ($userlist as $user) {
