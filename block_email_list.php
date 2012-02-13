@@ -19,7 +19,7 @@ class block_email_list extends block_list {
 	}
 
 	function get_content() {
-		global $USER, $CFG, $COURSE;
+		global $USER, $CFG, $COURSE, $DB;
 
 		// Get course id
 		if ( ! empty($COURSE) ) {
@@ -55,7 +55,7 @@ class block_email_list extends block_list {
 				$this->content->footer = '<br /><a href="'.$CFG->wwwroot.'/blocks/email_list/email/">'.get_string('view_all', 'block_email_list').' '.$emailicon.'</a>';
 			} else {
 				// Get this course
-				$course = get_record('course','id',$this->instance->pageid);
+				$course = $DB->get_record('course','id',$this->instance->pageid);
 				$mycourses[] = $course;
 				$this->content->footer = '<br /><a href="'.$CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$course->id.'">'.get_string('view_inbox', 'block_email_list').' '.$emailicon.'</a>';
 				$this->content->footer .= '<br /><a href="'.$CFG->wwwroot.'/blocks/email_list/email/sendmail.php?course='.$course->id.'&folderid=0&filterid=0&folderoldid=0&action=newmail">'.get_string('compose', 'block_email_list').' '.$composeicon.'</a>';
@@ -131,16 +131,16 @@ class block_email_list extends block_list {
 		$now = time();
 
 		// Get record for mail list
-		if ( $block = get_record('block', 'name', 'email_list') ) {
+		if ( $block = $DB->get_record('block', 'name', 'email_list') ) {
 
 			if ( $now > $block->lastcron ) {
 
 				$unreadmails = new stdClass();
 
 				// Get users who have unread mails
-				$from = "{$CFG->prefix}user u,
-						 {$CFG->prefix}email_send s,
-						 {$CFG->prefix}email_mail m";
+				$from = "{user} u,
+						 {email_send} s,
+						 {email_mail} m";
 
 
 				$where = " WHERE u.id = s.userid
@@ -150,7 +150,7 @@ class block_email_list extends block_list {
 								AND s.sended = 1";
 
 				// If exist any users
-				if ( $users = get_records_sql('SELECT u.* FROM '.$from.$where) ) {
+				if ( $users = $DB->get_records_sql('SELECT u.* FROM '.$from.$where) ) {
 
 					// For each user ... get this unread mails, and send alert mail.
 					foreach ( $users as $user ) {
@@ -165,7 +165,7 @@ class block_email_list extends block_list {
 						//			1.3.- User denied trackbymail -> Don't send mail
 
 						// User can definied this preferences?
-						if ( $preferences = get_record('email_preference', 'userid', $user->id) ) {
+						if ( $preferences = $DB->get_record('email_preference', 'userid', $user->id) ) {
 							if ( $preferences->trackbymail == 0 ) {
 								continue;
 							}
@@ -173,7 +173,7 @@ class block_email_list extends block_list {
 
 
 						// Get this unread mails
-						if ( $mails = get_records_sql("SELECT * FROM {$CFG->prefix}email_send where readed=0 AND sended=1 AND userid=$user->id ORDER BY course") ) {
+						if ( $mails = $DB->get_records_sql("SELECT * FROM {email_send} where readed=0 AND sended=1 AND userid=$user->id ORDER BY course") ) {
 
 							$bodyhtml = '<head>';
 							foreach ($CFG->stylesheets as $stylesheet) {
@@ -203,8 +203,8 @@ class block_email_list extends block_list {
 								}
 
 								if ( isset($mail->mailid) ) {
-									$message = get_record('email_mail', 'id', $mail->mailid);
-									$mailcourse = get_record('course', 'id', $mail->course);
+									$message = $DB->get_record('email_mail', 'id', $mail->mailid);
+									$mailcourse = $DB->get_record('course', 'id', $mail->course);
 
 									$body .= "---------------------------------------------------------------------\n";
 									$body .= get_string('course').": $mailcourse->fullname \n";
