@@ -14,7 +14,7 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  **/
 
-	global $CFG, $COURSE;
+	global $CFG, $COURSE, $DB;
 
 	require_once( "../../../config.php" );
 	require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
@@ -25,7 +25,7 @@
 	$action 	= optional_param('action', '', PARAM_ALPHANUM);	// Action
 
 	// If defined course to view
-    if (! $course = get_record('course', 'id', $courseid)) {
+    if (! $course = $DB->get_record('course', 'id', $courseid)) {
     	print_error('invalidcourseid', 'block_email_list');
     }
 
@@ -89,7 +89,7 @@
     echo '<div>&#160;</div>';
 
     if ( isset($folderid) ) {
-    	if (! $folder = get_record('email_folder', 'id', $folderid) ) {
+    	if (! $folder = $DB->get_record('email_folder', 'id', $folderid) ) {
 			print_error( 'failgetfolder', 'block_email_list');
 		}
     }
@@ -131,7 +131,7 @@
 			$mails = email_get_mails($USER->id, $course->id, NULL, '', '', $options);
 
 			// Delete reference mails
-			if (! delete_records('email_foldermail', 'folderid', $trash->id)) {
+			if (! $DB->delete_records('email_foldermail', 'folderid', $trash->id)) {
 			   	$success = false;
 			}
 
@@ -140,11 +140,11 @@
 				foreach( $mails as $mail ) {
 
 					// if mailid exist, continue ...
-					if ( get_records('email_foldermail', 'mailid', $mail->id) ) {
+					if ( $DB->get_records('email_foldermail', 'mailid', $mail->id) ) {
 						continue;
 					} else {
 						// Mail is not reference by never folder (not possibility readed)
-						if ( email_delete_attachments($mail->id) and delete_records('email_mail', 'id', $mail->id) ) {
+						if ( email_delete_attachments($mail->id) and $DB->delete_records('email_mail', 'id', $mail->id) ) {
 							$success = true;
 						}
 					}
@@ -200,7 +200,7 @@
 				/// Update folder
 
 				// Get old folder params
-				if (! $oldfolder = get_record('email_folder', 'id', $data->id) ) {
+				if (! $oldfolder = $DB->get_record('email_folder', 'id', $data->id) ) {
 					print_error('failgetfolder', 'block_email_list');
 				}
 
@@ -208,7 +208,7 @@
 
 					// If user changed parent folder
 					if ( $subfolder->folderparentid != $data->parentfolder ) {
-						if (! set_field('email_subfolder', 'folderparentid', $data->parentfolder, 'id', $subfolder->id) ) {
+						if (! $DB->set_field('email_subfolder', 'folderparentid', $data->parentfolder, 'id', $subfolder->id) ) {
 						    	print_error('failchangingparentfolder', 'block_email_list');
 						}
 					}
@@ -217,13 +217,13 @@
 				// Unset parentfolder
 				unset($data->parentfolder);
 
-				if ( $preference = get_record('email_preference', 'userid', $USER->id) ) {
+				if ( $preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
 					if ( $preference->marriedfolders2courses ) {
 						// Change on all subfolders if this course has changed.
 						if ( $oldfolder->course != $data->foldercourse ) {
 							if ( $subfolders = email_get_all_subfolders($data->id) ) {
 								foreach ($subfolders as $subfolder0) {
-									set_field('email_folder', 'course', $data->foldercourse, 'id', $subfolder0->id);
+									$DB->set_field('email_folder', 'course', $data->foldercourse, 'id', $subfolder0->id);
 								}
 							}
 						}
@@ -231,7 +231,7 @@
 				}
 
 				// Update record
-				if (! update_record('email_folder', $updatefolder) ) {
+				if (! $DB->update_record('email_folder', $updatefolder) ) {
 				    	return false;
 				}
 

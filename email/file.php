@@ -44,7 +44,7 @@
     }
 
     // security: limit access to existing course subdirectories
-    if (($args[0]!='blog') and (!$course = get_record_sql("SELECT * FROM {$CFG->prefix}course WHERE id='".(int)$args[0]."'"))) {
+    if (($args[0]!='blog') and (!$course = $DB->get_record_sql("SELECT * FROM {course} WHERE id='".(int)$args[0]."'"))) {
         error('Invalid course ID');
     }
 
@@ -154,9 +154,9 @@
         $reference = implode('/', $rargs);
 
         $sql = "SELECT COUNT(r.id) " .
-                 "FROM {$CFG->prefix}resource r, " .
-                      "{$CFG->prefix}course_modules cm, " .
-                      "{$CFG->prefix}modules m " .
+                 "FROM {resource} r, " .
+                      "{course_modules} cm, " .
+                      "{modules} m " .
                  "WHERE r.course    = '{$course->id}' " .
                    "AND m.name      = 'resource' " .
                    "AND cm.module   = m.id " .
@@ -164,7 +164,7 @@
                    "AND cm.visible  = 0 " .
                    "AND r.type      = 'file' " .
                    "AND r.reference = '{$reference}'";
-        if (count_records_sql($sql)) {
+        if ($DB->count_records_sql($sql)) {
            error('Access not allowed');
         }
     }

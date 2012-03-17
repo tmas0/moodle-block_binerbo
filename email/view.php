@@ -32,7 +32,7 @@
 	$selectedusers = optional_param('selectedusers', '', PARAM_ALPHANUM); // User who send mail
 
 	// If defined course to view
-    if (! $course = get_record("course", "id", $courseid)) {
+    if (! $course = $DB->get_record("course", "id", $courseid)) {
     	print_error('invalidcourseid', 'block_email_list');
     }
 
@@ -138,7 +138,7 @@
 
 	// Print action in case . . .
 	// Get user, for show this fields
-	if (! $user = get_record('user','id',$USER->id) ) {
+	if (! $user = $DB->get_record('user','id',$USER->id) ) {
 		notify('Fail reading user');
 	}
 

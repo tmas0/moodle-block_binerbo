@@ -13,7 +13,7 @@
 	$mailids  = required_param('mailids', PARAM_SEQUENCE);
 	$mailids  = explode(',', $mailids);
 
-	if (!$course = get_record('course', 'id', $courseid)) {
+	if (!$course = $DB->get_record('course', 'id', $courseid)) {
 	    print_error('invalidcourseid', 'block_email_list');
 	}
 

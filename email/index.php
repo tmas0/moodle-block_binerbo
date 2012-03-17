@@ -37,7 +37,7 @@
     $folderoldid	= optional_param('folderoldid', 0, PARAM_INT); 		// folder ID Old
 
 	// If defined course to view
-    if (! $course = get_record('course', 'id', $courseid)) {
+    if (! $course = $DB->get_record('course', 'id', $courseid)) {
     	print_error('invalidcourseid', 'block_email_list');
     }
 
