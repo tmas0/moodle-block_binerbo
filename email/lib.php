@@ -1911,7 +1911,7 @@ function email_get_parent_folder($folder) {
 		}
     }
 
-    return get_record('email_folder', 'id', $subfolder->folderparentid);
+    return $DB->get_record('email_folder', 'id', $subfolder->folderparentid);
 
 }
 

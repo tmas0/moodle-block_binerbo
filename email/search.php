@@ -148,7 +148,7 @@
 
 		$select = 'SELECT m.*, u.firstname,u.lastname, m.userid as writer';
 
-		$from	= ' FROM '.$CFG->prefix.'user u,
+		$from	= ' FROM {user} u,
 					 {email_mail} m,
 					 {email_send} s,
 					 {email_foldermail} fm';

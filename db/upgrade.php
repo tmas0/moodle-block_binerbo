@@ -68,7 +68,7 @@ function xmldb_block_email_list_upgrade($oldversion=0) {
 		$table = new xmldb_table('email_preference');
 
 		$field = new xmldb_field('marriedfolders2courses');
-        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
         $result = $result && $dbman->add_field($table, $field);
 
@@ -77,7 +77,7 @@ function xmldb_block_email_list_upgrade($oldversion=0) {
         $table = new xmldb_table('email_folder');
 
 		$field = new xmldb_field('course');
-        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
         $result = $result && $dbman->add_field($table, $field);
 
@@ -95,7 +95,7 @@ function xmldb_block_email_list_upgrade($oldversion=0) {
 		$table = new xmldb_table('email_send');
 
 		$field = new xmldb_field('answered');
-        $field->set_attributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
         $result = $result && $dbman->add_field($table, $field);
 	}
@@ -106,7 +106,7 @@ function xmldb_block_email_list_upgrade($oldversion=0) {
 		$field = new xmldb_field('marriedfolders2courses');
 
 		if ( !$DB->field_exists($table, $field) ) {
-			$field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+			$field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
         	$result = $result && $dbman->add_field($table, $field);
 		}
@@ -116,7 +116,7 @@ function xmldb_block_email_list_upgrade($oldversion=0) {
 		$field = new xmldb_field('course');
 
 		if ( !$DB->field_exists($table, $field) ) {
-	        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+	        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
 	        $result = $result && $dbman->add_field($table, $field);
 
