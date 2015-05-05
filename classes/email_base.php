@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class eMail_base {
+class email_base {
 	/**
 	 * eMail Id
 	 * @var int $id eMail id

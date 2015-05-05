@@ -26,40 +26,40 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__) . '/email_base.php');
 
-class eMail extends eMail_base {
+class email extends email_base {
 
 	/**
 	 * Mark if eMail has reply, reply all or forward
 	 * @var string $type Reply, reply all or forward
 	 */
-	var $type	= NULL;
+	public $type	= NULL;
 
 	/**
 	 * Mark if eMail is save in draft
 	 * @var boolean $draft Is draft?
 	 */
-	var $draft = false;
+	public $draft = false;
 
 
 	/**
 	 * Old eMail Id when this send by reply or reply all message.
 	 */
-	var $oldmailid = NULL;
+	public $oldmailid = NULL;
 
 	/**
 	 * Old attachments if mail have forward or draft
 	 */
-	var $oldattachments = array();
+	public $oldattachments = array();
 
 
-    function eMail() {
+    public function email() {
 
     }
 
     /**
      * This funcion return formated fullname of user. ALLWAYS return firstname lastname
      */
-    function fullname($user, $override=false) {
+    public function fullname($user, $override=false) {
 
 		// Drop all semicolon apears. (Js errors when select contacts)
 		return str_replace(',', '', fullname($user, $override));
@@ -70,7 +70,7 @@ class eMail extends eMail_base {
      *
      * @param object or int $email eMail
      */
-    function set_email($email) {
+    public function set_email($email) {
 
     	if ( ! empty($email) ) {
 			if (is_object($email) ) {
@@ -105,7 +105,7 @@ class eMail extends eMail_base {
      * @uses $USER
      * @param int $userid Writer
      */
-    function set_writer($userid) {
+    public function set_writer($userid) {
     	global $USER;
 
 		// Security issues
@@ -125,14 +125,14 @@ class eMail extends eMail_base {
     /**
      * Get Writer
      */
-    function get_writer() {
+    public function get_writer() {
     	return $this->userid;
     }
 
     /**
      * Get full name of writer
      */
-    function get_fullname_writer($override=false) {
+    public function get_fullname_writer($override=false) {
         global $DB;
         
     	if ( $user = $DB->get_record('user', 'id', $this->userid) ) {
@@ -148,7 +148,7 @@ class eMail extends eMail_base {
      * @return string Contain user who writed mails
      * @todo Finish documenting this function
      */
-    function get_users_send($type='', $override=false) {
+    public function get_users_send($type='', $override=false) {
     	global $DB;
         // Get send's
 
@@ -189,7 +189,7 @@ class eMail extends eMail_base {
 	 * @return boolean True or false if the user can read this mail.
 	 * @todo Finish documenting this function
 	 */
-	function can_readmail($user) {
+	public function can_readmail($user) {
         global $DB;
         
 		// Writer
@@ -219,7 +219,7 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function is_readed($userid, $courseid) {
+	public function is_readed($userid, $courseid) {
         global $DB;
         
 		// Get mail
@@ -239,7 +239,7 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function is_answered($userid, $courseid) {
+	public function is_answered($userid, $courseid) {
         global $DB;
         
 		if ( ! $send = $DB->get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
@@ -255,7 +255,7 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function has_attachments() {
+	public function has_attachments() {
 
 		if ( isset($this->id) ) {
 			if (! $this->get_file_area_name()) {
@@ -283,7 +283,7 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function _get_format_attachments($attachmentformat=true) {
+	public function _get_format_attachments($attachmentformat=true) {
 
 		global $CFG;
 
@@ -347,7 +347,7 @@ class eMail extends eMail_base {
 	 *
 	 * @param array $oldattachments Old attachments
 	 */
-	function set_oldattachments($oldattachments) {
+	public function set_oldattachments($oldattachments) {
 
 		if ( is_array( $oldattachments) ) {
 			$this->oldattachments = $oldattachments;
@@ -366,7 +366,7 @@ class eMail extends eMail_base {
      * @uses $COURSE
      * @param int $courseid Course Id
      */
-    function set_course($courseid) {
+    public function set_course($courseid) {
     	global $COURSE;
 
 		if ( empty( $courseid ) and isset($COURSE->id) ) {
@@ -381,7 +381,7 @@ class eMail extends eMail_base {
 	/**
 	 * Set type of mail
 	 */
-	function set_type($type) {
+	public function set_type($type) {
 
 		// Security control
 		if ( $type === EMAIL_REPLY or $type === EMAIL_REPLYALL or $type === EMAIL_FORWARD ) {
@@ -394,7 +394,7 @@ class eMail extends eMail_base {
 	 *
 	 * @param int $oldmailid Old mail id (Forward)
 	 */
-	function set_oldmailid($oldmailid) {
+	public function set_oldmailid($oldmailid) {
 		// Forbidden negative id's and zeros
 		if ( $oldmailid > 0 AND $this->type != EMAIL_FORWARD ) {
 			$this->oldmailid = $oldmailid;
@@ -406,7 +406,7 @@ class eMail extends eMail_base {
 	 *
 	 * @param int $id Mail id (Draft)
 	 */
-	function set_mailid($id) {
+	public function set_mailid($id) {
 		// Forbidden negative id's and zeros
 		if ( $id > 0 ) {
 			$this->id = $id;
@@ -420,7 +420,7 @@ class eMail extends eMail_base {
 	 * Add all references in send table.
 	 *
 	 */
-	function send() {
+	public function send() {
 		global $COURSE, $USER, $DB;
 
 		// Mark answered old mail
@@ -560,7 +560,7 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function save($mailid=NULL) {
+	public function save($mailid=NULL) {
         global $DB;
         
 		$this->timecreated = time();
@@ -731,7 +731,7 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 */
-	function remove($userid, $courseid, $folderid, $silent=false ) {
+	public function remove($userid, $courseid, $folderid, $silent=false ) {
         global $DB;
 		// First, show if folder remove or not
 
@@ -792,7 +792,7 @@ class eMail extends eMail_base {
 	 * @uses $COURSE
 	 * @param
 	 */
-	function display($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $user, $override=false) {
+	public function display($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $user, $override=false) {
 
 		global $COURSE;
 
@@ -814,7 +814,7 @@ class eMail extends eMail_base {
 	/**
 	 * This function return an HTML code for display this eMail
 	 */
-	function get_html($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $override=false) {
+	public function get_html($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $override=false) {
 
 		global $USER, $CFG, $DB;
 
@@ -954,6 +954,4 @@ class eMail extends eMail_base {
 
 		return $html;
 	}
-
 }
-?>
