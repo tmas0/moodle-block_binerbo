@@ -1,566 +1,65 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Parent class for eMail.
  *
- * @author Toni Mas
- * @version 1.0.1
- * @uses $CFG
- * @package email
- * @license The source code packaged with this file is Free Software, Copyright (C) 2008 by
- *          <toni.mas at uib dot es>.
- *          It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
- *          You can get copies of the licenses here:
- * 		                   http://www.affero.org/oagpl.html
- *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
- **/
+ * @package 	email
+ * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
-class eMail_base {
-	/**
-	 * eMail Id
-	 * @var int $id eMail id
-	 */
-	var $id		= NULL;
+defined('MOODLE_INTERNAL') || die();
 
-	/**
-	 * User Id for the writer of email
-	 * @var int $userid Writer.
-	 */
-	var $userid;
+require_once(dirname(__FILE__) . '/email_base.php');
 
-	/**
-	 * Course Id to which it belongs email
-	 * @var int $course Course id.
-	 */
-	var $course;
-
-	/**
-	 * Date of create email
-	 * @var int $timecreated TimeStamp
-	 */
-	var $timecreated;
-
-	/**
-	 * Subject
-	 * @var string $subject Subject of email
-	 */
-	var $subject;
-
-	/**
-	 * Body
-	 * @var text $body Body of email
-	 */
-	var $body;
-
-	/**
-	 * Attachments
-	 * @var array $attachments Attachments
-	 */
-	var $attachments = NULL;
-
-	/**
-	 * User who mail has send by type to.
-	 * @var array $to To
-	 */
-	var $to = array();
-
-	/**
-	 * User who mail has send by type cc.
-	 * @var array $cc CC
-	 */
-	var $cc = array();
-
-	/**
-	 * User who mail has send by type bcc.
-	 * @var array $bcc BCC
-	 */
-	var $bcc = array();
-
-	/**
-	 * The class constructor
-	 */
-	function eMail_base() {
-		$this->init();
-	}
-
-	/**
-	 * Constructor to keep PHP5
-	 */
-	function __construct() {
-		$this->eMail_base();
-	}
-
-	/**
-     * Set subject
-     *
-     * @param string $subject Subject
-     */
-    function set_subject( $subject ) {
-
-		if ( !empty( $subject ) ) {
-			// Clean text
-			$this->subject = clean_text($subject);
-		} else {
-			// Display error
-			print_error ( get_string('nosubject', 'block_email_list') );
-		}
-    }
-
-    /**
-     * Set body
-     *
-     * @param text $body Body
-     */
-    function set_body( $body='' ) {
-
-    	if ( empty($body) ) {
-    		$this->body = ''; // Define one value
-    	} else {
-    		$context = get_context_instance(CONTEXT_COURSE, $this->course);
-    		trusttext_after_edit($body, $context);
-    		$this->body = $body;
-    	}
-    }
-
-    /**
-     * This function add attahcments to the mail
-     *
-     * @param array $attachments Attachments
-     */
-    function set_attachments( $attachments ) {
-    	if ( ! empty( $attachments) ) {
-    		$this->attachments = $attachments;
-    		return true;
-    	}
-    	return false;
-    }
-
-	/**
-	 * Set users send type to
-	 * @param array To
-	 */
-	function set_sendusersbyto( $to=array() ) {
-
-		if ( is_array($to) ) {
-			$this->to = $to;
-		} else {
-			// In all other case .. mark as empty
-			$this->to = array();
-		}
-	}
-
-	/**
-	 * Set users send type cc
-	 * @param array CC
-	 */
-	function set_sendusersbycc( $cc=array() ) {
-
-		if ( is_array($cc) ) {
-			$this->cc = $cc;
-		} else {
-			// In all other case .. mark as empty
-			$this->cc = array();
-		}
-	}
-
-	/**
-	 * Set users send type bcc
-	 * @param array BCC
-	 */
-	function set_sendusersbybcc( $bcc=array() ) {
-
-		if ( is_array($bcc) ) {
-			$this->bcc = $bcc;
-		} else {
-			// In all other case .. mark as empty
-			$this->bcc = array();
-		}
-	}
-
-	/**
-	 * This function insert new record on email_mail
-	 */
-	function insert_mail_record() {
-		$mail = new object();
-
-		$mail->userid = $this->userid;
-		$mail->course = $this->course;
-		$mail->subject = $this->subject;
-		$mail->body = $this->body;
-		$mail->timecreated = $this->timecreated;
-
-		if (! $this->id = insert_record('email_mail', $mail) ) {
-			print_error('failinsertrecord', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$this->course);
-    	}
-	}
-
-	/**
-	 * This function update record on email_mail
-	 */
-	function update_mail_record() {
-		$mail = new object();
-
-		if ( $this->oldmailid <= 0 ) {
-			print_error('failupdaterecord', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$this->course);
-		}
-
-		$mail->id = $this->oldmailid;
-		$mail->userid = $this->userid;
-		$mail->course = $this->course;
-		$mail->subject = $this->subject;
-		$mail->body = $this->body;
-		$mail->timecreated = time();
-
-		if (! update_record('email_mail', $mail) ) {
-			print_error('failupdaterecord', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$this->course);
-    	}
-	}
-
-	/**
-	 * This function send this eMail to respective users.
-	 * Active the corresponding flag to user sent.
-	 * Add new mail in table.
-	 * Add all references in send table.
-	 *
-	 */
-	function send() {
-		return NULL; // This method sould be implemented by the derived class.
-	}
-
-	/**
-	 * This function save this eMail and respective users.
-	 * Active the corresponding flag to user sent on draft.
-	 * Add new mail in table.
-	 *
-	 */
-	function save() {
-		return NULL; // This method sould be implemented by the derived class.
-	}
-
-	/**
-	 * This function remove this eMail. If email does in TRASH folder, drop of BBDD, else move to TRASH folder.
-	 */
-	function remove() {
-		return NULL;
-	}
-
-	/**
-	 * This function mark eMail as answered
-	 *
-	 * @param int $mailid Mark as read external eMail
-	 * @param int $userid User Id
-	 * @param int $courseid Course Id
-	 * @param boolean $silent Display success.
-	 */
-	function mark2answered($userid, $courseid, $mailid=0, $silent=false) {
-
-		// Status
-		$success = true;
-
-		if ( $mailid > 0 ) {
-			// Mark answered
-			if (! set_field('email_send', 'answered', 1, 'mailid', $mailid, 'userid', $userid, 'course', $courseid)) {
-			    	$success = false;
-			}
-		} else if ($this->id > 0 ) {
-			// Mark answered
-			if (! set_field('email_send', 'answered', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
-			    	$success = false;
-			}
-		} else {
-			$success = false;
-		}
-
-		if ( !$silent && !$success ) {
-			echo 'toni:'.$this->id;die;
-			notify(get_string('failmarkanswered', 'block_email_list'));
-		}
-		return $success;
-	}
-
-	/**
-	 * This function mark mails to read
-	 *
-	 * @param int $userid User Id
-	 * @param int $courseid Course Id
-	 * @param boolean $silent Show or not show messages
-	 * @return boolean Success/Fail
-	 * @todo Finish documenting this function
-	 **/
-	function mark2read($userid, $course, $silent=false) {
-
-		$success = true;
-
-		// Mark as read if eMail Id exist
-		if ( $this->id > 0 ) {
-			if (! set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
-				$success = false;
-			}
-		} else {
-			$success = false;
-		}
-
-		if ($success) {
-			if (! $silent ) {
-				// Display success
-				notify(get_string('toreadok', 'block_email_list'), 'notifysuccess');
-			}
-			return true;
-		} else {
-			if ( ! $silent ) {
-				notify(get_string('failmarkreaded', 'block_email_list'));
-			}
-			return false;
-		}
-	}
-
-	/**
-	 * This function mark mails to unread
-	 *
-	 * @param int $userid User Id
-	 * @param int $courseid Course Id
-	 * @param boolean $silent Show or not show messages
-	 * @return boolean Success/Fail
-	 **/
-	function mark2unread($userid, $course, $silent=false) {
-
-		$success = true;
-
-		// Mark as unread if eMail Id exist
-		if ( $this->id > 0 ) {
-			if (! set_field('email_send', 'readed', 0, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
-				$success = false;
-			}
-		} else {
-			$success = false;
-		}
-
-		// Display success
-		if ($success) {
-			if (! $silent ) {
-				// Display success
-				notify(get_string('tounreadok', 'block_email_list'), 'notifysuccess');
-			}
-			return true;
-		} else {
-			if ( ! $silent ) {
-				notify(get_string('failmarkunreaded', 'block_email_list'));
-			}
-			return false;
-		}
-
-	}
-
-	/**
-	 * This function insert reference mail <-> folder. There apply filters.
-	 *
-	 * @param int $userid User Id
-	 * @param string $foldername Folder name
-	 * @return object Contain all users object send mails
-	 * @todo Finish documenting this function
-	 **/
-	function reference_mail_folder($userid, $foldername) {
-
-		$foldermail = new stdClass();
-
-		$foldermail->mailid = $this->id;
-
-		$folder = email_get_root_folder($userid, $foldername);
-
-		$foldermail->folderid = $folder->id;
-
-		// Insert into inbox user
-		if (! insert_record('email_foldermail', $foldermail)) {
-			return false;
-		}
-
-		return true;
-
-	}
-
-	/**
-	 * This function add new files into mailid.
-	 *
-	 * @uses $CFG
-	 * @param $attachments Is an array get to $_FILES
-	 * @return string Array of all name attachments upload
-	 */
-
-	function add_attachments() {
-
-		global $CFG;
-
-	    /// Note: $attachments is an array, who it's 5 sub-array in here.
-	    /// name, type, tmp_name. size, error who have an arrays.
-
-		// Prevent errors
-	    if ( empty($this->oldattachments) and (empty($this->attachments) or ( isset($this->attachments['FILE_0']['error']) and $this->attachments['FILE_0']['error'] == 4) ) ) {
-	    	return true;
-	    }
-
-		// Get course for upload manager
-	    if (! $course = get_record('course', 'id', $this->course)) {
-	        return '';
-	    }
-
-	    require_once($CFG->dirroot.'/lib/uploadlib.php');
-
-		// Get directory for save this attachments
-		$dir = $this->get_file_area();
-
-		// Now, delete old corresponding files
-	    if ( ! empty( $this->oldattachments) ) {
-
-			if ( $this->type != EMAIL_FORWARD and $this->type != EMAIL_REPLY and $this->type != EMAIL_REPLYALL ) {	// Working in same email
-				// Necessary library for this function
-				include_once($CFG->dirroot.'/lib/filelib.php');
-
-				// Get files of mail
-				if ($files = get_directory_list($dir)) {
-
-					// Process all attachments
-					foreach ( $files as $file ) {
-						// Get path of file
-						$attach = $this->get_file_area_name() . '/' .$file;
-
-						$attachments[] = $attach;
-					}
-				}
-
-				if ( $diff = array_diff($attachments, $this->oldattachments) ) {
-					foreach ( $diff as $attachment ) {
-						unlink($CFG->dataroot.'/'.$attachment); // Drop file
-					}
-				}
-
-			} else if ( $this->type === EMAIL_FORWARD ) {	// Copy $this->oldattachments in this new email
-				foreach ( $this->oldattachments as $attachment ) {
-					copy($CFG->dataroot.'/'.$attachment, $this->get_file_area().'/'. basename($attachment));
-				}
-			}
-	    }
-
-		if ( ! empty($this->attachments) or ( isset($this->attachments['FILE_0']['error']) and $this->attachments['FILE_0']['error'] != 4) )
-		// Now, processing all attachments . . .
-		$um = new upload_manager(NULL,false,false,$course,false, 0, true, true);
-
-		if (! $um->process_file_uploads($dir)) {
-	        // empty file upload. Error solve in latest version of moodle.
-	        // Warning! Only comprove first mail. Bug of uploadlib.php.
-        	$message = get_string('uploaderror', 'assignment');
-        	$message .= '<br />';
-        	$message .= $um->get_errors();
-			print_simple_box($message, '', '', '', '', 'errorbox');
-        	print_continue($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$course->id);
-        	print_footer();
-        	die;
-	    }
-
-		return true;
-	}
-
-	/**
-	 * This functions create upload directory if it's necessary.
-	 * and return path it.
-	 *
-	 * @return string Return the upload file path.
-	 **/
-	function get_file_area() {
-
-		// First, showing if have path to save mails
-		if (!$name = $this->get_file_area_name()) {
-			return false;
-		}
-
-	    return make_upload_directory( $name );
-	}
-
-	/**
-	 * This function return upload attachment path.
-	 *
-	 * @return string Path on save upload files
-	 * @todo Finish documenting this function
-	 **/
-	function get_file_area_name() {
-
-		//Get mail
-		if (! $mail = get_record('email_mail', 'id', $this->id) ) {
-			return false;
-		}
-
-		return "$this->course/email/$this->userid/$this->id";
-	}
-
-	/**
-	 * This functions return attachments of mail
-	 *
-	 * @uses $CFG
-	 * @return array All attachments
-	 * @todo Finish documenting this function
-	 **/
-	function get_attachments() {
-
-		global $CFG;
-
-		// Necessary library for this function
-		include_once($CFG->dirroot.'/lib/filelib.php');
-
-		// Get attachments mail path
-		$basedir = $this->get_file_area();
-		$attachment = new stdClass();
-
-		// Get files of mail
-		if ($files = get_directory_list($basedir)) {
-
-			// Process all attachments
-			foreach ( $files as $file ) {
-				// Get path of file
-				$attachment->path = $this->get_file_area_name();
-				$attachment->name = $file;
-
-				$attachments[] = (PHP_VERSION < 5) ? $attachment : clone($attachment);	// Thanks Ann
-			}
-		}
-
-		return $attachments;
-	}
-
-
-}
-
-class eMail extends eMail_base {
+class email extends email_base {
 
 	/**
 	 * Mark if eMail has reply, reply all or forward
 	 * @var string $type Reply, reply all or forward
 	 */
-	var $type	= NULL;
+	public $type	= NULL;
 
 	/**
 	 * Mark if eMail is save in draft
 	 * @var boolean $draft Is draft?
 	 */
-	var $draft = false;
+	public $draft = false;
 
 
 	/**
 	 * Old eMail Id when this send by reply or reply all message.
 	 */
-	var $oldmailid = NULL;
+	public $oldmailid = NULL;
 
 	/**
 	 * Old attachments if mail have forward or draft
 	 */
-	var $oldattachments = array();
+	public $oldattachments = array();
 
 
-    function eMail() {
+    public function email() {
 
     }
 
     /**
      * This funcion return formated fullname of user. ALLWAYS return firstname lastname
      */
-    function fullname($user, $override=false) {
+    public function fullname($user, $override=false) {
 
 		// Drop all semicolon apears. (Js errors when select contacts)
 		return str_replace(',', '', fullname($user, $override));
@@ -571,7 +70,7 @@ class eMail extends eMail_base {
      *
      * @param object or int $email eMail
      */
-    function set_email($email) {
+    public function set_email($email) {
 
     	if ( ! empty($email) ) {
 			if (is_object($email) ) {
@@ -587,7 +86,7 @@ class eMail extends eMail_base {
 				}
 				$this->course = $email->course;
 			} else if (is_int($email) ) {
-				if ( $mail = get_record('email_mail', 'id', $email) ) {
+				if ( $mail = $DB->get_record('email_mail', 'id', $email) ) {
 					$this->id = $mail->id;
 					$this->subject = $mail->subject;
 					$this->body = $mail->body;
@@ -606,7 +105,7 @@ class eMail extends eMail_base {
      * @uses $USER
      * @param int $userid Writer
      */
-    function set_writer($userid) {
+    public function set_writer($userid) {
     	global $USER;
 
 		// Security issues
@@ -626,16 +125,17 @@ class eMail extends eMail_base {
     /**
      * Get Writer
      */
-    function get_writer() {
+    public function get_writer() {
     	return $this->userid;
     }
 
     /**
      * Get full name of writer
      */
-    function get_fullname_writer($override=false) {
-
-    	if ( $user = get_record('user', 'id', $this->userid) ) {
+    public function get_fullname_writer($override=false) {
+        global $DB;
+        
+    	if ( $user = $DB->get_record('user', 'id', $this->userid) ) {
     		return $this->fullname($user, $override);
     	} else {
     		return ''; // User not found
@@ -648,16 +148,17 @@ class eMail extends eMail_base {
      * @return string Contain user who writed mails
      * @todo Finish documenting this function
      */
-    function get_users_send($type='', $override=false) {
-    	// Get send's
+    public function get_users_send($type='', $override=false) {
+    	global $DB;
+        // Get send's
 
     	if ( isset($this->id) ) {
 			if ( $type === 'to' or $type === 'cc' or $type === 'bcc' ) {
-				if (! $sendbox = get_records_select('email_send', 'mailid='.$this->id.' AND type="'.$type.'"') ) {
+				if (! $sendbox = $DB->get_records_select('email_send', 'mailid='.$this->id.' AND type="'.$type.'"') ) {
 					return false;
 				}
 			} else {
-				if (! $sendbox = get_records('email_send', 'mailid', $this->id) ) {
+				if (! $sendbox = $DB->get_records('email_send', 'mailid', $this->id) ) {
 					return false;
 				}
 			}
@@ -666,7 +167,7 @@ class eMail extends eMail_base {
 
 			foreach ( $sendbox as $sendmail ) {
 				// Get user
-				if ( $user = get_record('user', 'id', $sendmail->userid) ) {
+				if ( $user = $DB->get_record('user', 'id', $sendmail->userid) ) {
 					$users .= $this->fullname($user, $override) .', ';
 				}
 			}
@@ -688,14 +189,15 @@ class eMail extends eMail_base {
 	 * @return boolean True or false if the user can read this mail.
 	 * @todo Finish documenting this function
 	 */
-	function can_readmail($user) {
-
+	public function can_readmail($user) {
+        global $DB;
+        
 		// Writer
 		if ( $this->userid == $user->id ) {
 			return true;
 		}
 
-		$senders = get_records('email_send', 'mailid', $this->id);
+		$senders = $DB->get_records('email_send', 'mailid', $this->id);
 
 		if ( $senders ) {
 			foreach( $senders as $sender ) {
@@ -717,10 +219,11 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function is_readed($userid, $courseid) {
-
+	public function is_readed($userid, $courseid) {
+        global $DB;
+        
 		// Get mail
-		if (! $send = get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
+		if (! $send = $DB->get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
 			return false;
 		}
 
@@ -736,9 +239,10 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function is_answered($userid, $courseid) {
-
-		if ( ! $send = get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
+	public function is_answered($userid, $courseid) {
+        global $DB;
+        
+		if ( ! $send = $DB->get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
 			return false; // User Id is the writer (only apears in email_mail)
 		}
 
@@ -751,7 +255,7 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function has_attachments() {
+	public function has_attachments() {
 
 		if ( isset($this->id) ) {
 			if (! $this->get_file_area_name()) {
@@ -779,7 +283,7 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function _get_format_attachments($attachmentformat=true) {
+	public function _get_format_attachments($attachmentformat=true) {
 
 		global $CFG;
 
@@ -843,7 +347,7 @@ class eMail extends eMail_base {
 	 *
 	 * @param array $oldattachments Old attachments
 	 */
-	function set_oldattachments($oldattachments) {
+	public function set_oldattachments($oldattachments) {
 
 		if ( is_array( $oldattachments) ) {
 			$this->oldattachments = $oldattachments;
@@ -862,7 +366,7 @@ class eMail extends eMail_base {
      * @uses $COURSE
      * @param int $courseid Course Id
      */
-    function set_course($courseid) {
+    public function set_course($courseid) {
     	global $COURSE;
 
 		if ( empty( $courseid ) and isset($COURSE->id) ) {
@@ -877,7 +381,7 @@ class eMail extends eMail_base {
 	/**
 	 * Set type of mail
 	 */
-	function set_type($type) {
+	public function set_type($type) {
 
 		// Security control
 		if ( $type === EMAIL_REPLY or $type === EMAIL_REPLYALL or $type === EMAIL_FORWARD ) {
@@ -890,7 +394,7 @@ class eMail extends eMail_base {
 	 *
 	 * @param int $oldmailid Old mail id (Forward)
 	 */
-	function set_oldmailid($oldmailid) {
+	public function set_oldmailid($oldmailid) {
 		// Forbidden negative id's and zeros
 		if ( $oldmailid > 0 AND $this->type != EMAIL_FORWARD ) {
 			$this->oldmailid = $oldmailid;
@@ -902,7 +406,7 @@ class eMail extends eMail_base {
 	 *
 	 * @param int $id Mail id (Draft)
 	 */
-	function set_mailid($id) {
+	public function set_mailid($id) {
 		// Forbidden negative id's and zeros
 		if ( $id > 0 ) {
 			$this->id = $id;
@@ -916,8 +420,8 @@ class eMail extends eMail_base {
 	 * Add all references in send table.
 	 *
 	 */
-	function send() {
-		global $COURSE, $USER;
+	public function send() {
+		global $COURSE, $USER, $DB;
 
 		// Mark answered old mail
 	    if ( $this->type === EMAIL_REPLY or $this->type === EMAIL_REPLYALL ) {
@@ -940,7 +444,7 @@ class eMail extends eMail_base {
 	    // If mail has saved in draft, delete this reference.
 	    if ( $folderdraft = email_get_root_folder($this->userid, EMAIL_DRAFT) ) {
 		    if ($foldermail = email_get_reference2foldermail($this->id, $folderdraft->id) ) {
-		    	if (! delete_records('email_foldermail', 'id', $foldermail->id)) {
+		    	if (! $DB->delete_records('email_foldermail', 'id', $foldermail->id)) {
 		    		print_error( 'failremovingdraft', 'block_email_list');
 		    	}
 		    }
@@ -956,7 +460,7 @@ class eMail extends eMail_base {
 		// If mail already exist ... (in draft)
 	    if ( $this->id ) {
 	    	// Drop all records, and insert all again.
-			if (! delete_records('email_send', 'mailid', $this->id)) {
+			if (! $DB->delete_records('email_send', 'mailid', $this->id)) {
 				return false;
 			}
 	    }
@@ -982,7 +486,7 @@ class eMail extends eMail_base {
 
 				$send->type		 = 'to';
 
-				if (! insert_record('email_send', $send)) {
+				if (! $DB->insert_record('email_send', $send)) {
 					print_error('failinsertsendrecord', 'block_email_list');
 					return false;
 			    }
@@ -1006,7 +510,7 @@ class eMail extends eMail_base {
 
 				$send->type		 = 'cc';
 
-				if (! insert_record('email_send', $send)) {
+				if (! $DB->insert_record('email_send', $send)) {
 					print_error('failinsertsendrecord', 'block_email_list');
 					return false;
 			    }
@@ -1030,7 +534,7 @@ class eMail extends eMail_base {
 
 				$send->type		 = 'bcc';
 
-				if (! insert_record('email_send', $send)) {
+				if (! $DB->insert_record('email_send', $send)) {
 					print_error('failinsertsendrecord', 'block_email_list');
 					return false;
 			    }
@@ -1056,8 +560,9 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 **/
-	function save($mailid=NULL) {
-
+	public function save($mailid=NULL) {
+        global $DB;
+        
 		$this->timecreated = time();
 
 		if (! $mailid ) {
@@ -1087,7 +592,7 @@ class eMail extends eMail_base {
 
 					$send->type		 = 'to';
 
-					if (! insert_record('email_send', $send)) {
+					if (! $DB->insert_record('email_send', $send)) {
 						print_error('failinsertsendrecord', 'block_email_list');
 						return false;
 				    }
@@ -1106,7 +611,7 @@ class eMail extends eMail_base {
 
 					$send->type		 = 'cc';
 
-					if (! insert_record('email_send', $send)) {
+					if (! $DB->insert_record('email_send', $send)) {
 						print_error('failinsertsendrecord', 'block_email_list');
 						return false;
 				    }
@@ -1125,7 +630,7 @@ class eMail extends eMail_base {
 
 					$send->type		 = 'bcc';
 
-					if (! insert_record('email_send', $send)) {
+					if (! $DB->insert_record('email_send', $send)) {
 						print_error('failinsertsendrecord', 'block_email_list');
 						return false;
 				    }
@@ -1142,7 +647,7 @@ class eMail extends eMail_base {
 			$this->update_mail_record();
 
 			// Drop all records, and insert all again.
-			if ( delete_records('email_send', 'mailid', $mailid)) {
+			if ( $DB->delete_records('email_send', 'mailid', $mailid)) {
 
 			    // Prepare send mail
 				$send = new stdClass();
@@ -1163,7 +668,7 @@ class eMail extends eMail_base {
 
 						$send->type		 = 'to';
 
-						if (! insert_record('email_send', $send)) {
+						if (! $DB->insert_record('email_send', $send)) {
 							print_error('failinsertsendrecord', 'block_email_list');
 							return false;
 					    }
@@ -1179,7 +684,7 @@ class eMail extends eMail_base {
 
 						$send->type		 = 'cc';
 
-						if (! insert_record('email_send', $send)) {
+						if (! $DB->insert_record('email_send', $send)) {
 							print_error('failinsertsendrecord', 'block_email_list');
 							return false;
 					    }
@@ -1195,7 +700,7 @@ class eMail extends eMail_base {
 
 						$send->type		 = 'bcc';
 
-						if (! insert_record('email_send', $send)) {
+						if (! $DB->insert_record('email_send', $send)) {
 							print_error('failinsertsendrecord', 'block_email_list');
 							return false;
 					    }
@@ -1226,8 +731,8 @@ class eMail extends eMail_base {
 	 * @return boolean Success/Fail
 	 * @todo Finish documenting this function
 	 */
-	function remove($userid, $courseid, $folderid, $silent=false ) {
-
+	public function remove($userid, $courseid, $folderid, $silent=false ) {
+        global $DB;
 		// First, show if folder remove or not
 
 		$deletemails = false;
@@ -1243,7 +748,7 @@ class eMail extends eMail_base {
 		// If delete definity mails ...
 		if ( $deletemails ) {
 			// Delete reference mail
-			if (! delete_records('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
+			if (! $DB->delete_records('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
 			    	return false;
 			}
 		} else {
@@ -1259,7 +764,7 @@ class eMail extends eMail_base {
 					$success = false;
 				} else {
 					// Mark the message as read
-					set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid); 		//Thanks Ann
+					$DB->set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid); 		//Thanks Ann
 				}
 			} else {
 				$success = false;
@@ -1287,7 +792,7 @@ class eMail extends eMail_base {
 	 * @uses $COURSE
 	 * @param
 	 */
-	function display($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $user, $override=false) {
+	public function display($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $user, $override=false) {
 
 		global $COURSE;
 
@@ -1309,9 +814,9 @@ class eMail extends eMail_base {
 	/**
 	 * This function return an HTML code for display this eMail
 	 */
-	function get_html($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $override=false) {
+	public function get_html($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $override=false) {
 
-		global $USER, $CFG;
+		global $USER, $CFG, $DB;
 
 		$html = '';
 
@@ -1320,7 +825,7 @@ class eMail extends eMail_base {
 	    $html .= '<td style="border-left: 1px solid black; border-top:1px solid black" width="7%" align="center">';
 
 	    // Get user picture
-	    $user = get_record('user', 'id', $this->userid);
+	    $user = $DB->get_record('user', 'id', $this->userid);
 	    $html .= print_user_picture($this->userid, $this->course, $user->picture, 0, true, false);
 
 	    $html .= '</td>';
@@ -1345,7 +850,7 @@ class eMail extends eMail_base {
 
 		$userstosendto = $this->get_users_send('to');
 
-		$html .= '<td style="border-left: 1px solid black;" width="80%" align="right" colspan="2">';
+		$html .= '<td style="border-right: 1px solid black;" width="80%" align="right" colspan="2">';
 		$html .= '&nbsp;&nbsp;&nbsp;';
 
 		if ( $userstosendto != '' ) {
@@ -1449,6 +954,4 @@ class eMail extends eMail_base {
 
 		return $html;
 	}
-
 }
-?>

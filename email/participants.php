@@ -14,7 +14,7 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  **/
 
-	global $CFG;
+	global $CFG, $DB;
 
     require_once( "../../../config.php" );
     require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
@@ -32,7 +32,7 @@
 
 
 	// Get course, if exist
-	if (! $course = get_record('course', 'id', $courseid)) {
+	if (! $course = $DB->get_record('course', 'id', $courseid)) {
 		print_error('invalidcourseid', 'block_email_list');
 	}
 

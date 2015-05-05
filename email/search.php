@@ -38,7 +38,7 @@
 
 
 	// If defined course to view
-    if (! $course = get_record('course', 'id', $courseid)) {
+    if (! $course = $DB->get_record('course', 'id', $courseid)) {
     	print_error('invalidcourseid', 'block_email_list');
     }
 
@@ -148,10 +148,10 @@
 
 		$select = 'SELECT m.*, u.firstname,u.lastname, m.userid as writer';
 
-		$from	= ' FROM '.$CFG->prefix.'user u,
-					 '.$CFG->prefix.'email_mail m,
-					 '.$CFG->prefix.'email_send s,
-					 '.$CFG->prefix.'email_foldermail fm';
+		$from	= ' FROM {user} u,
+					 {email_mail} m,
+					 {email_send} s,
+					 {email_foldermail} fm';
 
 
 		// FOLDERS
@@ -181,8 +181,8 @@
 			$searchtext = trim($data->to);
 
 			if ($searchtext !== '') {   // Search for a subset of remaining users
-	            $LIKE      = sql_ilike();
-	            $FULLNAME  = sql_fullname('usu.firstname', 'usu.lastname');
+	            $LIKE      = $DB->sql_ilike();
+	            $FULLNAME  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
 
 	            $searchto = " AND ($FULLNAME $LIKE '%$searchtext%') ";
 			}
@@ -196,8 +196,8 @@
 			$searchtext = trim($data->from);
 
 			if ($searchtext !== '') {   // Search for a subset of remaining users
-	            $LIKE      = sql_ilike();
-	            $FULLNAME  = sql_fullname();
+	            $LIKE      = $DB->sql_ilike();
+	            $FULLNAME  = $DB->sql_fullname();
 
 	            $searchfrom = " AND ($FULLNAME $LIKE '%$searchtext%') ";
 	        }
@@ -214,7 +214,7 @@
 		    if ($lexer->parse($searchstring)) {
 		        $parsearray = $parser->get_parsed_array();
 
-				$sqlsubject = search_generate_text_SQL($parsearray, 'm.subject', '', 'm.userid', 'u.id',
+				$sqlsubject = $DB->search_generate_text_SQL($parsearray, 'm.subject', '', 'm.userid', 'u.id',
                          'u.firstname', 'u.lastname', 'm.timecreated', '');
 		    }
 		}
@@ -231,7 +231,7 @@
 		    if ($lexer->parse($searchstring)) {
 		        $parsearray = $parser->get_parsed_array();
 
-				$sqlbody = search_generate_text_SQL($parsearray, 'm.body', '', 'm.userid', 'u.id',
+				$sqlbody = $DB->search_generate_text_SQL($parsearray, 'm.body', '', 'm.userid', 'u.id',
                          'u.firstname', 'u.lastname', 'm.timecreated', '');
 
                 $sqlsubjectbody = (! empty($sqlsubject) ) ? " AND ( $sqlsubject $data->connector $sqlbody ) " : ' AND '.$sqlbody;
@@ -262,11 +262,11 @@
 					$groupby;
 
 		if ( !empty($data->to) ) {
-			$sql .= " ) R1, {$CFG->prefix}user usu, {$CFG->prefix}email_send s1 " .
+			$sql .= " ) R1, {user} usu, {email_send} s1 " .
 					"WHERE R1.id = s1.mailid AND usu.id=s1.userid AND R1.course = s1.course AND s1.type <> 'bcc' $searchto";
 		}
 
-		if (! $searchmails = get_records_sql($sql) ) {
+		if (! $searchmails = $DB->get_records_sql($sql) ) {
 			debugging('Empty advanced search for next SQL stament: '.$sql, DEBUG_DEVELOPER);
 		}
 
@@ -282,10 +282,10 @@
 		// Simple search
 		$select = 'SELECT m.*, u.firstname,u.lastname, m.userid as writer';
 
-		$from	= ' FROM '.$CFG->prefix.'user u,
-					 '.$CFG->prefix.'email_mail m,
-					 '.$CFG->prefix.'email_send s,
-					 '.$CFG->prefix.'email_foldermail fm';
+		$from	= ' FROM {user} u,
+					 {email_mail} m,
+					 {email_send} s,
+					 {email_foldermail} fm';
 
 
 		// FOLDERS
@@ -325,8 +325,8 @@
 			$searchtext = trim($search);
 
 			if ($searchtext !== '') {   // Search for a subset of remaining users
-	            $LIKE      = sql_ilike();
-	            $FULLNAME  = sql_fullname('usu.firstname', 'usu.lastname');
+	            $LIKE      = $DB->sql_ilike();
+	            $FULLNAME  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
 
 	            $searchto = " AND ($FULLNAME $LIKE '%$searchtext%') ";
 			}
@@ -340,8 +340,8 @@
 			$searchtext = trim($search);
 
 			if ($searchtext !== '') {   // Search for a subset of remaining users
-	            $LIKE      = sql_ilike();
-	            $FULLNAME  = sql_fullname();
+	            $LIKE      = $DB->sql_ilike();
+	            $FULLNAME  = $DB->sql_fullname();
 
 	            $searchfrom = " OR ($FULLNAME $LIKE '%$searchtext%') )";
 	        }
@@ -358,7 +358,7 @@
 		    if ($lexer->parse($searchstring)) {
 		        $parsearray = $parser->get_parsed_array();
 
-				$sqlsubject = search_generate_text_SQL($parsearray, 'm.subject', '', 'm.userid', 'u.id',
+				$sqlsubject = $DB->search_generate_text_SQL($parsearray, 'm.subject', '', 'm.userid', 'u.id',
                          'u.firstname', 'u.lastname', 'm.timecreated', '');
 		    }
 		}
@@ -375,7 +375,7 @@
 		    if ($lexer->parse($searchstring)) {
 		        $parsearray = $parser->get_parsed_array();
 
-				$sqlbody = search_generate_text_SQL($parsearray, 'm.body', '', 'm.userid', 'u.id',
+				$sqlbody = $DB->search_generate_text_SQL($parsearray, 'm.body', '', 'm.userid', 'u.id',
                          'u.firstname', 'u.lastname', 'm.timecreated', '');
 
                 $sqlsubjectbody = (! empty($sqlsubject) ) ? " AND ( $sqlsubject OR $sqlbody " : ' AND '.$sqlbody;
@@ -404,7 +404,7 @@
 					' AND ( m.userid = '.$USER->id.' OR ( s.userid = '.$USER->id.' AND s.mailid = m.id) ) '.
 					$groupby;
 
-		if (! $searchmails = get_records_sql($sql) ) {
+		if (! $searchmails = $DB->get_records_sql($sql) ) {
 			debugging('Empty simple search for next SQL stament: '.$sql, DEBUG_DEVELOPER);
 		}
 

@@ -19,7 +19,9 @@
 
 function xmldb_block_email_list_upgrade($oldversion=0) {
 
-    global $CFG, $THEME, $db;
+    global $CFG, $THEME, $DB;
+    
+    $dbman = $DB->get_manager();
 
     $result = true;
 
@@ -40,19 +42,19 @@ function xmldb_block_email_list_upgrade($oldversion=0) {
 						'mod/email:removesubfolder'	);
 
 		/// Remove no more used fields
-        $table = new XMLDBTable('capabilities');
+        $table = new xmldb_table('capabilities');
 
         foreach ($fields as $name) {
 
-            $field = new XMLDBField($name);
-            $result = $result && drop_field($table, $field);
+            $field = new xmldb_field($name);
+            $result = $result && $dbman->drop_field($table, $field);
         }
 
         // Active cron block of email_list
         if ( $result ) {
-        	if ( $email_list = get_record('block', 'name', 'email_list') ) {
+        	if ( $email_list = $DB->get_record('block', 'name', 'email_list') ) {
         		$email_list->cron = 1;
-        		update_record('block',$email_list);
+        		$DB->update_record('block',$email_list);
         	}
         }
 
@@ -63,66 +65,66 @@ function xmldb_block_email_list_upgrade($oldversion=0) {
 
 	if ($result && $oldversion < 2007072003) {
 		// Add marriedfolder2courses flag on email_preferences
-		$table = new XMLDBTable('email_preference');
+		$table = new xmldb_table('email_preference');
 
-		$field = new XMLDBField('marriedfolders2courses');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+		$field = new xmldb_field('marriedfolders2courses');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
-        $result = $result && add_field($table, $field);
+        $result = $result && $dbman->add_field($table, $field);
 
 
         // Add course ID on email_folder
-        $table = new XMLDBTable('email_folder');
+        $table = new xmldb_table('email_folder');
 
-		$field = new XMLDBField('course');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+		$field = new xmldb_field('course');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
-        $result = $result && add_field($table, $field);
+        $result = $result && $dbman->add_field($table, $field);
 
 		// Add index
-        $key = new XMLDBKey('course');
-        $key->setAttributes(XMLDB_KEY_FOREIGN, array('course'), 'course', array('id'));
+        $key = new xmldb_key('course');
+        $key->set_attributes(XMLDB_KEY_FOREIGN, array('course'), 'course', array('id'));
 
-        $result = $result && add_key($table, $key);
+        $result = $result && $dbman->add_key($table, $key);
 
 	}
 
 	if ($result && $oldversion < 2008061400 ) {
 
 		// Add reply and forwarded info field on email_mail.
-		$table = new XMLDBTable('email_send');
+		$table = new xmldb_table('email_send');
 
-		$field = new XMLDBField('answered');
-        $field->setAttributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+		$field = new xmldb_field('answered');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
-        $result = $result && add_field($table, $field);
+        $result = $result && $dbman->add_field($table, $field);
 	}
 
 	// Solve old problems
 	if ($result && $oldversion < 2008061600 ) {
-		$table = new XMLDBTable('email_preference');
-		$field = new XMLDBField('marriedfolders2courses');
+		$table = new xmldb_table('email_preference');
+		$field = new xmldb_field('marriedfolders2courses');
 
-		if ( !field_exists($table, $field) ) {
-			$field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+		if ( !$DB->field_exists($table, $field) ) {
+			$field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
-        	$result = $result && add_field($table, $field);
+        	$result = $result && $dbman->add_field($table, $field);
 		}
 
-		$table = new XMLDBTable('email_folder');
+		$table = new xmldb_table('email_folder');
 
-		$field = new XMLDBField('course');
+		$field = new xmldb_field('course');
 
-		if ( !field_exists($table, $field) ) {
-	        $field->setAttributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, '0', null);
+		if ( !$DB->field_exists($table, $field) ) {
+	        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
 
-	        $result = $result && add_field($table, $field);
+	        $result = $result && $dbman->add_field($table, $field);
 
 			// Add index
-	        $key = new XMLDBKey('course');
-	        $key->setAttributes(XMLDB_KEY_FOREIGN, array('course'), 'course', array('id'));
+	        $key = new xmldb_key('course');
+	        $key->set_attributes(XMLDB_KEY_FOREIGN, array('course'), 'course', array('id'));
 
-	        $result = $result && add_key($table, $key);
+	        $result = $result && $dbman->add_key($table, $key);
 		}
 
 	}
@@ -130,13 +132,13 @@ function xmldb_block_email_list_upgrade($oldversion=0) {
 	// Add new index
 	if ( $result and $oldversion < 2008081600 ) {
 		// Add combine key on foldermail
-        $table = new XMLDBTable('email_foldermail');
-        $index = new XMLDBIndex('folderid-mailid');
-        $index->setAttributes(XMLDB_INDEX_NOTUNIQUE, array('folderid', 'mailid'));
+        $table = new xmldb_table('email_foldermail');
+        $index = new xmdb_index('folderid-mailid');
+        $index->set_attributes(XMLDB_INDEX_NOTUNIQUE, array('folderid', 'mailid'));
 
-        if (!index_exists($table, $index)) {
+        if (!$DB->index_exists($table, $index)) {
         /// Launch add index
-            $result = $result && add_index($table, $index);
+            $result = $result && $dbman->add_index($table, $index);
         }
 
 	}

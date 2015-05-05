@@ -35,7 +35,7 @@
 	$mails 		= optional_param('mails', '', PARAM_ALPHANUM); 	// Next and previous mails
 	$selectedusers = optional_param('selectedusers', '', PARAM_ALPHANUM); // User who send mail
 
-    if (! $course = get_record('course', 'id', $courseid)) {
+    if (! $course = $DB->get_record('course', 'id', $courseid)) {
         print_error('invalidcourseid', 'block_email_list');
     }
 
@@ -191,7 +191,7 @@
 	}
 
 	/// first create the form
-	$mailform = new mail_edit_form('sendmail.php', array('oldmail' => get_record('email_mail', 'id', $mailid), 'action' => $action), 'post', '', array('name' => 'sendmail'));
+	$mailform = new mail_edit_form('sendmail.php', array('oldmail' => $DB->get_record('email_mail', 'id', $mailid), 'action' => $action), 'post', '', array('name' => 'sendmail'));
 
 	if ( $mailform->is_cancelled() ) {
 		// Only redirect
@@ -310,7 +310,7 @@
     	// Prepare mail according action
 
     	if ( $action == EMAIL_REPLY or $action == EMAIL_REPLYALL or $action == EMAIL_EDITDRAFT ) {
-			if ( ! $mail = get_record('email_mail', 'id', $mailid)) {
+			if ( ! $mail = $DB->get_record('email_mail', 'id', $mailid)) {
 				print_error ('Mail not found');
 			}
     	}
@@ -343,7 +343,7 @@
 
 			$mail->nameto = '';
 			foreach ( $selectedusersto as $userid ) {
-				$mail->nameto .= fullname(get_record('user', 'id', $userid), $context) .', ';
+				$mail->nameto .= fullname($DB->get_record('user', 'id', $userid), $context) .', ';
 			}
 
 			// Get users sent mail, with option for reply all
@@ -351,7 +351,7 @@
 
 			$mail->namecc = '';
 			foreach ( $selecteduserscc as $userid ) {
-				$mail->namecc .= fullname(get_record('user', 'id', $userid), $context) .', ';
+				$mail->namecc .= fullname($DB->get_record('user', 'id', $userid), $context) .', ';
 			}
 		}
 
@@ -359,7 +359,7 @@
 			$newmail = new stdClass();
 
 			// Get mail
-			if ( ! $oldmail = get_record('email_mail', 'id', $mailid)) {
+			if ( ! $oldmail = $DB->get_record('email_mail', 'id', $mailid)) {
 				error ('Can\'t found mail');
 			}
 
@@ -383,7 +383,7 @@
 
 			$mail->nameto = '';
 			foreach ( $selectedusersto as $userid ) {
-				$mail->nameto .= email_fullname(get_record('user', 'id', $userid), $context) .', ';
+				$mail->nameto .= email_fullname($DB->get_record('user', 'id', $userid), $context) .', ';
 			}
 
 			// Get users sent mail, with option for reply all
@@ -391,7 +391,7 @@
 
 			$mail->namecc = '';
 			foreach ( $selecteduserscc as $userid ) {
-				$mail->namecc .= email_fullname(get_record('user', 'id', $userid), $context) .', ';
+				$mail->namecc .= email_fullname($DB->get_record('user', 'id', $userid), $context) .', ';
 			}
 
 			// Get users sent mail, with option for reply all
@@ -399,7 +399,7 @@
 
 			$mail->namebcc = '';
 			foreach ( $selectedusersbcc as $userid ) {
-				$mail->namebcc .= email_fullname(get_record('user', 'id', $userid), $context) .', ';
+				$mail->namebcc .= email_fullname($DB->get_record('user', 'id', $userid), $context) .', ';
 			}
 		}
 

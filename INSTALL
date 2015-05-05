@@ -2,24 +2,15 @@
 //                                                  //
 //                                                  //
 //               eMail has created by               //
-//       Center for Information Technologies        //
-//          University of Balearic Islands          //
-//              http://www.cti.uib.es               //
+//       				Toni Mas                    //
+//            http://tmas.wordpress.com             //
 //                                                  //
 //                                                  //
 //////////////////////////////////////////////////////
 
+Only install on versions >= 2.x.
 
-IMPORTANT: This version is NOT a module for Moodle. 
-This conception has changed. It has happened to be a 
-module to be an integral system of internal mail.
 
-If you're installed Email module, before you uninstall it, after you can
-install eMail integration.
-
-Only install on versions >= 1.7.
-
-BBDD suported has MySQL and Postgressql
 
 
 Here is a basic outline of the installation process, 
@@ -38,4 +29,4 @@ folder "moodle/blocks/".
 
 if the bbdd structure not created, it has been created.
 
-For bugs, please contact with Toni Mas (toni.mas@uib.es), thanks.
+For bugs, please contact with Toni Mas (antoni.mas@gmail.es), thanks.

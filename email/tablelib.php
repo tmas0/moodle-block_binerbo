@@ -360,7 +360,7 @@ class email_flexible_table {
             return '';
         }
 
-        $LIKE = sql_ilike();
+        $LIKE = $DB->sql_ilike();
         if(!empty($this->sess->i_first) && !empty($this->sess->i_last)) {
             return 'firstname '.$LIKE.' \''.$this->sess->i_first.'%\' AND lastname '.$LIKE.' \''.$this->sess->i_last.'%\'';
         }
