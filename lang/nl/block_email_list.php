@@ -1,5 +1,20 @@
-<?php // $Id: block_email_list.php,v 1.2 2008/09/04 21:06:39 tmas Exp $
-      // email.php
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'Email';
 $string['modulenameplural'] = 'Email';
@@ -82,12 +97,9 @@ $string['noshowprincipalcourse'] = 'Toon de hoofdkursus niet';
 $string['configdisplayprincipalcourse'] = 'Besluit of de hoofdkursus in het blok getoond dient te worden';
 $string['confignumberdisplaycourses'] = 'Kies het aantal kursussen dat het kursusblok dient te tonen; indien niet aangegeven, toon enkel de kursussen met nieuwe berichten';
 $string['notnewenrolments'] = 'Nieuwe deelnemers kunnen niet geaccepteerd worden';
-
 $string['editfolder'] = 'Verander de folders';
 $string['noaccount'] = 'Deelnemer $a heeft geen account in deze kursus. Wacht 5 minuten en probeer opnieuw.';
 $string['nosubfolders'] = 'Er zijn geen subfolders. Wil je een nieuwe subfolder aanmaken?';
-
-
 $string['check'] = 'Controleer';
 $string['subject'] = 'Onderwerp';
 $string['from'] = 'Van';
@@ -117,4 +129,3 @@ $string['received'] = 'Ontvangen';
 $string['read'] = 'Gelezen';
 $string['body'] = 'Tekst';
 $string['folder'] = 'Folder';
-?>

@@ -1,4 +1,21 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
+
 $string['accept'] = 'Aceptar';
 $string['add_admins'] = 'Añadir los Administradores en la pantalla de selección de usuarios para enviar un correo';
 $string['addusersto'] = 'Para';
@@ -8,7 +25,7 @@ $string['allusersincourse'] = 'Ver todos los participantes del curso';
 $string['attachment']= 'Adjunto';
 $string['attachments']= 'Adjuntos';
 $string['bcc'] = 'Copia oculta';
-$string['bccall'] = 'Copia oculta a todos';
+$string['ccall'] = 'Copia a todos';
 $string['blockname'] = 'Correo interno';
 $string['body'] = 'Mensaje';
 $string['cc'] = 'Copia';
@@ -153,4 +170,3 @@ $string['view_inbox'] = 'Bandeja de entrada';
 $string['wantadvancedsearch'] = '¿Quieres realizar una búsqueda avanzada?';
 $string['writemail'] = 'Escribir un correo';
 $string['wrote'] = 'escribió';
-?>

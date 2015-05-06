@@ -1,10 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
+
+
 $string['accept'] = 'Accepta';
 $string['add_admins'] = 'Afegir els Administradors a la pantalla de sel·lecció d\'usuaris per enviar un missatge';
 $string['addusersto'] = 'Per a';
-$string['anotherfile'] = 'Afegeix un nou adjunt';
-$string['alphabetical'] = 'Ordre alfabètic';
 $string['allusersincourse'] = 'Mostra tots els usuaris del curs';
+$string['alphabetical'] = 'Ordre alfabètic';
+$string['anotherfile'] = 'Afegeix un nou adjunt';
 $string['attachment']= 'Adjunt';
 $string['attachments']= 'Adjunts';
 $string['bcc'] = 'Còpia oculta';
@@ -17,13 +35,13 @@ $string['check'] = 'Marca';
 $string['cleantrash'] = 'Buida la paperera';
 $string['cleantrashfail'] = 'És impossible buidar la paparera';
 $string['cleantrashok'] = 'La paparera ha estat buidada';
+$string['compose'] = 'Redacta';
 $string['configanswered_color'] = 'Posa la codificació del color que tindran els missatges contestats';
-$string['configold_select_participants'] = 'Habilita l\'antiga pantalla de sel·lecció dels usuaris';
-$string['configtable_field_color'] = 'Posa el color que vols pintar les files imparelles de la taula de missatges';
 $string['configmarriedfolders2courses'] = 'Configura si vols que els usuaris crein carpetes assignades a cursos. Això significa que cada curs tindrà les seves pròpies carpetes.';
 $string['configmaxnumbercourses'] = 'Tria el nombre de bústies que s\'han de visualitzar. Es important recordar que les bústies sols es mostren quan tenen algún correu sense llegir';
+$string['configold_select_participants'] = 'Habilita l\'antiga pantalla de sel·lecció dels usuaris';
+$string['configtable_field_color'] = 'Posa el color que vols pintar les files imparelles de la taula de missatges';
 $string['configtrackbymail'] = 'Configura si vols els usuaris puguin fer el seguiment dels correus que reben, mitjaçant la seva adreça de correu habitual';
-$string['compose'] = 'Redacta';
 $string['createfolderok'] = 'Carpeta creada';
 $string['date'] = 'Data';
 $string['dontreadmail'] = 'Tu no pot llegir aquest missatge';
@@ -31,10 +49,10 @@ $string['draft'] = 'Esborranys';
 $string['draftok'] = 'Missatge guardat';
 $string['editfolder'] = 'Edita les carpetes';
 $string['editfolders'] = 'Administració de carpetes';
+$string['email_list'] = 'Correu intern';
 $string['email_list:createfolder'] = 'Afegir noves subcarpetes';
 $string['email_list:editsettings'] = 'Editar les preferències personals';
 $string['email_list:sendmessage'] = 'Enviar missatges';
-$string['email_list'] = 'Correu intern';
 $string['emailalert'] = 'Avís de nous correus a l\'eMail';
 $string['emailname'] = 'Correu electrònic';
 $string['emptymailbox'] = 'No hi ha missatges nous';
@@ -72,9 +90,6 @@ $string['incorrectuserid'] = 'Problema de seguretat: L\'usuari amb el que estau 
 $string['invalidcourseid'] = 'Idèntificador del curs erroni';
 $string['linkto'] = 'La carpeta pare serà';
 $string['listmails'] = 'Llistat de missatges pendents de llegir';
-$string['matches'] = 'Missatges coincidents';
-$string['matchallquery'] = 'Coincidir amb totes';
-$string['matchanyquery'] = 'Coincidir amb qualsevol';
 $string['mail'] = 'Missatge';
 $string['mailbox'] = 'Bústia';
 $string['mailboxs'] = 'Bústies';
@@ -82,6 +97,9 @@ $string['mails'] = 'Missatges';
 $string['mailsperpage'] = 'Número de missatges per pàgina';
 $string['markas']= 'Marca com a';
 $string['marriedfolders2courses'] = 'Voleu associar les carpetes als cursos. (aquesta opció fa que les carpetes siguin associades a un curs, i només es mostren en ell)';
+$string['matchallquery'] = 'Coincidir amb totes';
+$string['matchanyquery'] = 'Coincidir amb qualsevol';
+$string['matches'] = 'Missatges coincidents';
 $string['messagefolders'] = 'Carpetes de missatges';
 $string['messagematches'] = 'Missatges coincidents';
 $string['modifyfolderok'] = 'La carpeta ha estat modificada correctament';
@@ -153,4 +171,3 @@ $string['view_inbox'] = 'Bústia d\'entrada';
 $string['wantadvancedsearch'] = 'Vols fer una cerca avançada?';
 $string['writemail'] = 'Escriu un correu';
 $string['wrote'] = 'va escriure';
-?>

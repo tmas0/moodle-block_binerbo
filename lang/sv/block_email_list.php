@@ -1,5 +1,20 @@
-<?php // $Id: block_email_list.php,v 1.2 2008/09/04 21:06:36 tmas Exp $
-      // email.php
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'E-post';
 $string['modulenameplural'] = 'E-post';
@@ -82,12 +97,9 @@ $string['noshowprincipalcourse'] = 'Visa inte huvudkursen';
 $string['configdisplayprincipalcourse'] = 'Bestäm om huvudkursen ska visas i blocket';
 $string['confignumberdisplaycourses'] = 'välj antalet kurser som uppvisas i kursblocket, om inte specificerad visa bara de kurser som har nya meddelanden';
 $string['notnewenrolments'] = 'Inga nya deltagare accepteras';
-
 $string['editfolder'] = 'Modifiera mapparna';
 $string['noaccount'] = 'Deltagare $a har ingen account i den här kursen. Var god vänta 5 minuter och försök igen.';
 $string['nosubfolders'] = 'Inga submappar finns. Vill du skapa en ny submapp?';
-
-
 $string['check'] = 'Kolla';
 $string['subject'] = 'ämne';
 $string['from'] = 'Från';
@@ -117,4 +129,3 @@ $string['received'] = 'Mottagit';
 $string['read'] = 'Läst';
 $string['body'] = 'Textinnehåll';
 $string['folder'] = 'Mapp';
-?>
