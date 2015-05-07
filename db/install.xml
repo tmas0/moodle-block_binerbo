@@ -1,135 +1,116 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="block/email_list/db" VERSION="20070511" COMMENT="XMLDB file for Moodle email"
+<XMLDB PATH="block/email_list/db" VERSION="20150507" COMMENT="XMLDB file for Moodle email list"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
->
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
   <TABLES>
-    <TABLE NAME="email_preference" COMMENT="Global preferences for Email" NEXT="email_mail">
+    <TABLE NAME="email_preference" COMMENT="Global preferences for eMail">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="trackbymail"/>
-        <FIELD NAME="trackbymail" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="userid" NEXT="marriedfolders2courses"/>
-        <FIELD NAME="marriedfolders2courses" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="trackbymail"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="trackbymail" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="marriedlabels2courses" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_preference" NEXT="userid"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_preference"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="email_mail" COMMENT="All mails are stored in this table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="body" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_mail"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary"/>
-      </KEYS>
-    </TABLE>
-    <TABLE NAME="email_mail" COMMENT="All mails are stored in this table" PREVIOUS="email_preference" NEXT="email_send">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="course"/>
-        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="userid" NEXT="subject"/>
-        <FIELD NAME="subject" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="course" NEXT="timecreated"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="subject" NEXT="body"/>
-        <FIELD NAME="body" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="timecreated"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_mail" NEXT="userid"/>
-        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary" NEXT="course"/>
-        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" PREVIOUS="userid"/>
+        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="subject" UNIQUE="false" FIELDS="subject" NEXT="timecreated"/>
-        <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated" PREVIOUS="subject"/>
+        <INDEX NAME="subject" UNIQUE="false" FIELDS="subject"/>
+        <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="email_send" COMMENT="Mail user send, type and it is readed" PREVIOUS="email_mail" NEXT="email_folder">
+    <TABLE NAME="email_send" COMMENT="Mail user send, type and it is readed">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="course"/>
-        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="userid" NEXT="mailid"/>
-        <FIELD NAME="mailid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="course" NEXT="type"/>
-        <FIELD NAME="type" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="to" SEQUENCE="false" PREVIOUS="mailid" NEXT="readed"/>
-        <FIELD NAME="readed" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="type" NEXT="sended"/>
-        <FIELD NAME="sended" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="false" DEFAULT="1" SEQUENCE="false" COMMENT="This field only is show when send mail by type draft, who it is value is zero" PREVIOUS="readed" NEXT="answered"/>
-        <FIELD NAME="answered" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="sended"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="mailid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="to" SEQUENCE="false"/>
+        <FIELD NAME="readed" TYPE="int" LENGTH="4" NOTNULL="true"  DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="sended" TYPE="int" LENGTH="4" NOTNULL="true"  DEFAULT="1" SEQUENCE="false" COMMENT="This field only is show when send mail by type draft, who it is value is zero"/>
+        <FIELD NAME="answered" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_send" NEXT="userid"/>
-        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary" NEXT="course"/>
-        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" PREVIOUS="userid" NEXT="mailid"/>
-        <KEY NAME="mailid" TYPE="foreign" FIELDS="mailid" REFTABLE="email_mail" REFFIELDS="id" PREVIOUS="course"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_send"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="mailid" TYPE="foreign" FIELDS="mailid" REFTABLE="email_mail" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="readed" UNIQUE="false" FIELDS="readed" NEXT="type"/>
-        <INDEX NAME="type" UNIQUE="false" FIELDS="type" PREVIOUS="readed" NEXT="sended"/>
-        <INDEX NAME="sended" UNIQUE="false" FIELDS="sended" PREVIOUS="type"/>
+        <INDEX NAME="readed" UNIQUE="false" FIELDS="readed"/>
+        <INDEX NAME="type" UNIQUE="false" FIELDS="type"/>
+        <INDEX NAME="sended" UNIQUE="false" FIELDS="sended"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="email_folder" COMMENT="All Folders for store mails. isparenttype content only type of parents folders. There are inbox" PREVIOUS="email_send" NEXT="email_subfolder">
+    <TABLE NAME="email_label" COMMENT="All labels for store mails. isparenttype content only type of parents labels. There are inbox">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="userid"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="course"/>
-        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="userid" NEXT="name"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="course" NEXT="timecreated"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="name" NEXT="isparenttype"/>
-        <FIELD NAME="isparenttype" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" PREVIOUS="timecreated"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="isparenttype" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_folder" NEXT="userid"/>
-        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary" NEXT="course"/>
-        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" PREVIOUS="userid"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_label"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="isparenttype" UNIQUE="false" FIELDS="isparenttype"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="email_subfolder" COMMENT="SubFolders for one folder for store mails" PREVIOUS="email_folder" NEXT="email_foldermail">
+    <TABLE NAME="email_sublabel" COMMENT="SubLabels for one label for store mails">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="folderparentid"/>
-        <FIELD NAME="folderparentid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="folderchildid"/>
-        <FIELD NAME="folderchildid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="folderparentid"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="labelparentid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="labelchildid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_subfolder" NEXT="parent"/>
-        <KEY NAME="parent" TYPE="foreign" FIELDS="folderparentid" REFTABLE="email_folder" REFFIELDS="id" PREVIOUS="primary" NEXT="child"/>
-        <KEY NAME="child" TYPE="foreign" FIELDS="folderchildid" REFTABLE="email_folder" REFFIELDS="id" PREVIOUS="parent"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_sublabel"/>
+        <KEY NAME="parent" TYPE="foreign" FIELDS="labelparentid" REFTABLE="email_label" REFFIELDS="id"/>
+        <KEY NAME="child" TYPE="foreign" FIELDS="labelchildid" REFTABLE="email_label" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="email_foldermail" COMMENT="Mails of one folder" PREVIOUS="email_subfolder" NEXT="email_filter">
+    <TABLE NAME="email_labelmail" COMMENT="Mails of one label">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="mailid"/>
-        <FIELD NAME="mailid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="folderid"/>
-        <FIELD NAME="folderid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="mailid"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="mailid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="labelid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_foldermail" NEXT="mailid"/>
-        <KEY NAME="mailid" TYPE="foreign" FIELDS="mailid" REFTABLE="email_mail" REFFIELDS="id" PREVIOUS="primary" NEXT="folderid"/>
-        <KEY NAME="folderid" TYPE="foreign" FIELDS="folderid" REFTABLE="email_folder" REFFIELDS="id" PREVIOUS="mailid"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_labelmail"/>
+        <KEY NAME="mailid" TYPE="foreign" FIELDS="mailid" REFTABLE="email_mail" REFFIELDS="id"/>
+        <KEY NAME="labelid" TYPE="foreign" FIELDS="labelid" REFTABLE="email_label" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-      	<INDEX NAME="folderid-mailid" UNIQUE="false" FIELDS="folderid, mailid"/>
+      	<INDEX NAME="labelid-mailid" UNIQUE="false" FIELDS="labelid, mailid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="email_filter" COMMENT="Filter mail for one folder" PREVIOUS="email_foldermail">
+    <TABLE NAME="email_filter" COMMENT="Filter mail for one label">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="folderid"/>
-        <FIELD NAME="folderid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="id" NEXT="rules"/>
-        <FIELD NAME="rules" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" PREVIOUS="folderid"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="labelid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="rules" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_filter"/>
       </KEYS>
     </TABLE>
   </TABLES>
-  <STATEMENTS>
-    <STATEMENT NAME="insert log_display" TYPE="insert" TABLE="log_display" COMMENT="Initial insert of records on table log_display">
-      <SENTENCES>
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'add mail', 'email_mail', 'subject')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'add mail in draft', 'email_mail', 'subject')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'reply', 'email_mail', 'subject')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'reply all', 'email_mail', 'subject')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'forward', 'email_mail', 'subject')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'add subfolder', 'email_folder', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'update subfolder', 'email_folder', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'remove subfolder', 'email_folder', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'view course mails', 'email_send', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'view all courses mails', 'email_send', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'view mail', 'email_send', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('email', 'remove mail', 'email_send', 'name')" />
-      </SENTENCES>
-    </STATEMENT>
-  </STATEMENTS>
 </XMLDB>
