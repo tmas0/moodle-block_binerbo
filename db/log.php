@@ -15,20 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Upgrades for eMail.
+ * eMail list log events definition.
  *
  * @package 	email
  * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-function xmldb_block_email_list_upgrade($oldversion=0) {
-
-    //global $CFG, $DB;
-    
-    //$dbman = $DB->get_manager();
-
-    return true;
-}
+$logs = array(
+    array('module' => 'email_list', 'action' => 'add', 'mtable' => 'email_mail', 'field' => 'subject'),
+);

@@ -70,5 +70,4 @@ class label {
 
 		return true;
 	}
-
 }
