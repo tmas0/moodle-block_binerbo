@@ -32,37 +32,57 @@ require_once($CFG->dirroot.'/blocks/email_list/email/email.class.php');
 //require_js('treemenu.js');
 //require_js('email.js');
 
-$courseid	= optional_param('id', SITEID, PARAM_INT); 			// Course ID
-$folderid	= optional_param('folderid', 0, PARAM_INT); 		// folder ID
-$filterid	= optional_param('filterid', 0, PARAM_INT);		// filter ID
+$courseid	= optional_param('id', SITEID, PARAM_INT); 			// Course Id.
+$folderid	= optional_param('folderid', 0, PARAM_INT); 		// folder Id.
+$filterid	= optional_param('filterid', 0, PARAM_INT);			// filter Id.
 
-$mailid		= optional_param('mailid', 0, PARAM_INT); 			// eMail ID
-$action 	= optional_param('action', '', PARAM_ALPHANUM); 	// Action to execute
+$mailid		= optional_param('mailid', 0, PARAM_INT); 			// eMail Id.
+$action 	= optional_param('action', '', PARAM_ALPHANUM); 	// Action to execute.
 
-$page       = optional_param('page', 0, PARAM_INT);          	// which page to show
-$perpage    = optional_param('perpage', 10, PARAM_INT);  		// how many per page
+$page       = optional_param('page', 0, PARAM_INT);          	// which page to show.
+$perpage    = optional_param('perpage', 10, PARAM_INT);  		// how many per page.
 
 // Only contain value, when moving mails to other folder
-$folderoldid	= optional_param('folderoldid', 0, PARAM_INT); 		// folder ID Old
+$folderoldid	= optional_param('folderoldid', 0, PARAM_INT); 	// folder Id Old.
 
 // Get course.
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
-require_login($course, false); // No autologin guest
+require_login($course, false); // No autologin guest.
 
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 if ( !$course->visible and has_capability('moodle/legacy:student', $context, $USER->id, false) ) {
-	print_error('courseavailablenot', 'moodle');
+	print_error('coursehidden', 'moodle');
 }
 
-// Add log for one course
-add_to_log($courseid, 'email', 'view course mails', 'view.php?id='.$courseid, 'View all mails of '.$course->shortname, 0, $USER->id);
+// Register view inbox or email event.
+$params = array(
+    'context' => $context,
+    'objectid' => $mailid,
+    'userid' => $USER->id,
+    'courseid' => $course->id
+);
+$event = \block_email\event\email_viewed::create($params);
+$event->trigger();
 
-/// Print the page header
-
-$preferencesbutton = email_get_preferences_button($courseid);
+// Set default page parameters.
+$PAGE->set_pagelayout('incourse');
 
 $stremail  = get_string('name', 'block_email_list');
+
+$PAGE->set_url('/blocks/email_list/index.php', array('id' => $courseid));
+$PAGE->set_title($course->shortname.': '.$stremail);
+$PAGE->set_heading($course->fullname);
+
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_email_list');
+
+
+// Print the page header.
+echo $renderer->header();
+
+/*
+$preferencesbutton = email_get_preferences_button($courseid);
 
 if ( function_exists( 'build_navigation') ) {
 	// Prepare navlinks
@@ -91,7 +111,7 @@ $stremails = get_string('nameplural', 'block_email_list');
              "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $stremail",
               "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
               true, $preferencesbutton);
-}
+}*/
 
 // Options for new mail and new folder
 $options = new stdClass();
