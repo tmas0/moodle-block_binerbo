@@ -1,24 +1,62 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * eMail list block.
+ *
+ * @package 	email
+ * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 require_once($CFG->dirroot .'/blocks/email_list/email/lib.php');
 
 /**
  * This block shows information about user email's
  *
- * @author Sergio Sama
- * @author Toni Mas
- * @version 1.0
- * @package email
- **/
+ * @package 	email
+ * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class block_email_list extends block_list {
 
-	function init() {
+	/**
+     * Set the initial properties for the block.
+     */
+	public function init() {
 		$this->title = get_string('email_list', 'block_email_list');
-		$this->version = 2008081500;
-		$this->cron = 1;
 	}
 
-	function get_content() {
+	/**
+     * All multiple instances of this block.
+     *
+     * @return bool Returns false
+     */
+    public function instance_allow_multiple() {
+        return false;
+    }
+
+	/**
+     * Generates the content of the block and returns it.
+     *
+     * If the content has already been generated then the previously generated content is returned.
+     *
+     * @return stdClass
+     */
+	public function get_content() {
 		global $USER, $CFG, $COURSE, $DB;
 
 		// Get course id
@@ -95,14 +133,23 @@ class block_email_list extends block_list {
 		return $this->content;
 	}
 
-	function applicable_formats() {
+	/**
+     * Set the applicable formats for this block to all.
+     *
+     * @return array
+     */
+	public function applicable_formats() {
         return array('all' => true, 'mod' => false, 'tag' => false);
     }
 
-	function has_config() {
+	/**
+     * Returns true if this block has global config.
+     *
+     * @return bool
+     */
+	public function has_config() {
         return true;
     }
-
 
 	/**
 	 * Function to be run periodically according to the moodle cron
@@ -111,10 +158,8 @@ class block_email_list extends block_list {
 	 *
 	 * @uses $CFG
 	 * @return boolean
-	 * @todo Finish documenting this function
-	 **/
-    function cron() {
-
+	 */
+    public function cron() {
 		global $CFG;
 
 		// If no isset trackbymail, return cron.
@@ -244,53 +289,12 @@ class block_email_list extends block_list {
 		}
     }
 
-    function backuprestore_instancedata_used() {
-        return true;
-    }
     /**
-     * Backup emails
+     * Returns the aria role attribute that best describes this block.
      *
-     * @return boolean
-     **/
-    function instance_backup($bf, $preferences) {
-
-        global $CFG;
-
-        $status = true;
-
-        if ($preferences->backup_users == 0 or $preferences->backup_users == 1) {
-
-            require_once("$CFG->dirroot/blocks/email_list/email/backuplib.php");
-
-            //are there any emails to backup?
-            $courseid = $this->instance->pageid;
-
-            $status = email_backup_instance($bf, $preferences, $courseid);
-
-        }
-        return $status;
-    }
-
-    /**
-     * Restore routine
-     *
-     * @return boolean
-     **/
-    function instance_restore($restore, $data) {
-
-        $status = true;
-
-        if ($restore->users != 0 and $restore->users != 1) {
-            return $status;
-        }
-
-        global $CFG;
-
-        require_once("$CFG->dirroot/blocks/email_list/email/restorelib.php");
-
-        $status = email_restore_instance($data, $restore);
-
-        return $status;
+     * @return string
+     */
+    public function get_aria_role() {
+        return 'application';
     }
 }
-?>
