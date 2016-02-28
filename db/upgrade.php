@@ -17,7 +17,7 @@
 /**
  * Upgrades for eMail.
  *
- * @package 	email
+ * @package     email
  * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,10 +25,5 @@
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_block_email_list_upgrade($oldversion=0) {
-
-    //global $CFG, $DB;
-    
-    //$dbman = $DB->get_manager();
-
     return true;
 }

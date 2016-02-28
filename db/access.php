@@ -1,7 +1,4 @@
 <?php
-//
-// Capability definitions for the email_list block.
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,40 +29,35 @@ $capabilities = array(
     'block/email_list:sendmessage' => array(
 
         'riskbitmask' => RISK_SPAM | RISK_XSS,
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'legacy' => array(
             'student' => CAP_ALLOW,
-			'teacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         )
     ),
 
     'block/email_list:createlabel' => array(
-
         'riskbitmask' => RISK_SPAM | RISK_XSS,
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'legacy' => array(
             'student' => CAP_ALLOW,
-			'teacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         )
     ),
 
     'block/email_list:editsettings' => array(
-
         'riskbitmask' => RISK_SPAM,
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'legacy' => array(
             'student' => CAP_ALLOW,
-			'teacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         )
