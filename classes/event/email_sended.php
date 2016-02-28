@@ -97,7 +97,6 @@ class email_sended extends \core\event\base {
         $legacyeventdata->mailid = $attempt->maild;
         $legacyeventdata->cmid = $this->context->instanceid;
         $legacyeventdata->courseid = $this->courseid;
-        
 
         return $legacyeventdata;
     }

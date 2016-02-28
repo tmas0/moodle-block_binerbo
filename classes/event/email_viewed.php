@@ -96,7 +96,6 @@ class email_viwed extends \core\event\base {
         $legacyeventdata->userid = $this->relateduserid;
         $legacyeventdata->mailid = $attempt->maild;
         $legacyeventdata->courseid = $this->courseid;
-        
 
         return $legacyeventdata;
     }

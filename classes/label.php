@@ -17,7 +17,7 @@
 /**
  * Parent class for labels.
  *
- * @package 	email
+ * @package     email
  * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,48 +26,48 @@ defined('MOODLE_INTERNAL') || die();
 
 class label {
 
-	/**
-	 * Constructor.
-	 */
-    public function label() {
-    	// Nothing to do.
+    /**
+     * Constructor.
+     */
+    public function __construct() {
+        // Nothing to do.
     }
 
     /**
-	 * This functions created news labels
-	 *
-	 * @param object $label Fields of new label
-	 * @param int $parentfolder Parent label
-	 * @return boolean Success/Fail
-	 */
-	public function newlabel($label, $parentlabel) {
+     * This functions created news labels.
+     *
+     * @param object $label Fields of new label
+     * @param int $parentfolder Parent label
+     * @return boolean Success/Fail
+     */
+    public function newlabel($label, $parentlabel) {
         global $DB;
-        
-		// Add actual time
-		$label->timecreated = time();
 
-		// Make sure course field is not null. Thanks Ann.
-		if ( ! isset( $folder->course) ) {
-			$label->course = 0;
-		}
+        // Add actual time.
+        $label->timecreated = time();
 
-		// Insert record
-		if (! $label->id = $DB->insert_record('email_label', $label)) {
-			return false;
-		}
+        // Make sure course field is not null. Thanks Ann.
+        if ( !isset( $folder->course) ) {
+            $label->course = 0;
+        }
 
-		// Prepare sublabel
-		$sublabel = new stdClass();
-		$sublabel->labelparentid = $parentlabel;
-		$sublabel->labelchildid  = $label->id;
+        // Insert record.
+        if ( !$label->id = $DB->insert_record('email_label', $label) ) {
+            return false;
+        }
 
-		// Insert record reference
-		if (! $DB->insert_record('email_sublabel', $sublabel)) {
-			return false;
-		}
+        // Prepare sublabel.
+        $sublabel = new stdClass();
+        $sublabel->labelparentid = $parentlabel;
+        $sublabel->labelchildid  = $label->id;
 
-		add_to_log($label->userid, "email", "add sublabel", "$label->name");
+        // Insert record reference.
+        if (! $DB->insert_record('email_sublabel', $sublabel)) {
+            return false;
+        }
 
-		return true;
-	}
+        add_to_log($label->userid, "email", "add sublabel", "$label->name");
+
+        return true;
+    }
 }

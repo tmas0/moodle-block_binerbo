@@ -223,7 +223,7 @@ class block_email_list_email extends email_base {
      **/
     public function is_readed($userid, $courseid) {
         global $DB;
-        
+
         // Get mail.
         if (! $send = $DB->get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
             return false;
@@ -747,7 +747,6 @@ class block_email_list_email extends email_base {
 
         // FIXME: Esborrar els attachments quan no hagi cap referència al mail.
 
-
         // If delete definity mails ...
         if ( $deletemails ) {
             // Delete reference mail.
@@ -767,7 +766,7 @@ class block_email_list_email extends email_base {
                     $success = false;
                 } else {
                     // Mark the message as read.
-                    $DB->set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid);         //Thanks Ann
+                    $DB->set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid);
                 }
             } else {
                 $success = false;
@@ -811,7 +810,6 @@ class block_email_list_email extends email_base {
 
         echo $this->get_html($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $override);
 
-
     }
 
     /**
@@ -841,9 +839,10 @@ class block_email_list_email extends email_base {
 
         $html .= '<tr>';
 
-        $html .= '<td  style="border-left: 1px solid black; border-right: 1px solid black; border-top:1px solid black" align="right" colspan="3">';
+        $html .= '<td style="border-left: 1px solid black;
+                    border-right: 1px solid black; border-top:1px solid black" align="right" colspan="3">';
         $html .= '&nbsp;&nbsp;&nbsp;';
-        $html .= '<b> '. get_string('from','block_email_list'). ':</b>&nbsp;';
+        $html .= '<b> ' . get_string('from', 'block_email_list') . ':</b>&nbsp;';
         $html .= $this->get_fullname_writer($override);
 
         $html .= '</td>';
@@ -857,7 +856,7 @@ class block_email_list_email extends email_base {
         $html .= '&nbsp;&nbsp;&nbsp;';
 
         if ( $userstosendto != '' ) {
-            $html .= '<b> '. get_string('for','block_email_list') .':</b>&nbsp;';
+            $html .= '<b> '. get_string('for', 'block_email_list') .':</b>&nbsp;';
 
             $html .= $this->get_users_send('to');
         }
@@ -869,14 +868,16 @@ class block_email_list_email extends email_base {
         if ( $urlnextmail or $urlpreviousmail ) {
             $html .= "&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;";
         }
-        if( $urlpreviousmail ) {
-            $html .= '<a href="view.php?'. $urlpreviousmail .'">' . get_string('previous','block_email_list') . '</a>';
+
+        if ( $urlpreviousmail ) {
+            $html .= '<a href="view.php?'. $urlpreviousmail .'">' . get_string('previous', 'block_email_list') . '</a>';
         }
-        if( $urlnextmail ) {
+
+        if ( $urlnextmail ) {
             if ( $urlpreviousmail ) {
                 $html .= '&nbsp;|&nbsp;';
             }
-            $html .= '<a href="view.php?'. $urlnextmail .'">' . get_string('next', 'block_email_list').'</a>';
+            $html .= '<a href="view.php?' . $urlnextmail .'">' . get_string('next', 'block_email_list') . '</a>';
         }
 
         $html .= '&nbsp;&nbsp;';
@@ -886,9 +887,10 @@ class block_email_list_email extends email_base {
         $userstosendcc = $this->get_users_send('cc');
         if ( $userstosendcc != '' ) {
             $html .= '<tr>
-                        <td  style="border-left: 1px solid black; border-right: 1px solid black;" align="right" colspan="3">
-                            &nbsp;&nbsp;&nbsp;
-                            <b> ' . get_string('cc','block_email_list') . ':</b>&nbsp;' . $userstosendcc . '
+                        <td  style="border-left: 1px solid black;
+                                border-right: 1px solid black;" align="right" colspan="3">
+                                &nbsp;&nbsp;&nbsp;
+                            <b> ' . get_string('cc', 'block_email_list') . ':</b>&nbsp;' . $userstosendcc . '
                         </td>
                     </tr>';
         }
@@ -898,7 +900,7 @@ class block_email_list_email extends email_base {
             $html .= '<tr>
                         <td  style="border-left: 1px solid black; border-right: 1px solid black;" align="right" colspan="3">
                             &nbsp;&nbsp;&nbsp;
-                            <b> ' . get_string('bcc','block_email_list') . ':</b>&nbsp;' . $userstosendbcc . '
+                            <b> ' . get_string('bcc', 'block_email_list') . ':</b>&nbsp;' . $userstosendbcc . '
                         </td>
                     </tr>';
         }
@@ -908,7 +910,7 @@ class block_email_list_email extends email_base {
         $html .= '<td style="border-left: thin solid black; border-right: 1px solid black" width="60%" align="right" colspan="3">';
         $html .= '&nbsp;&nbsp;&nbsp;';
 
-        $html .= '<b> '. get_string('date','block_email_list') . ':</b>&nbsp;';
+        $html .= '<b> '. get_string('date', 'block_email_list') . ':</b>&nbsp;';
 
         $html .= userdate($this->timecreated);
 
@@ -937,18 +939,28 @@ class block_email_list_email extends email_base {
         $html .= '<tr class="messagelinks">';
         $html .= '<td align="right" colspan="3">';
 
-        $html .= '<a href="sendmail.php?'.$baseurl .'&amp;action='.EMAIL_REPLY.'"><b>'. get_string('reply','block_email_list'). '</b></a>';
+        $html .= '<a href="sendmail.php?' . $baseurl . '&amp;action='
+                    . EMAIL_REPLY . '"><b>' . get_string('reply', 'block_email_list') . '</b></a>';
         $html .= ' | ';
-        $html .= '<a href="sendmail.php?'.$baseurl .'&amp;action='.EMAIL_REPLYALL.'"><b>'. get_string('replyall','block_email_list'). '</b></a>';
+        $html .= '<a href="sendmail.php?' . $baseurl . '&amp;action='
+                    . EMAIL_REPLYALL . '"><b>' . get_string('replyall', 'block_email_list') . '</b></a>';
         $html .= ' | ';
-        $html .= '<a href="sendmail.php?'.$baseurl .'&amp;action='.EMAIL_FORWARD.'"><b>'. get_string('forward','block_email_list'). '</b></a>';
+        $html .= '<a href="sendmail.php?' . $baseurl . '&amp;action='
+                    . EMAIL_FORWARD .'"><b>' . get_string('forward', 'block_email_list') . '</b></a>';
         $html .= ' | ';
-        $html .= '<a href="index.php?id='.$courseid .'&amp;mailid='.$this->id.'&amp;folderid='.$folderid.'&amp;action=removemail"><b>'. get_string('removemail','block_email_list'). '</b></a>';
+        $html .= '<a href="index.php?id=' . $courseid . '&amp;mailid=' . $this->id
+                    .'&amp;folderid=' . $folderid . '&amp;action=removemail"><b>'
+                    . get_string('removemail', 'block_email_list') . '</b></a>';
         $html .= ' | ';
 
-        $icon = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/printer.png" height="16" width="16" alt="'.get_string('print','block_email_list').'" />';
+        $icon = '<img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/printer.png" height="16" width="16" alt="'
+                    . get_string('print', 'block_email_list') . '" />';
 
-        $html .= email_print_to_popup_window ('link', '/blocks/email_list/email/print.php?courseid='.$courseid.'&amp;mailids='.$this->id, '<b>'.get_string('print','block_email_list').'</b>'.print_spacer(1,3,false,true).$icon , get_string('print','block_email_list'), true);
+        $html .= email_print_to_popup_window(
+                        'link',
+                        '/blocks/email_list/email/print.php?courseid=' . $courseid . '&amp;mailids=' . $this->id,
+                        '<b>' . get_string('print', 'block_email_list') . '</b>' . print_spacer(1, 3, false, true) . $icon,
+                        get_string('print', 'block_email_list'), true);
 
         $html .= '</td>';
 
