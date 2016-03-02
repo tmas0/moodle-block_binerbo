@@ -36,7 +36,7 @@ require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
 class folder_form extends moodleform {
 
     // Define the form.
-    function definition () {
+    public function definition () {
         global $CFG, $USER, $DB;
 
         $mform =& $this->_form;
@@ -46,13 +46,12 @@ class folder_form extends moodleform {
         $courseid        = $this->_customdata['course'];
         $folderid        = $this->_customdata['id'];
 
-        /// Print the required moodle fields first.
+        // Print the required moodle fields first.
         $mform->addElement('header', 'moodle', get_string('folder', 'block_email_list'));
 
         $mform->addElement('text', 'name', get_string('namenewfolder', 'block_email_list'));
         $mform->setDefault('name', '');
         $mform->addRule('name', get_string('nofolder', 'block_email_list'), 'required', null, 'client');
-
 
         // Get root folders.
         $folders = email_get_my_folders($USER->id, $courseid, true, true);
@@ -86,8 +85,12 @@ class folder_form extends moodleform {
 
                 $courses = array();
                 // Prepare array.
-                foreach ( $mycourses as $mycourse ) {
-                    (strlen($mycourse->fullname) > 60) ? $course = substr($mycourse->fullname, 0, 60). ' ...' : $course = $mycourse->fullname;
+                foreach ($mycourses as $mycourse) {
+                    if ( strlen($mycourse->fullname) > 60 ) {
+                        $course = substr($mycourse->fullname, 0, 60) . ' ...';
+                    } else {
+                        $course = $mycourse->fullname;
+                    }
                     $courses[$mycourse->id] = $course;
                 }
                 $mform->addElement('select', 'foldercourse', get_string('course'), $courses);
@@ -105,13 +108,11 @@ class folder_form extends moodleform {
         $this->add_action_buttons();
     }
 
-    function definition_after_data() {
-
+    public function definition_after_data() {
         global $USER;
 
         // Drop actualfolder if it proceding.
         $mform    =& $this->_form;
-
 
         // Get parentfolder.
         $parentfolder =& $mform->getElementValue('parentfolder');
@@ -125,7 +126,7 @@ class folder_form extends moodleform {
         // Get root folders.
         $folders = email_get_my_folders($USER->id, $mform->getElementValue('course'), true, true);
 
-        // Get inbox, there default option on menu
+        // Get inbox, there default option on menu.
         $inbox = email_get_root_folder($USER->id, EMAIL_INBOX);
 
         $menu = array();

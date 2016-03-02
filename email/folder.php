@@ -36,15 +36,15 @@ require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/folder_form.php');
 
 $id         = optional_param('id', 0, PARAM_INT);               // Folder Id.
-$courseid   = optional_param('course', SITEID, PARAM_INT);     // Course ID
-$action     = optional_param('action', '', PARAM_ALPHANUM); // Action
+$courseid   = optional_param('course', SITEID, PARAM_INT);      // Course Id.
+$action     = optional_param('action', '', PARAM_ALPHANUM);     // Action.
 
-// If defined course to view
+// If defined course to view.
 if (! $course = $DB->get_record('course', 'id', $courseid)) {
     print_error('invalidcourseid', 'block_email_list');
 }
 
-// Options for new mail and new folder
+// Options for new mail and new folder.
 $options = new stdClass();
 $options->id = $id;
 $options->course = $courseid;
@@ -54,17 +54,23 @@ $preferencesbutton = email_get_preferences_button($courseid);
 $stremail  = get_string('name', 'block_email_list');
 
 if ( function_exists( 'build_navigation') ) {
-    // Prepare navlinks
+    // Prepare navlinks.
     $navlinks = array();
-    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'), 'link' => 'index.php?id='.$course->id, 'type' => 'misc');
+    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'),
+        'link' => 'index.php?id=' . $course->id,
+        'type' => 'misc');
     $navlinks[] = array('name' => get_string('name', 'block_email_list'), 'link' => null, 'type' => 'misc');
 
-    // Build navigation
+    // Build navigation.
     $navigation = build_navigation($navlinks);
 
     print_header("$course->shortname: $stremail", "$course->fullname",
                  $navigation,
-                  "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
+                  "", '<link type="text/css" href="email.css" rel="stylesheet" />
+                  <link type="text/css" href="treemenu.css" rel="stylesheet" />
+                  <link type="text/css" href="tree.css" rel="stylesheet" />
+                  <script type="text/javascript" src="treemenu.js"></script>
+                  <script type="text/javascript" src="email.js"></script>',
                   true, $preferencesbutton);
 } else {
     $navigation = '';
@@ -78,27 +84,31 @@ if ( function_exists( 'build_navigation') ) {
 
     print_header("$course->shortname: $stremail", "$course->fullname",
              "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $stremail",
-              "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
-              true, $preferencesbutton);
+             "",
+             '<link type="text/css" href="email.css" rel="stylesheet" />
+             <link type="text/css" href="treemenu.css" rel="stylesheet" />
+             <link type="text/css" href="tree.css" rel="stylesheet" />
+             <script type="text/javascript" src="treemenu.js"></script>
+             <script type="text/javascript" src="email.js"></script>',
+             true, $preferencesbutton);
 }
 
 
-// Print principal table. This have 2 columns . . .  and possibility to add right column.
+// Print principal table. This have 2 columns and possibility to add right column.
 echo '<table id="layout-table">
             <tr>';
 
-
-// Print "blocks" of this account
+// Print "blocks" of this account.
 echo '<td style="width: 180px;" id="left-column">';
 email_printblocks($USER->id, $courseid);
 
-// Close left column
+// Close left column.
 echo '</td>';
 
-// Print principal column
+// Print principal column.
 echo '<td id="middle-column">';
 
-// Print block
+// Print block.
 print_heading_block('');
 
 echo '<div>&#160;</div>';
@@ -112,9 +122,9 @@ if ( isset($folderid) ) {
 require_login($course->id, false);
 
 if ($course->id == SITEID) {
-    $context = get_context_instance(CONTEXT_SYSTEM, SITEID);   // SYSTEM context
+    $context = get_context_instance(CONTEXT_SYSTEM, SITEID);   // SYSTEM context.
 } else {
-    $context = get_context_instance(CONTEXT_COURSE, $course->id);   // Course context
+    $context = get_context_instance(CONTEXT_COURSE, $course->id);   // Course context.
 }
 
 switch ( $action ) {
@@ -125,12 +135,15 @@ switch ( $action ) {
 
             // Can create subfolders?
             if ( ! has_capability('block/email_list:createfolder', $context)) {
-                print_error('forbiddencreatefolder', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$course->id);
+                print_error('forbiddencreatefolder',
+                    'block_email_list',
+                    $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $course->id
+                );
             }
 
-            // Print form to new folder
+            // Print form to new folder.
             notify( get_string ('nosubfolders', 'block_email_list') );
-            $mform = new folder_form('folder.php', array('id' =>$id, 'course' => $courseid, 'action' => ''));
+            $mform = new folder_form('folder.php', array('id' => $id, 'course' => $courseid, 'action' => ''));
             $mform->display();
         }
 
@@ -138,27 +151,26 @@ switch ( $action ) {
     case 'cleantrash':
         $trash = email_get_root_folder($USER->id, EMAIL_TRASH);
 
-        /// If necessary, delete mail and delete attachments
+        // If necessary, delete mail and delete attachments.
         $options->folderid = $trash->id;
 
         $success = true;
 
-        $mails = email_get_mails($USER->id, $course->id, NULL, '', '', $options);
+        $mails = email_get_mails($USER->id, $course->id, null, '', '', $options);
 
-        // Delete reference mails
+        // Delete reference mails.
         if (! $DB->delete_records('email_foldermail', 'folderid', $trash->id)) {
             $success = false;
         }
 
-        // Get all trash mails
+        // Get all trash mails.
         if ( $mails ) {
-            foreach( $mails as $mail ) {
-
-                // if mailid exist, continue ...
+            foreach ($mails as $mail) {
+                // If mailid exist, continue.
                 if ( $DB->get_records('email_foldermail', 'mailid', $mail->id) ) {
                     continue;
                 } else {
-                    // Mail is not reference by never folder (not possibility readed)
+                    // Mail is not reference by never folder (not possibility readed).
                     if ( email_delete_attachments($mail->id) and $DB->delete_records('email_mail', 'id', $mail->id) ) {
                         $success = true;
                     }
@@ -167,10 +179,9 @@ switch ( $action ) {
             }
         }
 
-
         $url = email_build_url($options);
 
-        // Notify
+        // Notify.
         if ( $success ) {
             notify( get_string('cleantrashok', 'block_email_list') );
         } else {
@@ -187,10 +198,13 @@ switch ( $action ) {
 
         // Can create subfolders?
         if ( ! has_capability('block/email_list:createfolder', $context) ) {
-            print_error('forbiddencreatefolder', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$course->id);
+            print_error('forbiddencreatefolder',
+                'block_email_list',
+                $CFG->wwwroot.'/blocks/email_list/email/index.php?id=' . $course->id
+            );
         }
 
-        $mform = new folder_form('folder.php', array('id' =>$id, 'action'=>$action, 'course' => $courseid));
+        $mform = new folder_form('folder.php', array('id' => $id, 'action' => $action, 'course' => $courseid));
 
         $folder = email_get_folder($id);
         $folder->foldercourse = $folder->course;
@@ -200,36 +214,36 @@ switch ( $action ) {
         if ( $data = $mform->get_data() ) {
             $updatefolder = new stdClass();
 
-            // Clean name
+            // Clean name.
             $updatefolder->name = strip_tags($data->name);
 
-            // Add user and course
+            // Add user and course.
             $updatefolder->userid = $USER->id;
 
             $updatefolder->course = $data->foldercourse;
 
-            // Add id
+            // Add id.
             $updatefolder->id = $data->id;
 
 
-            /// Update folder
+            // Update folder.
 
-            // Get old folder params
+            // Get old folder params.
             if (! $oldfolder = $DB->get_record('email_folder', 'id', $data->id) ) {
                 print_error('failgetfolder', 'block_email_list');
             }
 
             if ( $subfolder = email_is_subfolder($oldfolder->id) ) {
 
-                // If user changed parent folder
+                // If user changed parent folder.
                 if ( $subfolder->folderparentid != $data->parentfolder ) {
-                    if (! $DB->set_field('email_subfolder', 'folderparentid', $data->parentfolder, 'id', $subfolder->id) ) {
+                    if ( !$DB->set_field('email_subfolder', 'folderparentid', $data->parentfolder, 'id', $subfolder->id) ) {
                             print_error('failchangingparentfolder', 'block_email_list');
                     }
                 }
             }
 
-            // Unset parentfolder
+            // Unset parentfolder.
             unset($data->parentfolder);
 
             if ( $preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
@@ -245,9 +259,9 @@ switch ( $action ) {
                 }
             }
 
-            // Update record
-            if (! $DB->update_record('email_folder', $updatefolder) ) {
-                    return false;
+            // Update record.
+            if ( !$DB->update_record('email_folder', $updatefolder) ) {
+                return false;
             }
 
             add_to_log($courseid, 'email', "update subfolder", 'folder.php?id='.$id, "$data->name", 0, $USER->id);
@@ -256,7 +270,6 @@ switch ( $action ) {
 
             email_print_administration_folders($options);
         } else {
-
             $mform->display();
         }
 
@@ -270,85 +283,84 @@ switch ( $action ) {
 
     default:
 
-    // Can create subfolders?
-    if ( ! has_capability('block/email_list:createfolder', $context) ) {
-        print_error('forbiddencreatefolder', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$course->id);
-    }
+        // Can create subfolders?
+        if ( ! has_capability('block/email_list:createfolder', $context) ) {
+            print_error('forbiddencreatefolder',
+                'block_email_list',
+                $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $course->id
+            );
+        }
 
-    $mform = new folder_form('folder.php', array('id' =>$id, 'course' => $courseid, 'action' => ''));
+        $mform = new folder_form('folder.php', array('id' => $id, 'course' => $courseid, 'action' => ''));
 
-    // If the form is cancelled
-    if ($mform->is_cancelled()) {
+        // If the form is cancelled.
+        if ($mform->is_cancelled()) {
+            redirect($CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid,
+                get_string('foldercancelled', 'block_email_list')
+            );
+            // Get form sended.
+        } else if ( $form = $mform->get_data() ) {
+            $foldernew = new stdClass();
 
-    redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, get_string('foldercancelled', 'block_email_list'));
+            // Clean name.
+            $foldernew->name = strip_tags($form->name);
 
-    // Get form sended
-    } else if ( $form = $mform->get_data() ) {
+            // Add user and course.
+            $foldernew->userid = $USER->id;
 
-        $foldernew = new stdClass();
+            // Add courseid.
+            $foldernew->course = $form->foldercourse;
 
-        // Clean name
-        $foldernew->name = strip_tags($form->name);
+            // Apply this information.
+            $stralert = get_string('createfolderok', 'block_email_list');
 
-        // Add user and course
-        $foldernew->userid = $USER->id;
+            // Use this field, for known if folder exist o none.
+            if (! $form->oldname ) {
+                // Add new folder.
+                if ( !email_newfolder($foldernew, $form->parentfolder) ) {
+                    print_error('failcreatingfolder', 'block_email_list');
+                }
+            } else {
+                $updatefolder = new stdClass();
 
-        // Add courseid
-        $foldernew->course = $form->foldercourse;
+                $updatefolder->id = $form->folderid;
+                $updatefolder->name = $form->name;
+                $updatefolder->parentfolder = $form->parentfolder;
+                $updatefolder->course = $form->course;
 
-        // Apply this information
-        $stralert = get_string('createfolderok', 'block_email_list');
+                // If exist folderid (sending in form), set field.
+                if ( !email_update_folder($updatefolder) ) {
+                    print_error('failupdatefolder', 'block_email_list');
+                }
 
-        // Use this field, for known if folder exist o none
-        if (! $form->oldname ) {
-            // Add new folder
-            if ( ! email_newfolder($foldernew, $form->parentfolder) ) {
-                print_error('failcreatingfolder', 'block_email_list');
+                // Apply this information.
+                $stralert = get_string('modifyfolderok', 'block_email_list');
             }
+
+            redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, $stralert, '3');
 
         } else {
+            // Set data.
+            if ( isset($folder) ) {
+                $folder->oldname = $folder->name;
+                $parentfolder = email_get_parent_folder($folder);
+                $folder->parentfolder = $parentfolder->id;
+                $folder->folderid = $folder->id;
 
-            $updatefolder = new stdClass();
+                // FIX BUG: When update an folder, on this id has been put $COURSE->id.
+                $folder->id = $COURSE->id;
 
-            $updatefolder->id = $form->folderid;
-            $updatefolder->name = $form->name;
-            $updatefolder->parentfolder = $form->parentfolder;
-            $updatefolder->course = $form->course;
-
-            // If exist folderid (sending in form), set field
-            if ( ! email_update_folder($updatefolder) ) {
-                print_error('failupdatefolder', 'block_email_list');
+                $mform->set_data($folder);
             }
 
-            // Apply this information
-            $stralert = get_string('modifyfolderok', 'block_email_list');
+            $mform->display();
         }
-
-        redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, $stralert, '3');
-
-    } else {
-
-        // Set data
-        if ( isset($folder) ) {
-            $folder->oldname = $folder->name;
-            $parentfolder = email_get_parent_folder($folder);
-            $folder->parentfolder = $parentfolder->id;
-            $folder->folderid = $folder->id;
-
-            // FIX BUG: When update an folder, on this id has been put $COURSE->id
-            $folder->id = $COURSE->id;
-
-            $mform->set_data($folder);
-        }
-
-        $mform->display();
-    }
 }
 
-// Close principal column
+// Close principal column.
 echo '</td>';
 
-// Close table
+// Close table.
 echo '</tr>
         </table>';
 

@@ -38,7 +38,7 @@ $perpage        = optional_param('perpage', 7, PARAM_INT);      // Max rows per 
 $search         = optional_param('search', '', PARAM_RAW);      // Searching users.
 
 $firstinitial   = optional_param('fname', '', PARAM_ALPHA);     // Order by fistname.
-$lastinitial    = optional_param('lname', '', PARAM_ALPHA); // Order by lastname.
+$lastinitial    = optional_param('lname', '', PARAM_ALPHA);     // Order by lastname.
 
 
 // Get course, if exist.
@@ -58,13 +58,35 @@ require_login($course->id);
 
 $tablecolumns = array( 'user', 'to', 'cc', 'bcc', 'dropall' );
 
-$urlto = '<a href="#" onclick="action_all_users(\'to\');" > '.get_string('toall','block_email_list').' <img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/user_green.png" height="16" width="16" alt="'.get_string("course").'" /> </a>';
-$urlcc = '<a href="#" onclick="action_all_users(\'cc\');" >'.get_string('ccall','block_email_list').' <img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/user_gray.png" height="16" width="16" alt="'.get_string("course").'" /> </a>';
-$urlbcc = '<a href="#" onclick="action_all_users(\'bcc\');" >'.get_string('bccall','block_email_list').' <img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/user_suit.png" height="16" width="16" alt="'.get_string("course").'" /> </a>';
-$urlremove = '<a href="#" onclick="action_all_users(\'remove\');" >'.get_string('removeall','block_email_list').' <img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/user_red.png" height="16" width="16" alt="'.get_string("course").'" /> </a>';
+$urlto = '<a href="#" onclick="action_all_users(\'to\');" > ' .
+            get_string('toall', 'block_email_list') .
+            ' <img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/user_green.png" height="16" width="16" alt="' .
+            get_string("course") . '" /> </a>';
+
+$urlcc = '<a href="#" onclick="action_all_users(\'cc\');" >' .
+            get_string('ccall', 'block_email_list') .
+            ' <img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/user_gray.png" height="16" width="16" alt="' .
+            get_string("course") . '" /> </a>';
+
+$urlbcc = '<a href="#" onclick="action_all_users(\'bcc\');" >' .
+            get_string('bccall', 'block_email_list') .
+            ' <img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/user_suit.png" height="16" width="16" alt="' .
+            get_string("course") . '" /> </a>';
+
+$urlremove = '<a href="#" onclick="action_all_users(\'remove\');" >' .
+            get_string('removeall', 'block_email_list') .
+            ' <img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/user_red.png" height="16" width="16" alt="' .
+            get_string("course") . '" /> </a>';
+
 
 $tableheaders = array( get_string('user'), $urlto, $urlcc, $urlbcc, $urlremove );
-$baseurl = 'participants.php?id='.$courseid.'&amp;roleid='.$roleid.'&amp;group='.$currentgroup.'&amp;perpage='.$perpage.'&amp;search='.$search.'&amp;fname='.$firstinitial.'&amp;lname='.$lastinitial;
+$baseurl = 'participants.php?id=' . $courseid .
+                '&amp;roleid=' . $roleid .
+                '&amp;group=' . $currentgroup .
+                '&amp;perpage=' . $perpage .
+                '&amp;search=' . $search .
+                '&amp;fname=' . $firstinitial .
+                '&amp;lname=' . $lastinitial;
 
 $table = new email_flexible_table('participants');
 
@@ -78,7 +100,6 @@ $table->setup();
 
 // Prepare users to choose us.
 if ( $courseid ) {
-
     if ($course->id == SITEID) {
         $context = get_context_instance(CONTEXT_SYSTEM, SITEID);   // System context.
     } else {
@@ -94,23 +115,23 @@ if ( $courseid ) {
         $canviewroles    = get_roles_with_capability('moodle/course:view', CAP_ALLOW, $context);
         $doanythingroles = get_roles_with_capability('moodle/site:doanything', CAP_ALLOW, $sitecontext);
 
-        if ( ! $CFG->email_add_admins ) {
+        if ( !$CFG->email_add_admins ) {
             $adminsroles = get_roles_with_capability('moodle/legacy:admin', CAP_ALLOW, $sitecontext);
         }
 
         foreach ($roles as $role) {
-            if (!isset($canviewroles[$role->id])) {   // Avoid this role (eg course creator)
+            if ( !isset($canviewroles[$role->id]) ) {   // Avoid this role (eg course creator).
                 $avoidroles[] = $role->id;
                 unset($roles[$role->id]);
                 continue;
             }
-            if (isset($doanythingroles[$role->id])) {   // Avoid this role (ie admin).
+            if ( isset($doanythingroles[$role->id]) ) {   // Avoid this role (ie admin).
                 $avoidroles[] = $role->id;
                 unset($roles[$role->id]);
                 continue;
             }
 
-            if ( ! $CFG->email_add_admins ) {
+            if ( !$CFG->email_add_admins ) {
                 if (isset($adminsroles[$role->id])) {   // Avoid this role (ie admin).
                     $avoidroles[] = $role->id;
                     unset($roles[$role->id]);
@@ -122,10 +143,11 @@ if ( $courseid ) {
 
     // We are looking for all users with this role assigned in this context or higher.
     if ($usercontexts = get_parent_contexts($context)) {
-        $listofcontexts = '('.implode(',', $usercontexts).')';
+        $listofcontexts = '(' . implode(',', $usercontexts) . ')';
     } else {
-        $listofcontexts = '('.$sitecontext->id.')'; // must be site
+        $listofcontexts = '(' . $sitecontext->id . ')'; // Must be site.
     }
+
     if ($roleid) {
         $selectrole = " AND r.roleid = $roleid ";
     } else {
@@ -153,7 +175,7 @@ if ( $courseid ) {
 
     }
 
-    $hiddensql = has_capability('moodle/role:viewhiddenassigns', $context)? '':' AND r.hidden = 0 ';
+    $hiddensql = has_capability('moodle/role:viewhiddenassigns', $context) ? '' : ' AND r.hidden = 0 ';
 
     // Exclude users with roles we are avoiding.
     if ($avoidroles) {
@@ -181,11 +203,11 @@ if ( $courseid ) {
     }
 
     if ($currentgroup and $course->groupmode != 0) {    // Displaying a group by choice.
-        $from  .= 'LEFT JOIN {groups_members} gm ON u.id = gm.userid ';
+        $from .= 'LEFT JOIN {groups_members} gm ON u.id = gm.userid ';
 
-        // $currentgroup can be an array of groups id.
+        // A $currentgroup can be an array of groups id.
         if (is_array($currentgroup)) {
-            $where .= ' AND gm.groupid IN ('.implode(',', $currentgroup).') ';
+            $where .= ' AND gm.groupid IN (' . implode(',', $currentgroup) . ') ';
         } else {
             if ($currentgroup == 0) {
                 if (!has_capability('block/email_list:viewallgroups', $context) && $COURSE->groupmode == 1) {
@@ -206,8 +228,8 @@ if ( $courseid ) {
     $sqlsearch = '';
     $like = $DB->sql_ilike();
 
-    // General search
-    if (! empty($search) ) {
+    // General search.
+    if ( !empty($search) ) {
         $sqlsearch = ' AND (u.firstname '.$like.' \'%'.$search.'%\' OR u.lastname '.$like.' \'%'.$search.'%\')';
     }
 
@@ -221,7 +243,8 @@ if ( $courseid ) {
         $sqlsearch .= ' AND lastname '. $like .' \''. $lastinitial .'%\'';
     }
 
-    $totalcount = $DB->count_records_sql('SELECT COUNT(distinct u.id) '.$from.$where.$sqlsearch);   // Each user could have > 1
+    // Each user could have > 1.
+    $totalcount = $DB->count_records_sql('SELECT COUNT(distinct u.id) ' . $from . $where . $sqlsearch);
 }
 
 // Define long page.
@@ -232,20 +255,48 @@ if ( $courseid ) {
 
     if ( $userlist ) {
         foreach ($userlist as $user) {
-            $pic = print_user_picture($user->firstname, 1, false, 30, true,false);
+            $pic = print_user_picture($user->firstname, 1, false, 30, true, false);
 
             $query = $_SERVER["QUERY_STRING"];
 
             $link = 'compose.php?' . $query;
             $link = '#';
 
-            $table->add_data( array (
-                                            '<a href="#" onClick="if( manageContact(\''.email_fullname($user, $context).'\', \''.$user->id.'\', \'add\', \'to\')){toggleRemoveAction(\''.$user->id.'\');}">'.$pic.'<span>'.email_fullname($user, $context).'</span></a>',
-                                            '<div id="addto'.$user->id.'" align="center"><input id="'.email_fullname($user, $context).'" name="useridto" type="hidden" value="'.$user->id.'"><input id="addto" type="button" value="'.get_string('for','block_email_list').'" onClick="if( manageContact(\''.addslashes(email_fullname($user, $context)).'\', \''.$user->id.'\', \'add\', \'to\')){toggleRemoveAction(\''.$user->id.'\');}"></div>',
-                                            '<div id="addcc'.$user->id.'" align="center"><input id="'.email_fullname($user, $context).'" name="useridcc" type="hidden" value="'.$user->id.'"><input id="addcc" type="button" value="'.get_string('cc','block_email_list').'" onClick="if( manageContact(\''.addslashes(email_fullname($user, $context)).'\', \''.$user->id.'\', \'add\', \'cc\')){toggleRemoveAction(\''.$user->id.'\');}"></div>',
-                                            '<div id="addbcc'.$user->id.'" align="center"><input id="'.email_fullname($user, $context).'" name="useridbcc" type="hidden" value="'.$user->id.'"><input id="addbcc" type="button" value="'.get_string('bcc','block_email_list').'" onClick="if( manageContact(\''.addslashes(email_fullname($user, $context)).'\', \''.$user->id.'\', \'add\', \'bcc\')){toggleRemoveAction(\''.$user->id.'\');}"></div>',
-                                            '<div id="removeuser'.$user->id.'" style="visibility:hidden;align:center"><input id="'.email_fullname($user, $context).'" name="useridremove" type="hidden" value="'.$user->id.'"><a href="#" onClick="if( manageContact(\''.addslashes(email_fullname($user, $context)).'\', \''.$user->id.'\', \'remove\', \'\')){toggleRemoveAction(\''.$user->id.'\');}"><img src="'.$CFG->pixpath.'/t/emailno.gif" alt="'.get_string('remove','block_email_list').'" title="'.get_string('remove','block_email_list').'"></a></div>' )
-                                );
+            $data = array();
+
+            $data[] = '<a href="#" onClick="if( manageContact(\'' .
+                        email_fullname($user, $context) .
+                        '\', \'' . $user->id . '\', \'add\', \'to\')){toggleRemoveAction(\'' .
+                        $user->id . '\');}">' . $pic . '<span>' .
+                        email_fullname($user, $context) . '</span></a>';
+
+            $data[] = '<div id="addto' . $user->id . '" align="center"><input id="' .
+                        email_fullname($user, $context) . '" name="useridto" type="hidden" value="' .
+                        $user->id . '"><input id="addto" type="button" value="' .
+                        get_string('for', 'block_email_list') . '" onClick="if( manageContact(\'' .
+                        addslashes(email_fullname($user, $context)) . '\', \'' . $user->id .
+                        '\', \'add\', \'to\')){toggleRemoveAction(\'' . $user->id . '\');}"></div>';
+
+            $data[] = '<div id="addcc' . $user->id . '" align="center"><input id="' .
+                        email_fullname($user, $context) . '" name="useridcc" type="hidden" value="' .
+                        $user->id . '"><input id="addcc" type="button" value="' . get_string('cc', 'block_email_list') .
+                        '" onClick="if( manageContact(\'' . addslashes(email_fullname($user, $context)) .
+                        '\', \'' . $user->id . '\', \'add\', \'cc\')){toggleRemoveAction(\'' . $user->id . '\');}"></div>';
+
+            $data[] = '<div id="addbcc' . $user->id . '" align="center"><input id="' .
+                        email_fullname($user, $context) . '" name="useridbcc" type="hidden" value="' . $user->id .
+                        '"><input id="addbcc" type="button" value="' . get_string('bcc', 'block_email_list') .
+                        '" onClick="if( manageContact(\'' . addslashes(email_fullname($user, $context)) .
+                        '\', \'' . $user->id . '\', \'add\', \'bcc\')){toggleRemoveAction(\'' . $user->id . '\');}"></div>';
+
+            $data[] = '<div id="removeuser' . $user->id . '" style="visibility:hidden;align:center"><input id="' .
+                        email_fullname($user, $context) . '" name="useridremove" type="hidden" value="' . $user->id .
+                        '"><a href="#" onClick="if( manageContact(\'' . addslashes(email_fullname($user, $context)) .
+                        '\', \'' . $user->id . '\', \'remove\', \'\')){toggleRemoveAction(\'' . $user->id .
+                        '\');}"><img src="' . $CFG->pixpath . '/t/emailno.gif" alt="' . get_string('remove', 'block_email_list') .
+                        '" title="' . get_string('remove', 'block_email_list') . '"></a></div>';
+
+            $table->add_data($data);
         }
     }
 }
@@ -257,7 +308,7 @@ echo '<html>
     <body>';
 
 echo '<script type="text/javascript">';
-echo 'parent.changeme("participants","'. $table->get_html(true).'");';
+echo 'parent.changeme("participants","'. $table->get_html(true) . '");';
 echo 'parent.checkAllRemoveActions();';
 
 echo '</script>';

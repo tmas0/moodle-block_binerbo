@@ -118,7 +118,7 @@ define('EMAIL_ANSWERED_COLOR', '#83CC83');
  */
 define('EMAIL_TABLE_FIELD_COLOR', '#B7B7B7');
 
-// Default configs
+// Default configs.
 
 // First, drop old configs .. if exist.
 if (isset($CFG->email_display_course_principal)) {
@@ -191,7 +191,7 @@ function email_choose_course($courseid) {
 
     $courses = array();
     // Prepare array.
-    foreach ( $mycourses as $mycourse ) {
+    foreach ($mycourses as $mycourse) {
         $courses[$mycourse->id] = $mycourse->fullname;
     }
 
@@ -224,7 +224,7 @@ function email_strip_attachment($path) {
 
     $part = explode('/', $path);
 
-    return $part[count($part)-1];
+    return $part[count($part) - 1];
 }
 
 /**
@@ -240,8 +240,7 @@ function email_strip_attachment($path) {
  * @todo Finish documenting this function
  */
 
-function email_copy_attachments($dirsrc, $mailiddst, $internalmailpath=NULL, $attachment=NULL) {
-
+function email_copy_attachments($dirsrc, $mailiddst, $internalmailpath=null, $attachment=null) {
     global $CFG;
 
     // Get directory for save this attachments.
@@ -348,7 +347,7 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
     echo '<ul>';
 
     $subrow = 0;
-    foreach ( $subfolders as $subfolder ) {
+    foreach ($subfolders as $subfolder) {
 
         unset($numbermails);
         unset($unreaded);
@@ -365,16 +364,30 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
         // If edit folder.
         if ( $foredit ) {
 
-            echo'<a href="'.$CFG->wwwroot.'/blocks/email_list/email/folder.php?course='.$courseid.'&amp;id='.$subfolder->id.'&amp;action='.md5('edit').'">'.$subfolder->name.'</a>';
-            echo '&#160;&#160;<a href="'.$CFG->wwwroot.'/blocks/email_list/email/folder.php?course='.$courseid.'&amp;id='.$subfolder->id.'&amp;action='.md5('edit').'"><img src="'.$CFG->pixpath.'/t/edit.gif" alt="'.$strremove.'" /></a>';
-            echo '&#160;&#160;<a href="'.$CFG->wwwroot.'/blocks/email_list/email/folder.php?course='.$courseid.'&amp;id='.$subfolder->id.'&amp;action='.md5('remove').'"><img src="'.$CFG->pixpath.'/t/delete.gif" alt="'.$strremove.'" /></a>';
+            echo '<a href="' . $CFG->wwwroot .
+                '/blocks/email_list/email/folder.php?course=' . $courseid .
+                '&amp;id=' . $subfolder->id .
+                '&amp;action=' . md5('edit') . '">' . $subfolder->name . '</a>';
+
+            echo '&#160;&#160;<a href="' . $CFG->wwwroot .
+                '/blocks/email_list/email/folder.php?course=' . $courseid .
+                '&amp;id=' . $subfolder->id .
+                '&amp;action=' . md5('edit') .
+                '"><img src="' . $CFG->pixpath . '/t/edit.gif" alt="' . $strremove . '" /></a>';
+
+            echo '&#160;&#160;<a href="' . $CFG->wwwroot .
+                '/blocks/email_list/email/folder.php?course=' . $courseid .
+                '&amp;id=' . $subfolder->id .
+                '&amp;action=' . md5('remove') . '"><img src="' .
+                $CFG->pixpath . '/t/delete.gif" alt="' . $strremove . '" /></a>';
 
         } else {
-            echo '<a href="'.$CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid.'&amp;folderid='.$subfolder->id.'">'.$subfolder->name.$unreaded.'</a>';
+            echo '<a href="' . $CFG->wwwroot . '/blocks/email_list/email/index.php?id= ' .$courseid .
+                    '&amp;folderid=' . $subfolder->id . '">' . $subfolder->name . $unreaded . '</a>';
         }
 
         // Now, print all subfolders it.
-        $subfoldersrecursive = email_get_subfolders($subfolder->id, NULL, $admin);
+        $subfoldersrecursive = email_get_subfolders($subfolder->id, null, $admin);
 
         // Print recursive all this subfolders.
         if ( $subfoldersrecursive ) {
@@ -382,7 +395,7 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
         }
 
         echo '</li>';
-        $subrow = $subrow ? 0:1;
+        $subrow = $subrow ? 0 : 1;
     }
 
     echo '</ul>';
@@ -440,7 +453,10 @@ function email_print_tree_myfolders($userid, $courseid) {
             }
 
             if ( email_isfolder_type($folder, EMAIL_TRASH) ) {
-                $clean .= '&#160;&#160;<a href="'.$CFG->wwwroot.'/blocks/email_list/email/folder.php?course='.$courseid.'&amp;folderid='.$folder->id.'&amp;action=cleantrash">'.get_string('cleantrash', 'block_email_list').'</a>';
+                $clean .= '&#160;&#160;<a href="' . $CFG->wwwroot .
+                    '/blocks/email_list/email/folder.php?course=' . $courseid .
+                    '&amp;folderid=' . $folder->id .
+                    '&amp;action=cleantrash">' . get_string('cleantrash', 'block_email_list') . '</a>';
             }
 
             // Now, print all subfolders it.
@@ -448,21 +464,23 @@ function email_print_tree_myfolders($userid, $courseid) {
 
             // LI.
             echo '<li class="r'. $row .'">';
-            echo '<a href="'.$CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid.'&amp;folderid='.$folder->id.'">'.$folder->name.$unreaded.'</a>';
+            echo '<a href="' . $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid .
+                    '&amp;folderid=' . $folder->id . '">' . $folder->name . $unreaded . '</a>';
 
             // If subfolders.
             if ( $subfolders ) {
                 email_print_subfolders( $subfolders, $userid, $courseid );
             }
             echo '</li>';
-            $row = $row ? 0:1;
+            $row = $row ? 0 : 1;
         }
 
         echo '</ul>';
 
-        echo '<div class="footer">'.$clean.'</div>';
+        echo '<div class="footer">' . $clean . '</div>';
         // For admin folders.
-        echo '<div class="footer"><a href="'.$CFG->wwwroot.'/blocks/email_list/email/folder.php?course='.$courseid.'&amp;action='.md5('admin').'"><b>'.$stredit.'</b></a></div>';
+        echo '<div class="footer"><a href="' . $CFG->wwwroot . '/blocks/email_list/email/folder.php?course=' . $courseid .
+                '&amp;action=' . md5('admin') . '"><b>' . $stredit . '</b></a></div>';
 
         print_side_block_end();
     }
@@ -484,7 +502,7 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     global $CFG, $USER;
 
     $strcourse  = get_string('course');
-    $strcourses = get_string('mailboxs','block_email_list');
+    $strcourses = get_string('mailboxs', 'block_email_list');
     $strsearch  = get_string('search');
     $strmail    = get_string('name', 'block_email_list');
 
@@ -511,16 +529,15 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     unset($icons);
 
     // Get my course.
-    $mycourses = get_my_courses($USER->id, NULL, 'id, fullname, visible');
+    $mycourses = get_my_courses($USER->id, null, 'id, fullname, visible');
 
     $list = array();
     $icons = array();
 
     // Get courses.
-    foreach( $mycourses as $mycourse ) {
+    foreach ($mycourses as $mycourse) {
 
         $context = get_context_instance(CONTEXT_COURSE, $mycourse->id);
-
 
         // Get the number of unread mails.
         $numberunreadmails = email_count_unreaded_mails($USER->id, $mycourse->id);
@@ -530,18 +547,22 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
         if ( $numberunreadmails > 0 ) {
             $unreadmails = '<b>('.$numberunreadmails.')</b>';
             // Define default path of icon for course.
-            $icon = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/openicon.gif" height="16" width="16" alt="'.$strcourse.'" />';
+            $icon = '<img src="' . $CFG->wwwroot .
+                '/blocks/email_list/email/images/openicon.gif" height="16" width="16" alt="' . $strcourse . '" />';
         } else {
             // Define default path of icon for course.
-            $icon = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/icon.gif" height="16" width="16" alt="'.$strcourse.'" />';
+            $icon = '<img src="' . $CFG->wwwroot .
+                '/blocks/email_list/email/icon.gif" height="16" width="16" alt="' . $strcourse . '" />';
         }
 
         $linkcss = $mycourse->visible ? '' : ' class="dimmed" ';
 
-        if ( (! $mycourse->visible and ! has_capability('moodle/legacy:student', $context, $USER->id, false) )
+        if ( ( !$mycourse->visible and !has_capability('moodle/legacy:student', $context, $USER->id, false) )
                 or !has_capability('moodle/legacy:student', $context, $USER->id, false)
                 or ( has_capability('moodle/legacy:student', $context, $USER->id, false) and $mycourse->visible) ) {
-            $list[] = '<a href="'.$CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$mycourse->id.'" '.$linkcss.'>'.$mycourse->fullname .' '. $unreadmails.'</a>';
+            $list[] = '<a href="' . $CFG->wwwroot .
+                        '/blocks/email_list/email/index.php?id=' . $mycourse->id .
+                        '" ' . $linkcss . '>' . $mycourse->fullname . ' ' . $unreadmails . '</a>';
             $icons[] = $icon;
         }
     }
