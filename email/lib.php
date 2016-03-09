@@ -570,14 +570,12 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     // Print block of my courses.
     print_side_block($startdivtitle.$strcourses.$enddivtitle, '', $list, $icons);
 
-block_load_class('online_users');
-$blockonlineusers = new block_online_users;
-print_r($blockonlineusers);
-$blockonlineusers->get_content();
-print_side_block($blockonlineusers->title, '', $blockonlineusers->content->text, $icons);
-
+    block_load_class('online_users');
+    $blockonlineusers = new block_online_users;
+    print_r($blockonlineusers);
+    $blockonlineusers->get_content();
+    print_side_block($blockonlineusers->title, '', $blockonlineusers->content->text, $icons);
 }
-
 
 /**
  * This fuctions return all subfolders with one folder (one level), if it've.
@@ -588,8 +586,8 @@ print_side_block($blockonlineusers->title, '', $blockonlineusers->content->text,
  * @param boolean $admin Admin folders
  * @return array Contain all subfolders
  * @todo Finish documenting this function
- **/
-function email_get_subfolders($folderid, $courseid=NULL, $admin=false) {
+ */
+function email_get_subfolders($folderid, $courseid = null, $admin = false) {
 
     global $USER, $DB;
 
@@ -602,7 +600,7 @@ function email_get_subfolders($folderid, $courseid=NULL, $admin=false) {
     if ( $childs ) {
 
         // Save child folder in array.
-        foreach ( $childs as $child ) {
+        foreach ($childs as $child) {
 
             if ( is_null($courseid) or !email_have_asociated_folders($USER->id) ) {
                 $subfolders[] = $DB->get_record('email_folder', 'id', $child->folderchildid);
@@ -629,7 +627,7 @@ function email_get_subfolders($folderid, $courseid=NULL, $admin=false) {
  * @param int $folderid Folder parent
  * @return array Contain all subfolders
  * @todo Finish documenting this function
- **/
+ */
 function email_get_all_subfolders($folderid) {
     global $DB;
     
@@ -642,7 +640,7 @@ function email_get_all_subfolders($folderid) {
     if ( $childs ) {
 
         // Save child folder in array.
-        foreach ( $childs as $child ) {
+        foreach ($childs as $child) {
                 $subfolders[] = $DB->get_record('email_folder', 'id', $child->folderchildid);
                 if ( $morechilds = $DB->get_records('email_subfolder', 'folderparentid',  $child->folderchildid) ) {
                     $childs = array_merge($childs, $morechilds);
@@ -663,7 +661,7 @@ function email_get_all_subfolders($folderid) {
  * @param int $folderid Folder ID
  * @return Object Contain root parent folder
  * @todo Finish documenting this function
- **/
+ */
 function email_get_parentfolder($folderid) {
     global $DB;
     
@@ -683,7 +681,6 @@ function email_get_parentfolder($folderid) {
         }
 
         return $folder;
-
     } else {
         // If no parent, return false => FATAL ERROR!.
         return false;
@@ -697,30 +694,30 @@ function email_get_parentfolder($folderid) {
  * @param int $courseid Course Id
  * @return string HTML search form
  * @todo Finish documenting this function
- **/
+ */
 function email_get_search_form($courseid){
-
     global $CFG;
 
+    $inputhidden = '<input type="hidden" name="courseid" value="' . $courseid . '" />';
 
-    $inputhidden = '<input type="hidden" name="courseid" value="'.$courseid.'" />';
-
-    $form = '<form method="post" name="searchform" action="'.$CFG->wwwroot.'/blocks/email_list/email/search.php">
+    $form = '<form method="post" name="searchform" action="' . $CFG->wwwroot . '/blocks/email_list/email/search.php">
                     <table>
                         <tr>
                             <td>
-                                <input type="text" value="'.get_string('searchtext', 'block_email_list').'" name="words" />
+                                <input type="text" value="' .
+                                get_string('searchtext', 'block_email_list') . '" name="words" />
                             </td>
                         </tr>
                         <tr>
                             <td align="center">' .
                                         $inputhidden.'
-                                <input type="submit" name="send" value="'.get_string('search').'" />
+                                <input type="submit" name="send" value="' . get_string('search') . '" />
                             </td>
                         </tr>
                         <tr valign="top">
                             <td align="center">
-                                <a href="'.$CFG->wwwroot.'/blocks/email_list/email/search.php?courseid='.$courseid.'&amp;action=1">'. get_string('advancedsearch','search') .'</a>
+                                <a href="'.$CFG->wwwroot.'/blocks/email_list/email/search.php?courseid=' .
+                                $courseid . '&amp;action=1">' . get_string('advancedsearch', 'search') . '</a>
                             </td>
                         </tr>
                     </table>
@@ -736,8 +733,7 @@ function email_get_search_form($courseid){
  * @param boolean $nosenders No users choose (error log)
  * @todo Finish documenting this function
  */
-function email_print_users_to_send($users, $nosenders=false, $options=NULL) {
-
+function email_print_users_to_send($users, $nosenders = false, $options = null) {
     global $CFG, $DB;
 
     $url = '';
@@ -745,29 +741,29 @@ function email_print_users_to_send($users, $nosenders=false, $options=NULL) {
         $url = email_build_url($options);
     }
 
-
     echo '<tr valign="middle">
         <td class="legendmail">
-            <b>'.get_string('for', 'block_email_list'). '
+            <b>' . get_string('for', 'block_email_list') . '
                 :
             </b>
         </td>
         <td class="inputmail">';
 
-    if ( ! empty ( $users ) ) {
+    if ( !empty($users) ) {
 
         echo '<div id="to">';
 
-        foreach ( $users as $userid ) {
+        foreach ($users as $userid) {
             echo '<input type="hidden" value="'.$userid.'" name="to[]" />';
         }
 
         echo '</div>';
 
-        echo '<textarea id="textareato" class="textareacontacts" name="to" cols="65" rows="3" disabled="true" multiple="multiple">';
+        echo '<textarea id="textareato" class="textareacontacts" 
+                name="to" cols="65" rows="3" disabled="true" multiple="multiple">';
 
-        foreach ( $users as $userid ) {
-            echo fullname( $DB->get_record('user', 'id', $userid) ).', ';
+        foreach ($users as $userid) {
+            echo fullname( $DB->get_record('user', 'id', $userid) ) . ', ';
         }
 
         echo '</textarea>';
@@ -775,18 +771,25 @@ function email_print_users_to_send($users, $nosenders=false, $options=NULL) {
 
     echo '</td><td class="extrabutton">';
 
-    link_to_popup_window( '/blocks/email_list/email/participants.php?'.$url, 'participants', get_string('participants', 'block_email_list').' ...',
-                   470, 520, get_string('participants', 'block_email_list') );
+    link_to_popup_window('/blocks/email_list/email/participants.php?' .$url,
+        'participants',
+        get_string('participants', 'block_email_list') . ' ...',
+        470,
+        520,
+        get_string('participants', 'block_email_list')
+    );
 
    echo '</td></tr>';
    echo '<tr valign="middle">
             <td class="legendmail">
                 <div id="tdcc"></div>
             </td>
-            <td><div id="fortextareacc"></div><div id="cc"></div><div id="url">'.$urltoaddcc.'<span id="urltxt">&#160;|&#160;</span>'.$urltoaddbcc.'</div></td><td><div id="buttoncc"></div></td></tr>';
-   echo '<tr valign="middle"><td class="legendmail"><div id="tdbcc"></div></td><td><div id="fortextareabcc"></div><div id="bcc"></div></td><td><div id="buttonbcc"></div></td>';
-
-
+            <td><div id="fortextareacc"></div><div id="cc"></div><div id="url">' . $urltoaddcc .
+            '<span id="urltxt">&#160;|&#160;</span>' . $urltoaddbcc .
+            '</div></td><td><div id="buttoncc"></div></td></tr>';
+   echo '<tr valign="middle"><td class="legendmail"><div id="tdbcc"></div></td>
+        <td><div id="fortextareabcc"></div><div id="bcc"></div></td>
+        <td><div id="buttonbcc"></div></td>';
 }
 
 /**
@@ -800,10 +803,9 @@ function email_print_users_to_send($users, $nosenders=false, $options=NULL) {
  * @todo Finish documenting this function
  */
 function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
-
     global $CFG, $USER, $DB;
 
-    if (! $course = $DB->get_record('course', 'id', $courseid) ) {
+    if ( !$course = $DB->get_record('course', 'id', $courseid) ) {
         print_error('invalidcourseid', 'block_email_list');
     }
 
@@ -849,7 +851,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
                     continue;
                 }
 
-                if ( ! $CFG->email_add_admins ) {
+                if ( !$CFG->email_add_admins ) {
                     if (isset($adminsroles[$role->id])) {   // Avoid this role (ie admin).
                         $avoidroles[] = $role->id;
                         unset($roles[$role->id]);
@@ -859,9 +861,9 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
 
                 // Prevent - CONTRIB-609.
                 if ( function_exists('role_get_name') ) {
-                    $rolenames[$role->id] = strip_tags(role_get_name($role, $context));   // Used in menus etc later on
+                    $rolenames[$role->id] = strip_tags(role_get_name($role, $context));   // Used in menus etc later on.
                 } else {
-                    $rolenames[$role->id] = strip_tags(format_string($role->name));   // Used in menus etc later on
+                    $rolenames[$role->id] = strip_tags(format_string($role->name));   // Used in menus etc later on.
                 }
 
             }
@@ -869,9 +871,9 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
 
         // We are looking for all users with this role assigned in this context or higher.
         if ($usercontexts = get_parent_contexts($context)) {
-            $listofcontexts = '('.implode(',', $usercontexts).')';
+            $listofcontexts = '(' . implode(',', $usercontexts) . ')';
         } else {
-            $listofcontexts = '('.$sitecontext->id.')'; // Must be site.
+            $listofcontexts = '(' . $sitecontext->id . ')'; // Must be site.
         }
         if ($roleid) {
             $selectrole = " AND r.roleid = $roleid ";
