@@ -572,7 +572,6 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
 
     block_load_class('online_users');
     $blockonlineusers = new block_online_users;
-    print_r($blockonlineusers);
     $blockonlineusers->get_content();
     print_side_block($blockonlineusers->title, '', $blockonlineusers->content->text, $icons);
 }
@@ -630,7 +629,7 @@ function email_get_subfolders($folderid, $courseid = null, $admin = false) {
  */
 function email_get_all_subfolders($folderid) {
     global $DB;
-    
+
     // Get childs for this parent.
     $childs = $DB->get_records('email_subfolder', 'folderparentid', $folderid);
 
@@ -641,10 +640,10 @@ function email_get_all_subfolders($folderid) {
 
         // Save child folder in array.
         foreach ($childs as $child) {
-                $subfolders[] = $DB->get_record('email_folder', 'id', $child->folderchildid);
-                if ( $morechilds = $DB->get_records('email_subfolder', 'folderparentid',  $child->folderchildid) ) {
-                    $childs = array_merge($childs, $morechilds);
-                }
+            $subfolders[] = $DB->get_record('email_folder', 'id', $child->folderchildid);
+            if ( $morechilds = $DB->get_records('email_subfolder', 'folderparentid',  $child->folderchildid) ) {
+                $childs = array_merge($childs, $morechilds);
+            }
         }
     } else {
         // If no childs, return false.
@@ -664,7 +663,7 @@ function email_get_all_subfolders($folderid) {
  */
 function email_get_parentfolder($folderid) {
     global $DB;
-    
+
     // Get parent for this child.
     $parent = $DB->get_record('email_subfolder', 'folderchildid', $folderid);
 
@@ -695,7 +694,7 @@ function email_get_parentfolder($folderid) {
  * @return string HTML search form
  * @todo Finish documenting this function
  */
-function email_get_search_form($courseid){
+function email_get_search_form($courseid) {
     global $CFG;
 
     $inputhidden = '<input type="hidden" name="courseid" value="' . $courseid . '" />';
@@ -759,7 +758,7 @@ function email_print_users_to_send($users, $nosenders = false, $options = null) 
 
         echo '</div>';
 
-        echo '<textarea id="textareato" class="textareacontacts" 
+        echo '<textarea id="textareato" class="textareacontacts"
                 name="to" cols="65" rows="3" disabled="true" multiple="multiple">';
 
         foreach ($users as $userid) {
@@ -779,17 +778,17 @@ function email_print_users_to_send($users, $nosenders = false, $options = null) 
         get_string('participants', 'block_email_list')
     );
 
-   echo '</td></tr>';
-   echo '<tr valign="middle">
+    echo '</td></tr>';
+    echo '<tr valign="middle">
             <td class="legendmail">
                 <div id="tdcc"></div>
             </td>
             <td><div id="fortextareacc"></div><div id="cc"></div><div id="url">' . $urltoaddcc .
             '<span id="urltxt">&#160;|&#160;</span>' . $urltoaddbcc .
             '</div></td><td><div id="buttoncc"></div></td></tr>';
-   echo '<tr valign="middle"><td class="legendmail"><div id="tdbcc"></div></td>
-        <td><div id="fortextareabcc"></div><div id="bcc"></div></td>
-        <td><div id="buttonbcc"></div></td>';
+    echo '<tr valign="middle"><td class="legendmail"><div id="tdbcc"></div></td>
+            <td><div id="fortextareabcc"></div><div id="bcc"></div></td>
+            <td><div id="buttonbcc"></div></td>';
 }
 
 /**
@@ -932,7 +931,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
         if ($currentgroup and $course->groupmode != 0) {    // Displaying a group by choice.
             $from  .= 'LEFT JOIN {groups_members} gm ON u.id = gm.userid ';
 
-            // $currentgroup can be an array of groups id.
+            // The $currentgroup can be an array of groups id.
             if (is_array($currentgroup)) {
                 $where .= ' AND gm.groupid IN (' . implode(',', $currentgroup) . ') ';
             } else {
@@ -994,7 +993,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
     $options = new stdClass();
     $options->id = $courseid;
     // Prepare url.
-    $toform = email_build_url($options, true);-
+    $toform = email_build_url($options, true);
 
     $url = $CFG->wwwroot . '/blocks/email_list/email/sendmail.php';
 
@@ -1083,7 +1082,7 @@ function email_get_foldermail($mailid, $userid) {
  */
 function email_get_reference2foldermail($mailid, $folderid) {
     global $DB;
-    
+
     return $DB->get_record('email_foldermail', 'mailid', $mailid, 'folderid', $folderid);
 
 }
@@ -1099,7 +1098,7 @@ function email_get_reference2foldermail($mailid, $folderid) {
  */
 function email_move2folder($mailid, $foldermailid, $folderidnew) {
     global $DB;
-    
+
     if ( $DB->record_exists('email_folder', 'id', $folderidnew) ) {
 
         // Folder have exist in this new folder?.
@@ -1143,7 +1142,7 @@ function email_newfolderform() {
  */
 function email_newfolder($folder, $parentfolder) {
     global $DB;
-    
+
     // Add actual time.
     $folder->timecreated = time();
 
@@ -1314,7 +1313,7 @@ function email_removefolder($folderid, $options) {
     if ($folders = $DB->get_records('email_folder', 'id', $folderid)) {
 
         // For all folders.
-        foreach($folders as $folder) {
+        foreach ($folders as $folder) {
 
             // Before removing references to foldermail, move this mails to root folder parent.
             if ($foldermails = $DB->get_records('email_foldermail', 'folderid', $folder->id) ) {
@@ -1614,8 +1613,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
                 if ( !$email->is_readed($userid, $mail->course) ) {
                     $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
                 }
-
-            } else if ( email_isfolder_type($folder, EMAIL_TRASH) ){
+            } else if ( email_isfolder_type($folder, EMAIL_TRASH) ) {
                 $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                 if ( !$email->is_readed($userid, $mail->course) ) {
@@ -1690,14 +1688,14 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
 
         }
 
-        if ( !$course_mail = $DB->get_record("course", "id", $mail->course) ) {
+        if ( !$coursemail = $DB->get_record("course", "id", $mail->course) ) {
             print_error('invalidcourseid', 'block_email_list');
         }
 
         if ( $course->id == SITEID ) {
             $table->add_data( array (
                                         '<input id="mail" type="checkbox" name="mailid[]" value="'.$mail->id.'" />',
-                                        $course_mail->fullname,
+                                        $coursemail->fullname,
                                         $newemailicon.$attachment.$extraimginfo,
                                         $urltosent,
                                         $struser,
@@ -1800,7 +1798,7 @@ function email_print_tabs_options($courseid, $folderid, $action=null) {
     }
 
     return true;
- }
+}
 
 // SQL funcions.
 
@@ -1958,8 +1956,8 @@ function email_isfolder_type($folder, $type) {
  */
 function email_get_parent_folder($folder) {
     global $DB;
-    
-    if (! $folder ) {
+
+    if ( !$folder ) {
         return false;
     }
 
@@ -2099,7 +2097,7 @@ function email_get_root_folders($userid, $draft=true, $trash=true, $sendbox=true
     }
 
     // Include sendbox folder.
-    if( $sendbox ) {
+    if ( $sendbox ) {
         $folders[] = email_get_root_folder( $userid, EMAIL_SENDBOX);
     }
 
@@ -2114,7 +2112,7 @@ function email_get_root_folders($userid, $draft=true, $trash=true, $sendbox=true
  * This function get users to sent an mail.
  *
  * @param int $mailid Mail ID
- * @param boolean $forreplyall Flag indicates if getting user's for reply all. If true return object contain formated names (Optional)
+ * @param boolean $forreplyall Indicates if getting user's for reply all. If true return object contain formated names (Optional)
  * @param object $writer Contain user who write mail (if not null, exclude this user for returned)
  * @param string Type of mail for users
  * @return object Contain all users object send mails
@@ -2267,10 +2265,9 @@ function email_print_select_options($options, $perpage) {
         if ( ! email_isfolder_type(email_get_folder($options->folderid), EMAIL_SENDBOX) ) {
             echo '<select name="action" onchange="this.form.submit()">
                             <option value="" selected="selected">' . get_string('markas', 'block_email_list') .':</option>
-                            <option value="toread">' . get_string('toread','block_email_list') . '</option>
-                        <option value="tounread">' . get_string('tounread','block_email_list') . '</option>
+                            <option value="toread">' . get_string('toread', 'block_email_list') . '</option>
+                        <option value="tounread">' . get_string('tounread', 'block_email_list') . '</option>
                     </select>';
-
 
             print_spacer(1, 20, false);
         }
@@ -2292,7 +2289,8 @@ function email_print_select_options($options, $perpage) {
     }
 
     echo '</form>';
-    echo '<form id="mailsperpage" name="mailsperpage" action="'.$CFG->wwwroot.'/blocks/email_list/email/index.php?'.$url.'" method="post">';
+    echo '<form id="mailsperpage" name="mailsperpage" action="' .
+            $CFG->wwwroot . '/blocks/email_list/email/index.php?' . $url . '" method="post">';
 
     // Choose number mails perpage.
     echo '<div id="sizepage" class="emailright">' . get_string('mailsperpage', 'block_email_list') .': ';
@@ -2302,7 +2300,7 @@ function email_print_select_options($options, $perpage) {
 
     echo '<select name="perpage" onchange="javascript:this.form.submit();">';
 
-    for( $i = 5; $i < 80; $i = $i + 5 ) {
+    for ($i = 5; $i < 80; $i = $i + 5) {
 
         if ( $perpage == $i ) {
             echo '<option value="'.$i.'" selected="selected">' . $i . '</option>';
@@ -2317,7 +2315,6 @@ function email_print_select_options($options, $perpage) {
 
     return true;
 }
-
 
 /**
  * This function prints select folders combobox, for move any mails
@@ -2336,10 +2333,10 @@ function email_print_movefolder_button($options) {
         $courseid = $options->id;
     }
 
-    /// TODO: Changed this function, now cases are had:
-    //  1.- Inbox folder: Only can move to subfolders inbox and trash folder.
-    //  2.- Sendbox and draft folder: Only can move on this subfolders.
-    //  3.- Trash folder: Can move any folder
+    // TODO: Changed this function, now cases are had:
+    // 1.- Inbox folder: Only can move to subfolders inbox and trash folder.
+    // 2.- Sendbox and draft folder: Only can move on this subfolders.
+    // 3.- Trash folder: Can move any folder.
     if ( isset($options->folderid) ) {
         // Get folder.
         $folderbe = email_get_folder($options->folderid);
@@ -2610,12 +2607,12 @@ function email_get_nextprevmail($mailid, $mails, $nextorprevious) {
 function email_get_user($mailid) {
     global $DB;
 
-    // Get mail record
+    // Get mail record.
     if ( !$mail = $DB->get_record('email_mail', 'id', $mailid)) {
         error('failgetmail', 'block_email_list');
     }
 
-    // Return user record
+    // Return user record.
     return $DB->get_record('user', 'id', $mail->userid);
 }
 
@@ -2673,18 +2670,18 @@ function email_have_asociated_folders($userid) {
     return false;
 }
 
-// eMail tabs.
+// The eMail tabs.
 // Some code to print tabs.
 
 // A class for tabs.
 class email_tabobject {
-    var $id;
-    var $link;
-    var $text;
-    var $linkedwhenselected;
+    public $id;
+    public $link;
+    public $text;
+    public $linkedwhenselected;
 
-    /// A constructor just because I like constructors.
-    function __construct($id, $link='', $text='', $img='', $title='', $linkedwhenselected=false) {
+    // A constructor just because I like constructors.
+    public function __construct($id, $link='', $text='', $img='', $title='', $linkedwhenselected=false) {
         $this->id   = $id;
         $this->link = $link;
         $this->text = $text;
@@ -2703,7 +2700,7 @@ class email_tabobject {
  * @param string $selected  The id of the selected tab (whatever row it's on)
  * @param array  $inactive  An array of ids of inactive tabs that are not selectable.
  * @param array  $activated An array of ids of other tabs that are currently activated
-**/
+ */
 function print_email_tabs($tabrows, $selected=null, $inactive=null, $activated=null, $return=false) {
     global $CFG;
 
@@ -2735,7 +2732,6 @@ function print_email_tabs($tabrows, $selected=null, $inactive=null, $activated=n
     }
     echo $output;
 }
-
 
 function email_convert_tree_to_html($tree, $row=0) {
 
@@ -2783,9 +2779,9 @@ function email_convert_tree_to_html($tree, $row=0) {
         }
 
         if ( !empty($tab->subtree) ) {
-            $str .= convert_tree_to_html($tab->subtree, $row+1);
+            $str .= convert_tree_to_html($tab->subtree, $row + 1);
         } else if ($tab->selected) {
-            $str .= '<div class="tabrow'.($row+1).' empty">&nbsp;</div>'."\n";
+            $str .= '<div class="tabrow' . ($row + 1) . ' empty">&nbsp;</div>' . "\n";
         }
 
         $str .= ' </li>'."\n";
@@ -2840,9 +2836,9 @@ if ( !function_exists('convert_tree_to_html') ) {
             }
 
             if ( !empty($tab->subtree) ) {
-                $str .= convert_tree_to_html($tab->subtree, $row+1);
+                $str .= convert_tree_to_html($tab->subtree, $row + 1);
             } else if ($tab->selected) {
-                $str .= '<div class="tabrow'.($row+1).' empty">&nbsp;</div>'."\n";
+                $str .= '<div class="tabrow' . ($row + 1) . ' empty">&nbsp;</div>' . "\n";
             }
 
             $str .= ' </li>'."\n";
@@ -2949,16 +2945,18 @@ function email_print_to_popup_window($type=null, $url=null, $linkname=null, $tit
     switch ($type) {
         case 'button' :
             $element = '<input type="button" name="'. $name .'" title="'. $title .'" value="'. $linkname .'" '.
-                       "onclick=\" $jscode if(ids !='' ) { return openpopup('$url'+ids, '$name', '$options', $fullscreen); } else { alert('".
+                       "onclick=\" $jscode if(ids !='' ) {
+                       return openpopup('$url'+ids, '$name', '$options', $fullscreen); } else { alert('".
                        addslashes(get_string('nochoosemail', 'block_email_list'))."'); } \" />\n";
             break;
         case 'link' :
             // Some log url entries contain _SERVER[HTTP_REFERRER] in which case wwwroot is already there.
-            if (!(strpos($url,$CFG->wwwroot) === false)) {
+            if ( !(strpos($url, $CFG->wwwroot) === false) ) {
                 $url = substr($url, strlen($CFG->wwwroot));
             }
             $element = '<a title="'. s(strip_tags($title)) .'" href="'. $CFG->wwwroot . $url .'" '.
-                       "onclick=\"this.target='$name'; $jscode if (ids !=''){ return openpopup('$url'+ids, '$name', '$options', $fullscreen);
+                       "onclick=\"this.target='$name'; $jscode if (ids !=''){
+                       return openpopup('$url'+ids, '$name', '$options', $fullscreen);
                        } else { alert('". addslashes(get_string('nochoosemail', 'block_email_list'))."'); } \">$linkname</a>";
             break;
         default :
@@ -3032,12 +3030,12 @@ if ( !function_exists('groups_print_course_menu') ) {
             if (isset($SESSION->activegroup[$course->id][SEPARATEGROUPS][0])) {
                 if ($SESSION->activegroup[$course->id][SEPARATEGROUPS][0] == 0) {
                     if ($allowedgroups) {
-                        // somebody must have assigned at least one group, we can select it now - yay!
+                        // Somebody must have assigned at least one group, we can select it now - yay!.
                         unset($SESSION->activegroup[$course->id][SEPARATEGROUPS][0]);
                     }
                 } else {
                     if (!array_key_exists($SESSION->activegroup[$course->id][SEPARATEGROUPS][0], $allowedgroups)) {
-                        // active group not allowed or does not exist anymore
+                        // Active group not allowed or does not exist anymore.
                         unset($SESSION->activegroup[$course->id][SEPARATEGROUPS][0]);
                     }
                 }
@@ -3067,7 +3065,17 @@ if ( !function_exists('groups_print_course_menu') ) {
             $groupname = reset($groupsmenu);
             $output = $grouplabel.': '.$groupname;
         } else {
-            $output = popup_form($urlroot.'&amp;group=', $groupsmenu, 'selectgroup', $activegroup, '', '', '', true, 'self', $grouplabel);
+            $output = popup_form($urlroot.'&amp;group=',
+                        $groupsmenu,
+                        'selectgroup',
+                        $activegroup,
+                        '',
+                        '',
+                        '',
+                        true,
+                        'self',
+                        $grouplabel
+            );
         }
 
         $output = '<div class="groupselector">'.$output.'</div>';
@@ -3092,7 +3100,7 @@ if ( !function_exists('groups_get_all_groups')) {
     function groups_get_all_groups($courseid, $userid=0, $groupingid=0, $fields='g.*') {
         global $CFG, $DB;
 
-        // groupings are ignored when not enabled
+        // Groupings are ignored when not enabled.
         if (empty($CFG->enablegroupings)) {
             $groupingid = 0;
         }
@@ -3138,16 +3146,18 @@ if ( !function_exists('groups_get_course_group')) {
         global $CFG, $USER, $SESSION;
 
         if (!$groupmode = $course->groupmode) {
-            // NOGROUPS used
+            // NOGROUPS used.
             return false;
         }
 
-        // init activegroup array
+        // Init activegroup array.
         if (!array_key_exists('activegroup', $SESSION)) {
             $SESSION->activegroup = array();
         }
         if (!array_key_exists($course->id, $SESSION->activegroup)) {
-            $SESSION->activegroup[$course->id] = array(SEPARATEGROUPS=>array(), VISIBLEGROUPS=>array(), 'aag'=>array());
+            $SESSION->activegroup[$course->id] = array( SEPARATEGROUPS => array(),
+                                                     VISIBLEGROUPS => array(),
+                                                     'aag' => array());
         }
 
         $context = get_context_instance(CONTEXT_COURSE, $course->id);

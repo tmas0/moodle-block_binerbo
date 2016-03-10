@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * This page apply changes on my preferences.
  *
@@ -9,178 +24,208 @@
  *          <toni.mas at uib dot es>.
  *          It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
  *          You can get copies of the licenses here:
- * 		                   http://www.affero.org/oagpl.html
+ *                         http://www.affero.org/oagpl.html
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
- **/
+ */
 
+require_once( "../../../config.php" );
+require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
+require_once($CFG->dirroot.'/blocks/email_list/email/preferences_form.php');
 
-    require_once( "../../../config.php" );
-    require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
-    require_once($CFG->dirroot.'/blocks/email_list/email/preferences_form.php');
+$courseid = optional_param('id', SITEID, PARAM_INT); // Course ID.
 
-	$courseid		= optional_param('id', SITEID, PARAM_INT);		// Course ID
+global $CFG, $USER, $DB;
 
-	global $CFG, $USER, $DB;
+// If defined course to view.
+if ( !$course = $DB->get_record('course', 'id', $courseid)) {
+    print_error('courseavailablenot', 'moodle');
+}
 
-    // If defined course to view
-    if (! $course = $DB->get_record('course', 'id', $courseid)) {
-    	print_error('courseavailablenot', 'moodle');
+require_login($course->id, false); // No autologin guest.
+
+if ($course->id == SITEID) {
+    $context = get_context_instance(CONTEXT_SYSTEM, SITEID); // SYSTEM context.
+} else {
+    $context = get_context_instance(CONTEXT_COURSE, $course->id); // Course context.
+}
+
+// Can edit settings?.
+if ( !has_capability('block/email_list:editsettings', $context) ) {
+    print_error('forbiddeneditsettings',
+        'block_email_list',
+        $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $course->id
+    );
+}
+
+// Security enable user's preference.
+if ( empty($CFG->email_trackbymail) and empty($CFG->email_marriedfolders2courses) ) {
+    redirect( $CFG->wwwroot . '/blocks/email_list/email/index.php?id' . $courseid,
+        get_string('preferencesnotenable', 'block_email_list', '2')
+    );
+}
+
+// Options for new mail and new folder.
+$options = new stdClass();
+$options->id = $courseid;
+
+// Print the page header.
+
+$stremail = get_string('name', 'block_email_list');
+
+if ( function_exists( 'build_navigation') ) {
+    // Prepare navlinks.
+    $navlinks = array();
+    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'),
+                        'link' => 'index.php?id=' . $course->id,
+                        'type' => 'misc'
+                );
+    $navlinks[] = array('name' => get_string('name', 'block_email_list'),
+                        'link' => null,
+                        'type' => 'misc'
+                );
+
+    // Build navigation.
+    $navigation = build_navigation($navlinks);
+
+    print_header("$course->shortname: $stremail", "$course->fullname",
+        $navigation,
+        "",
+        '<link type="text/css" href="email.css" rel="stylesheet" />
+            <link type="text/css" href="treemenu.css" rel="stylesheet" />
+            <link type="text/css" href="tree.css" rel="stylesheet" />
+            <script type="text/javascript" src="treemenu.js"></script>
+            <script type="text/javascript" src="email.js"></script>',
+        true
+    );
+} else {
+    $navigation = '';
+    if ( isset($course) ) {
+        if ($course->category) {
+            $navigation = '<a href="' . $CFG->wwwroot . '/course/view.php?id=' . $course->id .
+                '">' . $course->shortname . '</a> ->';
+        }
     }
 
-    require_login($course->id, false); // No autologin guest
+    $stremails = get_string('nameplural', 'block_email_list');
 
-    if ($course->id == SITEID) {
-        $context = get_context_instance(CONTEXT_SYSTEM, SITEID);   // SYSTEM context
+    print_header("$course->shortname: $stremail",
+        "$course->fullname",
+        "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $stremail",
+        "",
+        '<link type="text/css" href="email.css" rel="stylesheet" />
+            <link type="text/css" href="treemenu.css" rel="stylesheet" />
+            <link type="text/css" href="tree.css" rel="stylesheet" />
+            <script type="text/javascript" src="treemenu.js"></script>
+            <script type="text/javascript" src="email.js"></script>',
+        true
+    );
+}
+
+// Print principal table. This have 2 columns . . .  and possibility to add right column.
+echo '<table id="layout-table"><tr>';
+
+// Print "blocks" of this account.
+echo '<td style="width: 180px;" id="left-column">';
+email_printblocks($USER->id, $courseid);
+
+// Close left column.
+echo '</td>';
+
+// Print principal column.
+echo '<td id="middle-column">';
+
+// Print block.
+print_heading_block('');
+
+echo '<div>&#160;</div>';
+
+$mform = new preferences_form('preferences.php');
+
+if ( $mform->is_cancelled() ) {
+    // Only redirect.
+    redirect($CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid, '', 0);
+
+} else if ( $form = $mform->get_data() ) {
+    // Add log for one course.
+    add_to_log($courseid, 'email', 'edit preferences', 'preferences.php', 'Edit my preferences', 0, $USER->id);
+
+    $preference = new stdClass();
+
+    if ( $DB->record_exists('email_preference', 'userid', $USER->id) ) {
+
+        if ( !$preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
+            print_error('failreadingpreferences',
+                'block_email_list',
+                $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid
+            );
+        }
+
+        // Security.
+        if ( $CFG->email_trackbymail ) {
+            $preference->trackbymail = $form->trackbymail;
+        } else {
+            $preference->trackbymail = 0;
+        }
+        // Security.
+        if ( $CFG->email_marriedfolders2courses ) {
+            $preference->marriedfolders2courses = $form->marriedfolders2courses;
+        } else {
+            $preference->marriedfolders2courses = 0;
+        }
+
+        if ( $DB->update_record('email_preference', $preference) ) {
+            redirect( $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid,
+                get_string('savedpreferences', 'block_email_list'),
+                '2'
+            );
+        }
     } else {
-        $context = get_context_instance(CONTEXT_COURSE, $course->id);   // Course context
+
+        $preference->userid = $USER->id;
+
+        // Security.
+        if ( $CFG->email_trackbymail ) {
+            $preference->trackbymail = $form->trackbymail;
+        } else {
+            $preference->trackbymail = 0;
+        }
+        // Security.
+        if ( $CFG->email_marriedfolders2courses ) {
+            $preference->marriedfolders2courses = $form->marriedfolders2courses;
+        } else {
+            $preference->marriedfolders2courses = 0;
+        }
+
+        if ( $DB->insert_record('email_preference', $preference) ) {
+            redirect( $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid,
+                get_string('savedpreferences', 'block_email_list'),
+                '2'
+            );
+        }
     }
 
-    // Can edit settings?
-	if ( ! has_capability('block/email_list:editsettings', $context)) {
-		print_error('forbiddeneditsettings', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$course->id);
-	}
+    error( get_string('errorsavepreferences',
+        'block_email_list'),
+        $CFG->wwwroot.'/blocks/email_list/email/index.php?id=' . $courseid
+    );
+} else {
 
-    // Security enable user's preference
-    if ( empty($CFG->email_trackbymail) and empty($CFG->email_marriedfolders2courses) ) {
-    	redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id'.$courseid, get_string('preferencesnotenable', 'block_email_list', '2'));
-    }
+    // Get my preferences, if I have.
+    $preferences = $DB->get_record('email_preference', 'userid', $USER->id);
 
-    // Options for new mail and new folder
-	$options = new stdClass();
-	$options->id = $courseid;
+    // Add course.
+    $preferences->id = $courseid;
 
-    /// Print the page header
+    // Set data.
+    $mform->set_data($preferences);
+    $mform->display();
+}
 
-    $stremail  = get_string('name', 'block_email_list');
+// Close principal column.
+echo '</td>';
 
-    if ( function_exists( 'build_navigation') ) {
-    	// Prepare navlinks
-    	$navlinks = array();
-    	$navlinks[] = array('name' => get_string('nameplural', 'block_email_list'), 'link' => 'index.php?id='.$course->id, 'type' => 'misc');
-    	$navlinks[] = array('name' => get_string('name', 'block_email_list'), 'link' => null, 'type' => 'misc');
+// Close table.
+echo '</tr>
+        </table>';
 
-		// Build navigation
-		$navigation = build_navigation($navlinks);
-
-		print_header("$course->shortname: $stremail", "$course->fullname",
-    	             $navigation,
-    	              "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
-    	              true);
-    } else {
-    	$navigation = '';
-		if ( isset($course) ) {
-	    	if ($course->category) {
-	    	    $navigation = '<a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->shortname.'</a> ->';
-	    	}
-		}
-
-		$stremails = get_string('nameplural', 'block_email_list');
-
-    	print_header("$course->shortname: $stremail", "$course->fullname",
-                 "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $stremail",
-                  "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
-                  true);
-    }
-
-
-	// Print principal table. This have 2 columns . . .  and possibility to add right column.
-	echo '<table id="layout-table">
-  			<tr>';
-
-
-	// Print "blocks" of this account
-	echo '<td style="width: 180px;" id="left-column">';
-	email_printblocks($USER->id, $courseid);
-
-	// Close left column
-	echo '</td>';
-
-	// Print principal column
-	echo '<td id="middle-column">';
-
-    // Print block
-    print_heading_block('');
-
-    echo '<div>&#160;</div>';
-
-	$mform = new preferences_form('preferences.php');
-
-	if ( $mform->is_cancelled() ) {
-
-		// Only redirect
-		redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, '', 0);
-
-	} else if ( $form = $mform->get_data() ) {
-
-	    // Add log for one course
-	    add_to_log($courseid, 'email', 'edit preferences', 'preferences.php', 'Edit my preferences', 0, $USER->id);
-
-		$preference = new stdClass();
-
-	    if ( $DB->record_exists('email_preference', 'userid', $USER->id) ) {
-
-	    	if (! $preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
-	    		print_error('failreadingpreferences', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid);
-	    	}
-
-	    	// Security
-	    	if ( $CFG->email_trackbymail ) {
-	    		$preference->trackbymail = $form->trackbymail;
-	    	} else {
-	    		$preference->trackbymail = 0;
-	    	}
-	    	// Security
-	    	if ( $CFG->email_marriedfolders2courses ) {
-	    		$preference->marriedfolders2courses = $form->marriedfolders2courses;
-	    	} else {
-	    		$preference->marriedfolders2courses = 0;
-	    	}
-
-	    	if ( $DB->update_record('email_preference', $preference) ) {
-	    		redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, get_string('savedpreferences', 'block_email_list'), '2');
-	    	}
-	    } else {
-
-	    	$preference->userid = $USER->id;
-
-	   		// Security
-	    	if ( $CFG->email_trackbymail ) {
-	    		$preference->trackbymail = $form->trackbymail;
-	    	} else {
-	    		$preference->trackbymail = 0;
-	    	}
-	    	// Security
-	    	if ( $CFG->email_marriedfolders2courses ) {
-	    		$preference->marriedfolders2courses = $form->marriedfolders2courses;
-	    	} else {
-	    		$preference->marriedfolders2courses = 0;
-	    	}
-
-	    	if ( $DB->insert_record('email_preference', $preference) ) {
-	    		redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, get_string('savedpreferences', 'block_email_list'), '2');
-	    	}
-	    }
-
-	    error(get_string('errorsavepreferences', 'block_email_list'), $CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid );
-	} else {
-
-		// Get my preferences, if I have.
-		$preferences = $DB->get_record('email_preference', 'userid', $USER->id);
-
-		// Add course
-		$preferences->id = $courseid;
-
-		// Set data
-		$mform->set_data($preferences);
-		$mform->display();
-	}
-
-	// Close principal column
-	echo '</td>';
-
-	// Close table
-	echo '</tr>
-			</table>';
-
-	print_footer($course);
-?>
+print_footer($course);

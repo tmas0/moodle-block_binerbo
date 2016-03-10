@@ -220,7 +220,8 @@ function moveElementsWasSelected() {
             <tr align="center" valign="middle">
                 <td class="generalboxcontent">
                     <input type="button" name="unselectedto" value="<?php p($straddusersto) ?> -&gt;"
-                            onclick="javascript:move(document.getElementById('unselectedusers'), document.getElementById('selectedusersto')); " />
+                            onclick="javascript:move(document.getElementById('unselectedusers'),
+                            document.getElementById('selectedusersto')); " />
                 </td>
                 <td class="generalboxcontent">
                     <select id="selectedusersto" name="selectedusersto[]" size="5" multiple="multiple">
@@ -237,7 +238,8 @@ function moveElementsWasSelected() {
             <tr align="center" valign="middle">
                 <td class="generalboxcontent">
                     <input type="button" name="unselectedcc" value="<?php p($stradduserscc) ?> -&gt;"
-                            onclick="javascript:move(document.getElementById('unselectedusers'), document.getElementById('selecteduserscc')) " />
+                            onclick="javascript:move(document.getElementById('unselectedusers'),
+                            document.getElementById('selecteduserscc')) " />
                 </td>
                 <td class="generalboxcontent">
                     <select id="selecteduserscc" name="selecteduserscc[]" size="5" multiple="multiple">
@@ -254,7 +256,8 @@ function moveElementsWasSelected() {
             <tr align="center" valign="middle">
                 <td class="generalboxcontent">
                     <input type="button" name="unselectedbcc" value="<?php p($straddusersbcc) ?> -&gt;"
-                            onclick="javascript:move(document.getElementById('unselectedusers'), document.getElementById('selectedusersbcc')) " />
+                            onclick="javascript:move(document.getElementById('unselectedusers'),
+                            document.getElementById('selectedusersbcc')) " />
                  </td>
                 <td class="generalboxcontent">
                     <select id="selectedusersbcc" name="selectedusersbcc[]" size="5" multiple="multiple">
@@ -275,13 +278,18 @@ function moveElementsWasSelected() {
     <tr>
         <td class="generalboxcontent" align="right" colspan="2">
             <input type="button" name="selectedusersremove" value="&#060;- <?php p($strselectedusersremove) ?>"
-                 onclick="javascript:move(document.getElementById('selectedusersto'),document.getElementById('unselectedusers'));move(document.getElementById('selecteduserscc'),document.getElementById('unselectedusers'));move(document.getElementById('selectedusersbcc'),document.getElementById('unselectedusers'));" />
+                 onclick="javascript:move(document.getElementById('selectedusersto'),
+                 document.getElementById('unselectedusers'));
+                 move(document.getElementById('selecteduserscc'),
+                 document.getElementById('unselectedusers'));
+                 move(document.getElementById('selectedusersbcc'),document.getElementById('unselectedusers'));" />
         </td>
     </tr>
 
     <tr>
         <td class="generalboxcontent" align="left" colspan="2">
-            <input type="submit" name="send" value="<?php echo get_string('accept', 'block_email_list'); ?>" onclick="javascript:prepareSubmit();" />
+            <input type="submit" name="send" value="<?php echo get_string('accept', 'block_email_list'); ?>"
+                onclick="javascript:prepareSubmit();" />
             <input type="button" name="cancel" value="<?php p($strcancel) ?>" onclick="javascript:prepareSubmit();" />
         </td>
     </tr>

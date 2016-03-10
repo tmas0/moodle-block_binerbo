@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * This page prints all search's.
  *
@@ -9,424 +24,422 @@
  *          <toni.mas at uib dot es>.
  *          It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
  *          You can get copies of the licenses here:
- * 		                   http://www.affero.org/oagpl.html
+ *                         http://www.affero.org/oagpl.html
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
- **/
+ */
 
-    require_once( "../../../config.php" );
-    require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');			// eMail library funcions
+require_once( "../../../config.php" );
+require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');         // The eMail library funcions.
 
-    // For apply ajax and javascript functions.
-    require_once($CFG->libdir. '/ajax/ajaxlib.php');
+// For apply ajax and javascript functions.
+require_once($CFG->libdir. '/ajax/ajaxlib.php');
 
-    // Search lib
-	include_once($CFG->libdir.'/searchlib.php');
+// Search lib.
+include_once($CFG->libdir.'/searchlib.php');
 
-	// Advanced search form
-	include_once($CFG->dirroot.'/blocks/email_list/email/advanced_search_form.php');
+// Advanced search form.
+include_once($CFG->dirroot.'/blocks/email_list/email/advanced_search_form.php');
 
-    $courseid	= optional_param('courseid', SITEID, PARAM_INT); 	// Course ID
-    $folderid	= optional_param('folderid', 0, PARAM_INT); 		// folder ID
-	$filterid	= optional_param('filterid', 0, PARAM_INT);			// filter ID
+$courseid   = optional_param('courseid', SITEID, PARAM_INT);    // Course ID.
+$folderid   = optional_param('folderid', 0, PARAM_INT);         // folder ID.
+$filterid   = optional_param('filterid', 0, PARAM_INT);         // filter ID.
 
-	$page       = optional_param('page', 0, PARAM_INT);          	// which page to show
-	$perpage    = optional_param('perpage', 10, PARAM_INT);  		// how many per page
+$page       = optional_param('page', 0, PARAM_INT);             // which page to show.
+$perpage    = optional_param('perpage', 10, PARAM_INT);         // how many per page.
 
-	// Search words
-	$search		= optional_param('words', '', PARAM_TEXT);			// Text to search
-	$action		= optional_param('action', 0, PARAM_INT);		// Action
-
-
-	// If defined course to view
-    if (! $course = $DB->get_record('course', 'id', $courseid)) {
-    	print_error('invalidcourseid', 'block_email_list');
-    }
-
-    require_login($course->id, false); // No autologin guest
-
-    // Add log for one course
-    add_to_log($courseid, 'email', 'search', 'view.php?id='.$courseid, 'View all mails of '.$course->shortname);
+// Search words
+$search     = optional_param('words', '', PARAM_TEXT);          // Text to search.
+$action     = optional_param('action', 0, PARAM_INT);       // Action.
 
 
-/// Print the page header
+// If defined course to view
+if (! $course = $DB->get_record('course', 'id', $courseid)) {
+    print_error('invalidcourseid', 'block_email_list');
+}
 
-	$preferencesbutton = email_get_preferences_button($courseid);
+require_login($course->id, false); // No autologin guest.
 
-	$stremail  = get_string('name', 'block_email_list');
+// Add log for one course.
+add_to_log($courseid, 'email', 'search', 'view.php?id='.$courseid, 'View all mails of '.$course->shortname);
 
-	if ( $search == get_string('searchtext', 'block_email_list') or $search == '' ) {
-		$strsearch = get_string('advancedsearch', 'search');
-	} else {
-		$strsearch = get_string('search', 'search');
-	}
 
-    if ( function_exists( 'build_navigation') ) {
-    	// Prepare navlinks
-    	$navlinks = array();
-    	$navlinks[] = array('name' => get_string('nameplural', 'block_email_list'), 'link' => 'index.php?id='.$course->id, 'type' => 'misc');
-    	$navlinks[] = array('name' => $strsearch, 'link' => null, 'type' => 'misc');
+// Print the page header.
 
-		// Build navigation
-		$navigation = build_navigation($navlinks);
+$preferencesbutton = email_get_preferences_button($courseid);
 
-		print_header("$course->shortname: $stremail: $strsearch", "$course->fullname",
-    	             $navigation,
-    	              "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
-    	              true, $preferencesbutton);
-    } else {
-    	$navigation = '';
-		if ( isset($course) ) {
-	    	if ($course->category) {
-	    	    $navigation = '<a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->shortname.'</a> ->';
-	    	}
-		}
+$stremail  = get_string('name', 'block_email_list');
 
-		$stremails = get_string('nameplural', 'block_email_list');
+if ( $search == get_string('searchtext', 'block_email_list') or $search == '' ) {
+    $strsearch = get_string('advancedsearch', 'search');
+} else {
+    $strsearch = get_string('search', 'search');
+}
 
-    	print_header("$course->shortname: $stremail: $strsearch", "$course->fullname",
-                 "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $strsearch",
+if ( function_exists( 'build_navigation') ) {
+    // Prepare navlinks.
+    $navlinks = array();
+    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'), 'link' => 'index.php?id='.$course->id, 'type' => 'misc');
+    $navlinks[] = array('name' => $strsearch, 'link' => null, 'type' => 'misc');
+
+    // Build navigation.
+    $navigation = build_navigation($navlinks);
+
+    print_header("$course->shortname: $stremail: $strsearch", "$course->fullname",
+                 $navigation,
                   "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
                   true, $preferencesbutton);
+} else {
+    $navigation = '';
+    if ( isset($course) ) {
+        if ($course->category) {
+            $navigation = '<a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->shortname.'</a> ->';
+        }
     }
 
-	// Options for new mail and new folder
-	$options = new stdClass();
-	$options->id = $courseid;
-	$options->folderid = $folderid;
-	$options->filterid = $filterid;
+    $stremails = get_string('nameplural', 'block_email_list');
 
-/// Print the main part of the page
+    print_header("$course->shortname: $stremail: $strsearch", "$course->fullname",
+             "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $strsearch",
+              "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
+              true, $preferencesbutton);
+}
 
-	// Print principal table. This have 2 columns . . .  and possibility to add right column.
-	echo '<table id="layout-table">
-  			<tr>';
+// Options for new mail and new folder.
+$options = new stdClass();
+$options->id = $courseid;
+$options->folderid = $folderid;
+$options->filterid = $filterid;
 
+// Print the main part of the page.
 
-	// Print "blocks" of this account
-	echo '<td style="width: 180px;" id="left-column">';
-	email_printblocks($USER->id, $courseid, ($search == get_string('searchtext', 'block_email_list') or $search == '') ? true : false);
+// Print principal table. This have 2 columns . . .  and possibility to add right column.
+echo '<table id="layout-table">
+            <tr>';
 
-	// Close left column
-	echo '</td>';
 
-	// Print principal column
-	echo '<td id="middle-column">';
+// Print "blocks" of this account.
+echo '<td style="width: 180px;" id="left-column">';
+email_printblocks($USER->id, $courseid, ($search == get_string('searchtext', 'block_email_list') or $search == '') ? true : false);
 
-	// Print middle table
-	print_heading_block($strsearch);
+// Close left column.
+echo '</td>';
 
-	echo '<div>&#160;</div>';
+// Print principal column.
+echo '<td id="middle-column">';
 
-	// Create advanced search form
-	$advancedsearch = new advanced_search_form();
+// Print middle table.
+print_heading_block($strsearch);
 
-	if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' ) and ( !$advancedsearch->is_submitted() ) ) {
+echo '<div>&#160;</div>';
 
-		if ( ! $action ) {
-			notify(get_string('emptysearch', 'block_email_list'));
-			notify(get_string('wantadvancedsearch', 'block_email_list'), 'notifysuccess');
-		}
+// Create advanced search form.
+$advancedsearch = new advanced_search_form();
 
-		// Print advanced search form
-		$advancedsearch->display();
-	} else if ( $advancedsearch->is_cancelled() ) {
+if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' ) and ( !$advancedsearch->is_submitted() ) ) {
 
-		// Cancelled form
-		redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, '', 1);
+    if ( ! $action ) {
+        notify(get_string('emptysearch', 'block_email_list'));
+        notify(get_string('wantadvancedsearch', 'block_email_list'), 'notifysuccess');
+    }
 
-	} else if ( $data = $advancedsearch->get_data()) {
+    // Print advanced search form.
+    $advancedsearch->display();
+} else if ( $advancedsearch->is_cancelled() ) {
 
-		/// Advanced Search by:
-		///		- Folders
-		///		- Course
-		///		- From
-		///		- To
-		///		- Subject
-		///		- Body
-		///
-		///		And / Or
+    // Cancelled form.
+    redirect($CFG->wwwroot.'/blocks/email_list/email/index.php?id='.$courseid, '', 1);
 
-		$select = 'SELECT m.*, u.firstname,u.lastname, m.userid as writer';
+} else if ( $data = $advancedsearch->get_data()) {
 
-		$from	= ' FROM {user} u,
-					 {email_mail} m,
-					 {email_send} s,
-					 {email_foldermail} fm';
+    // Advanced Search by:
+    // - Folders.
+    // - Course.
+    // - From.
+    // - To.
+    // - Subject.
+    // - Body.
+    //
+    // And / Or.
 
+    $select = 'SELECT m.*, u.firstname,u.lastname, m.userid as writer';
 
-		// FOLDERS
-		$wherefolders = '';
-		if ( ! empty( $data->folders) ) {
+    $from   = ' FROM {user} u,
+                 {email_mail} m,
+                 {email_send} s,
+                 {email_foldermail} fm';
 
-			if ( is_array($data->folders) ) {
-				$wherefolders .= ' AND ( ';
-				$i = 0;
-				foreach ( $data->folders as $key => $folder ) {
-					$wherefolders .= ($i > 0) ? " $data->connector fm.folderid = $key": " fm.folderid = $key "; // Select this folder
-					$i++;
-				}
-				$wherefolders .= ' ) ';
-			}
-		} else {
-			print_error('nosearchfolders', 'block_email_list');
-		}
 
-		$groupby = ' GROUP BY m.id';
+    // FOLDERS.
+    $wherefolders = '';
+    if ( ! empty( $data->folders) ) {
 
-		// TO
-		$myto = " m.userid = $USER->id AND m.userid = u.id ";
-		$searchto = '';
-		if ( ! empty($data->to) ) {
-
-			$searchtext = trim($data->to);
-
-			if ($searchtext !== '') {   // Search for a subset of remaining users
-	            $LIKE      = $DB->sql_ilike();
-	            $FULLNAME  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
-
-	            $searchto = " AND ($FULLNAME $LIKE '%$searchtext%') ";
-			}
-		}
-
-
-		// FROM
-		$searchfrom = '';
-		if ( ! empty( $data->from ) ) {
-
-			$searchtext = trim($data->from);
-
-			if ($searchtext !== '') {   // Search for a subset of remaining users
-	            $LIKE      = $DB->sql_ilike();
-	            $FULLNAME  = $DB->sql_fullname();
-
-	            $searchfrom = " AND ($FULLNAME $LIKE '%$searchtext%') ";
-	        }
-		}
-
-		// SUBJECT
-		$sqlsubject = '';
-		if ( ! empty( $data->subject ) ) {
-
-			$searchstring = str_replace( "\\\"", "\"", $data->subject);
-		    $parser = new search_parser();
-		    $lexer = new search_lexer($parser);
-
-		    if ($lexer->parse($searchstring)) {
-		        $parsearray = $parser->get_parsed_array();
-
-				$sqlsubject = $DB->search_generate_text_SQL($parsearray, 'm.subject', '', 'm.userid', 'u.id',
-                         'u.firstname', 'u.lastname', 'm.timecreated', '');
-		    }
-		}
-
-
-		// BODY
-		$sqlbody = '';
-		if ( ! empty( $data->body ) ) {
-
-			$searchstring = str_replace( "\\\"", "\"", $data->body);
-		    $parser = new search_parser();
-		    $lexer = new search_lexer($parser);
-
-		    if ($lexer->parse($searchstring)) {
-		        $parsearray = $parser->get_parsed_array();
-
-				$sqlbody = $DB->search_generate_text_SQL($parsearray, 'm.body', '', 'm.userid', 'u.id',
-                         'u.firstname', 'u.lastname', 'm.timecreated', '');
-
-                $sqlsubjectbody = (! empty($sqlsubject) ) ? " AND ( $sqlsubject $data->connector $sqlbody ) " : ' AND '.$sqlbody;
-		    }
-		} else if (!empty($sqlsubject) ) {
-			$sqlsubjectbody = ' AND '.$sqlsubject;
-		} else {
-			$sqlsubjectbody = '';
-		}
-
-
-		$sqlcourse = " AND s.course = m.course AND m.course = $courseid AND s.course = $courseid ";
-
-		$sql = '';
-
-		if ( !empty($data->to) ) {
-			$sql = "SELECT  R1.*, usu.firstname,usu.lastname, R1.userid as writer FROM (";
-		}
-
-		$sql .= $select.$from. ' WHERE fm.mailid = m.id '.
-					' AND m.userid = u.id '. // Allways I'm searching writer ... show Select fields
-					' AND s.mailid = m.id '. // Allways searching one mail ... apply join
-					$wherefolders.
-					$sqlcourse.
-					$sqlsubjectbody.
-					$searchfrom.
-					' AND ( m.userid = '.$USER->id.' OR ( s.userid = '.$USER->id.' AND s.mailid = m.id) ) '.
-					$groupby;
-
-		if ( !empty($data->to) ) {
-			$sql .= " ) R1, {user} usu, {email_send} s1 " .
-					"WHERE R1.id = s1.mailid AND usu.id=s1.userid AND R1.course = s1.course AND s1.type <> 'bcc' $searchto";
-		}
-
-		if (! $searchmails = $DB->get_records_sql($sql) ) {
-			debugging('Empty advanced search for next SQL stament: '.$sql, DEBUG_DEVELOPER);
-		}
-
-		$advancedsearch->display();
-
-		notify(get_string('searchword', 'block_email_list'), 'notifysuccess');
-
-		// Show mails searched
-		email_showmails($USER->id, '', $page, $perpage, $options, true, $searchmails );
-
-	} else {
-
-		// Simple search
-		$select = 'SELECT m.*, u.firstname,u.lastname, m.userid as writer';
-
-		$from	= ' FROM {user} u,
-					 {email_mail} m,
-					 {email_send} s,
-					 {email_foldermail} fm';
-
-
-		// FOLDERS
-		$wherefolders = '';
-		$folders = email_get_root_folders($USER->id, false);
-		if ( ! empty( $folders) ) {
-
-			$wherefolders .= ' AND ( ';
-			$i = 0;
-			foreach ( $folders as $folder ) {
-				$wherefolders .= ($i > 0) ? " OR fm.folderid = $folder->id": " fm.folderid = $folder->id "; // Select this folder
-				$i++;
-
-				// Now, get all subfolders it
-				$subfolders = email_get_subfolders($folder->id);
-
-				// If subfolders
-				if ( $subfolders ) {
-					foreach ( $subfolders as $subfolder ) {
-						$wherefolders .= ($i > 0) ? " OR fm.folderid = $subfolder->id": " fm.folderid = $subfolder->id "; // Select this folder
-						$i++;
-					}
-				}
-			}
-			$wherefolders .= ' ) ';
-		} else {
-			print_error('nosearchfolders', 'block_email_list');
-		}
-
-		$groupby = ' GROUP BY m.id';
-
-		// TO
-		$myto = " m.userid = $USER->id AND m.userid = u.id ";
-		$searchto = '';
-		if ( ! empty($search) ) {
-
-			$searchtext = trim($search);
-
-			if ($searchtext !== '') {   // Search for a subset of remaining users
-	            $LIKE      = $DB->sql_ilike();
-	            $FULLNAME  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
-
-	            $searchto = " AND ($FULLNAME $LIKE '%$searchtext%') ";
-			}
-		}
-
-
-		// FROM
-		$searchfrom = '';
-		if ( ! empty( $search ) ) {
-
-			$searchtext = trim($search);
-
-			if ($searchtext !== '') {   // Search for a subset of remaining users
-	            $LIKE      = $DB->sql_ilike();
-	            $FULLNAME  = $DB->sql_fullname();
-
-	            $searchfrom = " OR ($FULLNAME $LIKE '%$searchtext%') )";
-	        }
-		}
-
-		// SUBJECT
-		$sqlsubject = '';
-		if ( ! empty( $search ) ) {
-
-			$searchstring = str_replace( "\\\"", "\"", $search);
-		    $parser = new search_parser();
-		    $lexer = new search_lexer($parser);
-
-		    if ($lexer->parse($searchstring)) {
-		        $parsearray = $parser->get_parsed_array();
-
-				$sqlsubject = $DB->search_generate_text_SQL($parsearray, 'm.subject', '', 'm.userid', 'u.id',
-                         'u.firstname', 'u.lastname', 'm.timecreated', '');
-		    }
-		}
-
-
-		// BODY
-		$sqlbody = '';
-		if ( ! empty( $search ) ) {
-
-			$searchstring = str_replace( "\\\"", "\"", $search);
-		    $parser = new search_parser();
-		    $lexer = new search_lexer($parser);
-
-		    if ($lexer->parse($searchstring)) {
-		        $parsearray = $parser->get_parsed_array();
-
-				$sqlbody = $DB->search_generate_text_SQL($parsearray, 'm.body', '', 'm.userid', 'u.id',
-                         'u.firstname', 'u.lastname', 'm.timecreated', '');
-
-                $sqlsubjectbody = (! empty($sqlsubject) ) ? " AND ( $sqlsubject OR $sqlbody " : ' AND '.$sqlbody;
-		    }
-		} else if (!empty($sqlsubject) ) {
-			$sqlsubjectbody = ' AND '.$sqlsubject;
-		} else {
-			$sqlsubjectbody = '';
-		}
-
-
-		$sqlcourse = " AND s.course = m.course AND m.course = $courseid AND s.course = $courseid ";
-
-		// README: If you can search by to, this simple search mode don't get this results, you use advanced search.
-		// Only search by: Folder and ( Subject or Body or From).
-
-		$sql = '';
-
-		$sql .= $select.$from. ' WHERE fm.mailid = m.id '.
-					' AND m.userid = u.id '. // Allways I'm searching writer ... show Select fields
-					' AND s.mailid = m.id '. // Allways searching one mail ... apply join
-					$wherefolders.
-					$sqlcourse.
-					$sqlsubjectbody.
-					$searchfrom.
-					' AND ( m.userid = '.$USER->id.' OR ( s.userid = '.$USER->id.' AND s.mailid = m.id) ) '.
-					$groupby;
-
-		if (! $searchmails = $DB->get_records_sql($sql) ) {
-			debugging('Empty simple search for next SQL stament: '.$sql, DEBUG_DEVELOPER);
-		}
-
-		$advancedsearch->display();
-
-		notify(get_string('searchword', 'block_email_list'), 'notifysuccess');
-
-		// Show mails searched
-		email_showmails($USER->id, '', $page, $perpage, $options, true, $searchmails );
-	}
-
-	// Close principal column
-	echo '</td>';
-
-	// Close table
-	echo '</tr> </table>';
-
-/// Finish the page
-    if ( isset( $course ) ) {
-    	print_footer($course);
+        if ( is_array($data->folders) ) {
+            $wherefolders .= ' AND ( ';
+            $i = 0;
+            foreach ( $data->folders as $key => $folder ) {
+                $wherefolders .= ($i > 0) ? " $data->connector fm.folderid = $key": " fm.folderid = $key "; // Select this folder.
+                $i++;
+            }
+            $wherefolders .= ' ) ';
+        }
     } else {
-    	print_footer($SITE);
+        print_error('nosearchfolders', 'block_email_list');
     }
 
-?>
+    $groupby = ' GROUP BY m.id';
+
+    // TO.
+    $myto = " m.userid = $USER->id AND m.userid = u.id ";
+    $searchto = '';
+    if ( ! empty($data->to) ) {
+
+        $searchtext = trim($data->to);
+
+        if ($searchtext !== '') {   // Search for a subset of remaining users
+            $LIKE      = $DB->sql_ilike();
+            $FULLNAME  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
+
+            $searchto = " AND ($FULLNAME $LIKE '%$searchtext%') ";
+        }
+    }
+
+
+    // FROM.
+    $searchfrom = '';
+    if ( ! empty( $data->from ) ) {
+
+        $searchtext = trim($data->from);
+
+        if ($searchtext !== '') {   // Search for a subset of remaining users
+            $LIKE      = $DB->sql_ilike();
+            $FULLNAME  = $DB->sql_fullname();
+
+            $searchfrom = " AND ($FULLNAME $LIKE '%$searchtext%') ";
+        }
+    }
+
+    // SUBJECT.
+    $sqlsubject = '';
+    if ( ! empty( $data->subject ) ) {
+
+        $searchstring = str_replace( "\\\"", "\"", $data->subject);
+        $parser = new search_parser();
+        $lexer = new search_lexer($parser);
+
+        if ($lexer->parse($searchstring)) {
+            $parsearray = $parser->get_parsed_array();
+
+            $sqlsubject = $DB->search_generate_text_SQL($parsearray, 'm.subject', '', 'm.userid', 'u.id',
+                     'u.firstname', 'u.lastname', 'm.timecreated', '');
+        }
+    }
+
+
+    // BODY
+    $sqlbody = '';
+    if ( ! empty( $data->body ) ) {
+
+        $searchstring = str_replace( "\\\"", "\"", $data->body);
+        $parser = new search_parser();
+        $lexer = new search_lexer($parser);
+
+        if ($lexer->parse($searchstring)) {
+            $parsearray = $parser->get_parsed_array();
+
+            $sqlbody = $DB->search_generate_text_SQL($parsearray, 'm.body', '', 'm.userid', 'u.id',
+                     'u.firstname', 'u.lastname', 'm.timecreated', '');
+
+            $sqlsubjectbody = (! empty($sqlsubject) ) ? " AND ( $sqlsubject $data->connector $sqlbody ) " : ' AND '.$sqlbody;
+        }
+    } else if (!empty($sqlsubject) ) {
+        $sqlsubjectbody = ' AND '.$sqlsubject;
+    } else {
+        $sqlsubjectbody = '';
+    }
+
+
+    $sqlcourse = " AND s.course = m.course AND m.course = $courseid AND s.course = $courseid ";
+
+    $sql = '';
+
+    if ( !empty($data->to) ) {
+        $sql = "SELECT  R1.*, usu.firstname,usu.lastname, R1.userid as writer FROM (";
+    }
+
+    $sql .= $select.$from. ' WHERE fm.mailid = m.id '.
+                ' AND m.userid = u.id '. // Allways I'm searching writer ... show Select fields.
+                ' AND s.mailid = m.id '. // Allways searching one mail ... apply join.
+                $wherefolders.
+                $sqlcourse.
+                $sqlsubjectbody.
+                $searchfrom.
+                ' AND ( m.userid = '.$USER->id.' OR ( s.userid = '.$USER->id.' AND s.mailid = m.id) ) '.
+                $groupby;
+
+    if ( !empty($data->to) ) {
+        $sql .= " ) R1, {user} usu, {email_send} s1 " .
+                "WHERE R1.id = s1.mailid AND usu.id=s1.userid AND R1.course = s1.course AND s1.type <> 'bcc' $searchto";
+    }
+
+    if (! $searchmails = $DB->get_records_sql($sql) ) {
+        debugging('Empty advanced search for next SQL stament: '.$sql, DEBUG_DEVELOPER);
+    }
+
+    $advancedsearch->display();
+
+    notify(get_string('searchword', 'block_email_list'), 'notifysuccess');
+
+    // Show mails searched.
+    email_showmails($USER->id, '', $page, $perpage, $options, true, $searchmails );
+
+} else {
+
+    // Simple search.
+    $select = 'SELECT m.*, u.firstname,u.lastname, m.userid as writer';
+
+    $from   = ' FROM {user} u,
+                 {email_mail} m,
+                 {email_send} s,
+                 {email_foldermail} fm';
+
+
+    // FOLDERS.
+    $wherefolders = '';
+    $folders = email_get_root_folders($USER->id, false);
+    if ( ! empty( $folders) ) {
+
+        $wherefolders .= ' AND ( ';
+        $i = 0;
+        foreach ( $folders as $folder ) {
+            $wherefolders .= ($i > 0) ? " OR fm.folderid = $folder->id": " fm.folderid = $folder->id "; // Select this folder
+            $i++;
+
+            // Now, get all subfolders it.
+            $subfolders = email_get_subfolders($folder->id);
+
+            // If subfolders.
+            if ( $subfolders ) {
+                foreach ( $subfolders as $subfolder ) {
+                    $wherefolders .= ($i > 0) ? " OR fm.folderid = $subfolder->id": " fm.folderid = $subfolder->id "; // Select this folder
+                    $i++;
+                }
+            }
+        }
+        $wherefolders .= ' ) ';
+    } else {
+        print_error('nosearchfolders', 'block_email_list');
+    }
+
+    $groupby = ' GROUP BY m.id';
+
+    // TO.
+    $myto = " m.userid = $USER->id AND m.userid = u.id ";
+    $searchto = '';
+    if ( ! empty($search) ) {
+
+        $searchtext = trim($search);
+
+        if ($searchtext !== '') {   // Search for a subset of remaining users.
+            $LIKE      = $DB->sql_ilike();
+            $FULLNAME  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
+
+            $searchto = " AND ($FULLNAME $LIKE '%$searchtext%') ";
+        }
+    }
+
+
+    // FROM.
+    $searchfrom = '';
+    if ( ! empty( $search ) ) {
+
+        $searchtext = trim($search);
+
+        if ($searchtext !== '') {   // Search for a subset of remaining users.
+            $LIKE      = $DB->sql_ilike();
+            $FULLNAME  = $DB->sql_fullname();
+
+            $searchfrom = " OR ($FULLNAME $LIKE '%$searchtext%') )";
+        }
+    }
+
+    // SUBJECT.
+    $sqlsubject = '';
+    if ( ! empty( $search ) ) {
+
+        $searchstring = str_replace( "\\\"", "\"", $search);
+        $parser = new search_parser();
+        $lexer = new search_lexer($parser);
+
+        if ($lexer->parse($searchstring)) {
+            $parsearray = $parser->get_parsed_array();
+
+            $sqlsubject = $DB->search_generate_text_SQL($parsearray, 'm.subject', '', 'm.userid', 'u.id',
+                     'u.firstname', 'u.lastname', 'm.timecreated', '');
+        }
+    }
+
+
+    // BODY.
+    $sqlbody = '';
+    if ( ! empty( $search ) ) {
+
+        $searchstring = str_replace( "\\\"", "\"", $search);
+        $parser = new search_parser();
+        $lexer = new search_lexer($parser);
+
+        if ($lexer->parse($searchstring)) {
+            $parsearray = $parser->get_parsed_array();
+
+            $sqlbody = $DB->search_generate_text_SQL($parsearray, 'm.body', '', 'm.userid', 'u.id',
+                     'u.firstname', 'u.lastname', 'm.timecreated', '');
+
+            $sqlsubjectbody = (! empty($sqlsubject) ) ? " AND ( $sqlsubject OR $sqlbody " : ' AND '.$sqlbody;
+        }
+    } else if (!empty($sqlsubject) ) {
+        $sqlsubjectbody = ' AND '.$sqlsubject;
+    } else {
+        $sqlsubjectbody = '';
+    }
+
+
+    $sqlcourse = " AND s.course = m.course AND m.course = $courseid AND s.course = $courseid ";
+
+    // README: If you can search by to, this simple search mode don't get this results, you use advanced search.
+    // Only search by: Folder and ( Subject or Body or From).
+
+    $sql = '';
+
+    $sql .= $select.$from. ' WHERE fm.mailid = m.id '.
+                ' AND m.userid = u.id '. // Allways I'm searching writer ... show Select fields.
+                ' AND s.mailid = m.id '. // Allways searching one mail ... apply join.
+                $wherefolders.
+                $sqlcourse.
+                $sqlsubjectbody.
+                $searchfrom.
+                ' AND ( m.userid = '.$USER->id.' OR ( s.userid = '.$USER->id.' AND s.mailid = m.id) ) '.
+                $groupby;
+
+    if (! $searchmails = $DB->get_records_sql($sql) ) {
+        debugging('Empty simple search for next SQL stament: '.$sql, DEBUG_DEVELOPER);
+    }
+
+    $advancedsearch->display();
+
+    notify(get_string('searchword', 'block_email_list'), 'notifysuccess');
+
+    // Show mails searched.
+    email_showmails($USER->id, '', $page, $perpage, $options, true, $searchmails );
+}
+
+// Close principal column.
+echo '</td>';
+
+// Close table.
+echo '</tr> </table>';
+
+// Finish the page.
+if ( isset( $course ) ) {
+    print_footer($course);
+} else {
+    print_footer($SITE);
+}
