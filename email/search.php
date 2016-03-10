@@ -35,24 +35,24 @@ require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');         // The e
 require_once($CFG->libdir. '/ajax/ajaxlib.php');
 
 // Search lib.
-include_once($CFG->libdir.'/searchlib.php');
+require_once($CFG->libdir.'/searchlib.php');
 
 // Advanced search form.
-include_once($CFG->dirroot.'/blocks/email_list/email/advanced_search_form.php');
+require_once($CFG->dirroot.'/blocks/email_list/email/advanced_search_form.php');
 
 $courseid   = optional_param('courseid', SITEID, PARAM_INT);    // Course ID.
-$folderid   = optional_param('folderid', 0, PARAM_INT);         // folder ID.
-$filterid   = optional_param('filterid', 0, PARAM_INT);         // filter ID.
+$folderid   = optional_param('folderid', 0, PARAM_INT);         // Folder ID.
+$filterid   = optional_param('filterid', 0, PARAM_INT);         // Filter ID.
 
-$page       = optional_param('page', 0, PARAM_INT);             // which page to show.
-$perpage    = optional_param('perpage', 10, PARAM_INT);         // how many per page.
+$page       = optional_param('page', 0, PARAM_INT);             // Which page to show.
+$perpage    = optional_param('perpage', 10, PARAM_INT);         // How many per page.
 
 // Search words
 $search     = optional_param('words', '', PARAM_TEXT);          // Text to search.
-$action     = optional_param('action', 0, PARAM_INT);       // Action.
+$action     = optional_param('action', 0, PARAM_INT);           // Action.
 
 
-// If defined course to view
+// If defined course to view.
 if (! $course = $DB->get_record('course', 'id', $courseid)) {
     print_error('invalidcourseid', 'block_email_list');
 }
@@ -78,16 +78,27 @@ if ( $search == get_string('searchtext', 'block_email_list') or $search == '' ) 
 if ( function_exists( 'build_navigation') ) {
     // Prepare navlinks.
     $navlinks = array();
-    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'), 'link' => 'index.php?id='.$course->id, 'type' => 'misc');
+    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'),
+        'link' => 'index.php?id=' . $course->id,
+        'type' => 'misc'
+    );
     $navlinks[] = array('name' => $strsearch, 'link' => null, 'type' => 'misc');
 
     // Build navigation.
     $navigation = build_navigation($navlinks);
 
-    print_header("$course->shortname: $stremail: $strsearch", "$course->fullname",
-                 $navigation,
-                  "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
-                  true, $preferencesbutton);
+    print_header("$course->shortname: $stremail: $strsearch",
+        "$course->fullname",
+        $navigation,
+        "",
+        '<link type="text/css" href="email.css" rel="stylesheet" />
+            <link type="text/css" href="treemenu.css" rel="stylesheet" />
+            <link type="text/css" href="tree.css" rel="stylesheet" />
+            <script type="text/javascript" src="treemenu.js"></script>
+            <script type="text/javascript" src="email.js"></script>',
+        true,
+        $preferencesbutton
+    );
 } else {
     $navigation = '';
     if ( isset($course) ) {
@@ -98,10 +109,18 @@ if ( function_exists( 'build_navigation') ) {
 
     $stremails = get_string('nameplural', 'block_email_list');
 
-    print_header("$course->shortname: $stremail: $strsearch", "$course->fullname",
-             "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $strsearch",
-              "", '<link type="text/css" href="email.css" rel="stylesheet" /><link type="text/css" href="treemenu.css" rel="stylesheet" /><link type="text/css" href="tree.css" rel="stylesheet" /><script type="text/javascript" src="treemenu.js"></script><script type="text/javascript" src="email.js"></script>',
-              true, $preferencesbutton);
+    print_header("$course->shortname: $stremail: $strsearch",
+        "$course->fullname",
+        "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $strsearch",
+        "",
+        '<link type="text/css" href="email.css" rel="stylesheet" />
+            <link type="text/css" href="treemenu.css" rel="stylesheet" />
+            <link type="text/css" href="tree.css" rel="stylesheet" />
+            <script type="text/javascript" src="treemenu.js"></script>
+            <script type="text/javascript" src="email.js"></script>',
+        true,
+        $preferencesbutton
+    );
 }
 
 // Options for new mail and new folder.
@@ -176,8 +195,9 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
         if ( is_array($data->folders) ) {
             $wherefolders .= ' AND ( ';
             $i = 0;
-            foreach ( $data->folders as $key => $folder ) {
-                $wherefolders .= ($i > 0) ? " $data->connector fm.folderid = $key": " fm.folderid = $key "; // Select this folder.
+            foreach ($data->folders as $key => $folder) {
+                // Select this folder.
+                $wherefolders .= ($i > 0) ? " $data->connector fm.folderid = $key" : " fm.folderid = $key ";
                 $i++;
             }
             $wherefolders .= ' ) ';
@@ -195,11 +215,11 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
 
         $searchtext = trim($data->to);
 
-        if ($searchtext !== '') {   // Search for a subset of remaining users
-            $LIKE      = $DB->sql_ilike();
-            $FULLNAME  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
+        if ($searchtext !== '') {   // Search for a subset of remaining users.
+            $like      = $DB->sql_ilike();
+            $fullname  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
 
-            $searchto = " AND ($FULLNAME $LIKE '%$searchtext%') ";
+            $searchto = " AND ($fullname $like '%$searchtext%') ";
         }
     }
 
@@ -210,17 +230,17 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
 
         $searchtext = trim($data->from);
 
-        if ($searchtext !== '') {   // Search for a subset of remaining users
-            $LIKE      = $DB->sql_ilike();
-            $FULLNAME  = $DB->sql_fullname();
+        if ($searchtext !== '') {   // Search for a subset of remaining users.
+            $like      = $DB->sql_ilike();
+            $fullname  = $DB->sql_fullname();
 
-            $searchfrom = " AND ($FULLNAME $LIKE '%$searchtext%') ";
+            $searchfrom = " AND ($fullname $like '%$searchtext%') ";
         }
     }
 
     // SUBJECT.
     $sqlsubject = '';
-    if ( ! empty( $data->subject ) ) {
+    if ( !empty($data->subject) ) {
 
         $searchstring = str_replace( "\\\"", "\"", $data->subject);
         $parser = new search_parser();
@@ -235,7 +255,7 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
     }
 
 
-    // BODY
+    // BODY.
     $sqlbody = '';
     if ( ! empty( $data->body ) ) {
 
@@ -256,7 +276,6 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
     } else {
         $sqlsubjectbody = '';
     }
-
 
     $sqlcourse = " AND s.course = m.course AND m.course = $courseid AND s.course = $courseid ";
 
@@ -306,12 +325,12 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
     // FOLDERS.
     $wherefolders = '';
     $folders = email_get_root_folders($USER->id, false);
-    if ( ! empty( $folders) ) {
+    if ( !empty( $folders) ) {
 
         $wherefolders .= ' AND ( ';
         $i = 0;
-        foreach ( $folders as $folder ) {
-            $wherefolders .= ($i > 0) ? " OR fm.folderid = $folder->id": " fm.folderid = $folder->id "; // Select this folder
+        foreach ($folders as $folder) {
+            $wherefolders .= ($i > 0) ? " OR fm.folderid = $folder->id" : " fm.folderid = $folder->id "; // Select this folder.
             $i++;
 
             // Now, get all subfolders it.
@@ -319,8 +338,9 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
 
             // If subfolders.
             if ( $subfolders ) {
-                foreach ( $subfolders as $subfolder ) {
-                    $wherefolders .= ($i > 0) ? " OR fm.folderid = $subfolder->id": " fm.folderid = $subfolder->id "; // Select this folder
+                foreach ($subfolders as $subfolder) {
+                    // Select this folder.
+                    $wherefolders .= ($i > 0) ? " OR fm.folderid = $subfolder->id" : " fm.folderid = $subfolder->id ";
                     $i++;
                 }
             }
@@ -340,25 +360,24 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
         $searchtext = trim($search);
 
         if ($searchtext !== '') {   // Search for a subset of remaining users.
-            $LIKE      = $DB->sql_ilike();
-            $FULLNAME  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
+            $like      = $DB->sql_ilike();
+            $fullname  = $DB->sql_fullname('usu.firstname', 'usu.lastname');
 
-            $searchto = " AND ($FULLNAME $LIKE '%$searchtext%') ";
+            $searchto = " AND ($fullname $like '%$searchtext%') ";
         }
     }
 
 
     // FROM.
     $searchfrom = '';
-    if ( ! empty( $search ) ) {
-
+    if ( !empty( $search ) ) {
         $searchtext = trim($search);
 
         if ($searchtext !== '') {   // Search for a subset of remaining users.
-            $LIKE      = $DB->sql_ilike();
-            $FULLNAME  = $DB->sql_fullname();
+            $like      = $DB->sql_ilike();
+            $fullname  = $DB->sql_fullname();
 
-            $searchfrom = " OR ($FULLNAME $LIKE '%$searchtext%') )";
+            $searchfrom = " OR ($fullname $like '%$searchtext%') )";
         }
     }
 
@@ -378,10 +397,9 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
         }
     }
 
-
     // BODY.
     $sqlbody = '';
-    if ( ! empty( $search ) ) {
+    if ( !empty($search) ) {
 
         $searchstring = str_replace( "\\\"", "\"", $search);
         $parser = new search_parser();

@@ -17,7 +17,7 @@
 /**
  * Settings for eMail List.
  *
- * @package 	email
+ * @package     email
  * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,23 +26,27 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
 
-	$options = array('0' => get_string('no'), '1' => get_string('yes'));
+    $options = array('0' => get_string('no'), '1' => get_string('yes'));
 
-	// General options.
+    // General options.
 
-	// Track by email.
+    // Track by email.
     $settings->add(new admin_setting_configselect('block_email_trackbymail', get_string('trackbymail', 'block_email_list'),
                        get_string('configtrackbymail', 'block_email_list'), '1', $options));
 
     // Labels by course.
-    $settings->add(new admin_setting_configselect('block_email_marriedlabels2courses', get_string('marriedlabels2courses', 'block_email_list'),
-                       get_string('configmarriedlabels2courses', 'block_email_list'), '1', $options));
+    $settings->add(new admin_setting_configselect('block_email_marriedlabels2courses',
+        get_string('marriedlabels2courses', 'block_email_list'),
+        get_string('configmarriedlabels2courses', 'block_email_list'),
+        '1',
+        $options)
+    );
 
     // Add admins in possible users sent.
     $settings->add(new admin_setting_configselect('block_email_add_admins', get_string('add_admins', 'block_email_list'),
                        get_string('configaddadmins', 'block_email_list'), '0', $options));
 
-    // eMail Colors.
+    // The eMail Colors.
 
     // Answered color.
     $name = 'block_email_answered_color';
@@ -61,8 +65,7 @@ if ($ADMIN->fulltree) {
     $settings->add($setting);
 
     // Block settings.
-
-	$options[0] = get_string('all');
+    $options[0] = get_string('all');
     $options[5] = 5;
     $options[10] = 10;
     $options[15] = 15;
@@ -75,6 +78,10 @@ if ($ADMIN->fulltree) {
     $options[50] = 50;
 
     // Number of displayed courses.
-    $settings->add(new admin_setting_configselect('block_email_max_number_courses', get_string('maxnumbercourses', 'block_email_list'),
-                       get_string('configmaxnumbercourses', 'block_email_list'), '0', $options));
+    $settings->add(new admin_setting_configselect('block_email_max_number_courses',
+        get_string('maxnumbercourses', 'block_email_list'),
+        get_string('configmaxnumbercourses', 'block_email_list'),
+        '0',
+        $options)
+    );
 }

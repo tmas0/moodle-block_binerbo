@@ -1,4 +1,18 @@
-<?php // $Id: tablelib.php,v 1.2 2008/08/26 16:19:05 tmas Exp $
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 define('TABLE_VAR_SORT',   1);
 define('TABLE_VAR_HIDE',   2);
@@ -9,34 +23,34 @@ define('TABLE_VAR_PAGE',   6);
 
 class email_flexible_table {
 
-    var $uniqueid        = NULL;
-    var $attributes      = array();
-    var $headers         = array();
-    var $columns         = array();
-    var $column_style    = array();
-    var $column_class    = array();
-    var $column_suppress = array();
-    var $setup           = false;
-    var $sess            = NULL;
-    var $baseurl         = NULL;
-    var $request         = array();
+    public $uniqueid        = null;
+    public $attributes      = array();
+    public $headers         = array();
+    public $columns         = array();
+    public $columnstyle    = array();
+    public $columnclass    = array();
+    public $columnsuppress = array();
+    public $setup           = false;
+    public $sess            = null;
+    public $baseurl         = null;
+    public $request         = array();
 
-    var $is_collapsible = false;
-    var $is_sortable    = false;
-    var $use_pages      = false;
-    var $use_initials   = false;
+    public $iscollapsible = false;
+    public $issortable    = false;
+    public $usepages      = false;
+    public $useinitials   = false;
 
-    var $maxsortkeys = 2;
-    var $pagesize    = 30;
-    var $currpage    = 0;
-    var $totalrows   = 0;
-    var $sort_default_column = NULL;
-    var $sort_default_order  = SORT_ASC;
+    public $maxsortkeys = 2;
+    public $pagesize    = 30;
+    public $currpage    = 0;
+    public $totalrows   = 0;
+    public $sortdefaultcolumn = null;
+    public $sortdefaultorder  = SORT_ASC;
 
-    // Antoni Mas. Add
-    var $input		= false;
+    // Antoni Mas. Add.
+    public $input       = false;
 
-    function email_flexible_table($uniqueid) {
+    public function __construct($uniqueid) {
         $this->uniqueid = $uniqueid;
         $this->request  = array(
             TABLE_VAR_SORT    => 'tsort',
@@ -48,213 +62,224 @@ class email_flexible_table {
         );
     }
 
-    function sortable($bool, $defaultcolumn = NULL, $defaultorder = SORT_ASC) {
-        $this->is_sortable = $bool;
-        $this->sort_default_column = $defaultcolumn;
-        $this->sort_default_order  = $defaultorder;
+    public function sortable($bool, $defaultcolumn = null, $defaultorder = SORT_ASC) {
+        $this->issortable = $bool;
+        $this->sortdefaultcolumn = $defaultcolumn;
+        $this->sortdefaultorder  = $defaultorder;
     }
 
-    function collapsible($bool) {
-        $this->is_collapsible = $bool;
+    public function collapsible($bool) {
+        $this->iscollapsible = $bool;
     }
 
-    // Antoni Mas
-    function inputs($bool) {
-    	$this->input = $bool;
+    // Antoni Mas.
+    public function inputs($bool) {
+        $this->input = $bool;
     }
 
-    function pageable($bool) {
-        $this->use_pages = $bool;
+    public function pageable($bool) {
+        $this->usepages = $bool;
     }
 
-    function initialbars($bool) {
-        $this->use_initials = $bool;
+    public function initialbars($bool) {
+        $this->useinitials = $bool;
     }
 
-    function pagesize($perpage, $total) {
+    public function pagesize($perpage, $total) {
         $this->pagesize  = $perpage;
         $this->totalrows = $total;
-        $this->use_pages = true;
+        $this->usepages = true;
     }
 
-    function set_control_variables($variables) {
-        foreach($variables as $what => $variable) {
-            if(isset($this->request[$what])) {
+    public function set_control_variables($variables) {
+        foreach ($variables as $what => $variable) {
+            if (isset($this->request[$what]) ) {
                 $this->request[$what] = $variable;
             }
         }
     }
 
-    function set_attribute($attribute, $value) {
+    public function set_attribute($attribute, $value) {
         $this->attributes[$attribute] = $value;
     }
 
-    function column_suppress($column) {
-        if(isset($this->column_suppress[$column])) {
-            $this->column_suppress[$column] = true;
+    public function columnsuppress($column) {
+        if ( isset($this->columnsuppress[$column]) ) {
+            $this->columnsuppress[$column] = true;
         }
     }
 
-    function column_class($column, $classname) {
-        if(isset($this->column_class[$column])) {
-            $this->column_class[$column] = ' '.$classname; // This space needed so that classnames don't run together in the HTML
+    public function columnclass($column, $classname) {
+        if ( isset($this->columnclass[$column])) {
+            // This space needed so that classnames don't run together in the HTML.
+            $this->columnclass[$column] = ' '.$classname;
         }
     }
 
-    function column_style($column, $property, $value) {
-        if(isset($this->column_style[$column])) {
-            $this->column_style[$column][$property] = $value;
+    public function columnstyle($column, $property, $value) {
+        if (isset($this->columnstyle[$column])) {
+            $this->columnstyle[$column][$property] = $value;
         }
     }
 
-    function column_style_all($property, $value) {
-        foreach(array_keys($this->columns) as $column) {
-            $this->column_style[$column][$property] = $value;
+    public function columnstyle_all($property, $value) {
+        foreach (array_keys($this->columns) as $column) {
+            $this->columnstyle[$column][$property] = $value;
         }
     }
 
-    function define_baseurl($url) {
+    public function define_baseurl($url) {
         $this->reseturl = $url;
-        if(!strpos($url, '?')) {
+        if ( !strpos($url, '?') ) {
             $this->baseurl = $url.'?';
-        }
-        else {
+        } else {
             $this->baseurl = $url.'&amp;';
         }
     }
 
-    function define_columns($columns) {
+    public function define_columns($columns) {
         $this->columns = array();
-        $this->column_style = array();
-        $this->column_class = array();
+        $this->columnstyle = array();
+        $this->columnclass = array();
         $colnum = 0;
 
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             $this->columns[$column]         = $colnum++;
-            $this->column_style[$column]    = array();
-            $this->column_class[$column]    = '';
-            $this->column_suppress[$column] = false;
+            $this->columnstyle[$column]    = array();
+            $this->columnclass[$column]    = '';
+            $this->columnsuppress[$column] = false;
         }
     }
 
-    function define_headers($headers) {
+    public function define_headers($headers) {
         $this->headers = $headers;
     }
 
-    function make_styles_string(&$styles) {
-        if(empty($styles)) {
+    public function make_styles_string(&$styles) {
+        if ( empty($styles) ) {
             return '';
         }
 
         $string = ' style="';
-        foreach($styles as $property => $value) {
+        foreach ($styles as $property => $value) {
             $string .= $property.':'.$value.';';
         }
         $string .= '"';
         return $string;
     }
 
-    function make_attributes_string(&$attributes) {
-        if(empty($attributes)) {
+    public function make_attributes_string(&$attributes) {
+        if ( empty($attributes) ) {
             return '';
         }
 
         $string = ' ';
-        foreach($attributes as $attr => $value) {
+        foreach ($attributes as $attr => $value) {
             $string .= ($attr.'="'.$value.'" ');
         }
 
         return $string;
     }
 
-    function setup() {
+    public function setup() {
         global $SESSION, $CFG;
 
-        if(empty($this->columns) || empty($this->uniqueid)) {
+        if ( empty($this->columns) || empty($this->uniqueid) ) {
             return false;
         }
 
-        if (!isset($SESSION->flextable)) {
+        if ( !isset($SESSION->flextable) ) {
             $SESSION->flextable = array();
         }
 
-        if(!isset($SESSION->flextable[$this->uniqueid])) {
+        if ( !isset($SESSION->flextable[$this->uniqueid]) ) {
             $SESSION->flextable[$this->uniqueid] = new stdClass;
             $SESSION->flextable[$this->uniqueid]->uniqueid = $this->uniqueid;
             $SESSION->flextable[$this->uniqueid]->collapse = array();
             $SESSION->flextable[$this->uniqueid]->sortby   = array();
-            $SESSION->flextable[$this->uniqueid]->i_first  = '';
-            $SESSION->flextable[$this->uniqueid]->i_last   = '';
+            $SESSION->flextable[$this->uniqueid]->ifirst  = '';
+            $SESSION->flextable[$this->uniqueid]->ilast   = '';
         }
 
         $this->sess = &$SESSION->flextable[$this->uniqueid];
 
-        if(!empty($_GET[$this->request[TABLE_VAR_SHOW]]) && isset($this->columns[$_GET[$this->request[TABLE_VAR_SHOW]]])) {
-            // Show this column
+        if ( !empty($_GET[$this->request[TABLE_VAR_SHOW]]) &&
+                isset($this->columns[$_GET[$this->request[TABLE_VAR_SHOW]]]) ) {
+            // Show this column.
             $this->sess->collapse[$_GET[$this->request[TABLE_VAR_SHOW]]] = false;
-        }
-        else if(!empty($_GET[$this->request[TABLE_VAR_HIDE]]) && isset($this->columns[$_GET[$this->request[TABLE_VAR_HIDE]]])) {
-            // Hide this column
+        } else if ( !empty($_GET[$this->request[TABLE_VAR_HIDE]]) &&
+                isset($this->columns[$_GET[$this->request[TABLE_VAR_HIDE]]]) ) {
+            // Hide this column.
             $this->sess->collapse[$_GET[$this->request[TABLE_VAR_HIDE]]] = true;
-            if(array_key_exists($_GET[$this->request[TABLE_VAR_HIDE]], $this->sess->sortby)) {
+            if ( array_key_exists($_GET[$this->request[TABLE_VAR_HIDE]], $this->sess->sortby) ) {
                 unset($this->sess->sortby[$_GET[$this->request[TABLE_VAR_HIDE]]]);
             }
         }
 
-        // Now, update the column attributes for collapsed columns
-        foreach(array_keys($this->columns) as $column) {
-            if(!empty($this->sess->collapse[$column])) {
-                $this->column_style[$column]['width'] = '10px';
+        // Now, update the column attributes for collapsed columns.
+        foreach (array_keys($this->columns) as $column) {
+            if ( !empty($this->sess->collapse[$column]) ) {
+                $this->columnstyle[$column]['width'] = '10px';
             }
         }
 
-        if(
-            !empty($_GET[$this->request[TABLE_VAR_SORT]]) &&
+        if ( !empty($_GET[$this->request[TABLE_VAR_SORT]]) &&
             (isset($this->columns[$_GET[$this->request[TABLE_VAR_SORT]]]) ||
-                (($_GET[$this->request[TABLE_VAR_SORT]] == 'firstname' || $_GET[$this->request[TABLE_VAR_SORT]] == 'lastname') && isset($this->columns['fullname']))
-            ))
-        {
-            if(empty($this->sess->collapse[$_GET[$this->request[TABLE_VAR_SORT]]])) {
-                if(array_key_exists($_GET[$this->request[TABLE_VAR_SORT]], $this->sess->sortby)) {
+                (($_GET[$this->request[TABLE_VAR_SORT]] == 'firstname' ||
+                    $_GET[$this->request[TABLE_VAR_SORT]] == 'lastname')
+                && isset($this->columns['fullname']))) ) {
+            if ( empty($this->sess->collapse[$_GET[$this->request[TABLE_VAR_SORT]]]) ) {
+                if ( array_key_exists($_GET[$this->request[TABLE_VAR_SORT]], $this->sess->sortby) ) {
                     // This key already exists somewhere. Change its sortorder and bring it to the top.
                     $sortorder = $this->sess->sortby[$_GET[$this->request[TABLE_VAR_SORT]]] == SORT_ASC ? SORT_DESC : SORT_ASC;
                     unset($this->sess->sortby[$_GET[$this->request[TABLE_VAR_SORT]]]);
-                    $this->sess->sortby = array_merge(array($_GET[$this->request[TABLE_VAR_SORT]] => $sortorder), $this->sess->sortby);
+                    $this->sess->sortby = array_merge(
+                            array($_GET[$this->request[TABLE_VAR_SORT]] => $sortorder),
+                            $this->sess->sortby
+                    );
+                } else {
+                    // Key doesn't exist, so just add it to the beginning of the array, ascending order.
+                    $this->sess->sortby = array_merge(
+                        array($_GET[$this->request[TABLE_VAR_SORT]] => SORT_ASC),
+                        $this->sess->sortby
+                    );
                 }
-                else {
-                    // Key doesn't exist, so just add it to the beginning of the array, ascending order
-                    $this->sess->sortby = array_merge(array($_GET[$this->request[TABLE_VAR_SORT]] => SORT_ASC), $this->sess->sortby);
-                }
-                // Finally, make sure that no more than $this->maxsortkeys are present into the array
-                if(!empty($this->maxsortkeys) && ($sortkeys = count($this->sess->sortby)) > $this->maxsortkeys) {
-                    while($sortkeys-- > $this->maxsortkeys) {
+                // Finally, make sure that no more than $this->maxsortkeys are present into the array.
+                if ( !empty($this->maxsortkeys) && ($sortkeys = count($this->sess->sortby)) > $this->maxsortkeys ) {
+                    while ($sortkeys-- > $this->maxsortkeys) {
                         array_pop($this->sess->sortby);
                     }
                 }
             }
         }
 
-        // If we didn't sort just now, then use the default sort order if one is defined and the column exists
-        if(empty($this->sess->sortby) && !empty($this->sort_default_column) && (isset($this->columns[$this->sort_default_column])
-                                                                                || (in_array('fullname',$this->columns)
-                                                                                    && in_array($this->sort_default_column,
-                                                                                                array('firstname','lastname')))))  {
-            $this->sess->sortby = array ($this->sort_default_column => ($this->sort_default_order == SORT_DESC ? SORT_DESC : SORT_ASC));
+        // If we didn't sort just now, then use the default sort order if one is defined and the column exists.
+        if ( empty($this->sess->sortby) &&
+            !empty($this->sortdefaultcolumn) &&
+            (isset($this->columns[$this->sortdefaultcolumn])
+                || (in_array('fullname', $this->columns)
+                && in_array($this->sortdefaultcolumn,
+                array('firstname', 'lastname')))) ) {
+            $this->sess->sortby = array(
+                $this->sortdefaultcolumn => ($this->sortdefaultorder == SORT_DESC ? SORT_DESC : SORT_ASC)
+            );
         }
 
-        if(isset($_GET[$this->request[TABLE_VAR_ILAST]])) {
-            if(empty($_GET[$this->request[TABLE_VAR_ILAST]]) || is_numeric(strpos(get_string('alphabet'), $_GET[$this->request[TABLE_VAR_ILAST]]))) {
-                $this->sess->i_last = $_GET[$this->request[TABLE_VAR_ILAST]];
+        if ( isset($_GET[$this->request[TABLE_VAR_ILAST]]) ) {
+            if ( empty($_GET[$this->request[TABLE_VAR_ILAST]]) ||
+                    is_numeric(strpos(get_string('alphabet'), $_GET[$this->request[TABLE_VAR_ILAST]])) ) {
+                $this->sess->ilast = $_GET[$this->request[TABLE_VAR_ILAST]];
             }
         }
 
-        if(isset($_GET[$this->request[TABLE_VAR_IFIRST]])) {
-            if(empty($_GET[$this->request[TABLE_VAR_IFIRST]]) || is_numeric(strpos(get_string('alphabet'), $_GET[$this->request[TABLE_VAR_IFIRST]]))) {
-                $this->sess->i_first = $_GET[$this->request[TABLE_VAR_IFIRST]];
+        if ( isset($_GET[$this->request[TABLE_VAR_IFIRST]]) ) {
+            if ( empty($_GET[$this->request[TABLE_VAR_IFIRST]]) ||
+                is_numeric(strpos(get_string('alphabet'), $_GET[$this->request[TABLE_VAR_IFIRST]])) ) {
+                $this->sess->ifirst = $_GET[$this->request[TABLE_VAR_IFIRST]];
             }
         }
 
-        if(empty($this->baseurl)) {
+        if ( empty($this->baseurl) ) {
             $getcopy  = $_GET;
             unset($getcopy[$this->request[TABLE_VAR_SHOW]]);
             unset($getcopy[$this->request[TABLE_VAR_HIDE]]);
@@ -265,73 +290,69 @@ class email_flexible_table {
 
             $strippedurl = strip_querystring(qualified_me());
 
-            if(!empty($getcopy)) {
+            if ( !empty($getcopy) ) {
                 $first = false;
                 $querystring = '';
-                foreach($getcopy as $var => $val) {
-                    if(!$first) {
+                foreach ($getcopy as $var => $val) {
+                    if ( !$first ) {
                         $first = true;
                         $querystring .= '?'.$var.'='.$val;
-                    }
-                    else {
+                    } else {
                         $querystring .= '&amp;'.$var.'='.$val;
                     }
                 }
-                $this->reseturl =  $strippedurl.$querystring;
+                $this->reseturl = $strippedurl.$querystring;
                 $querystring .= '&amp;';
-            }
-            else {
-                $this->reseturl =  $strippedurl.$querystring;
+            } else {
+                $this->reseturl = $strippedurl.$querystring;
                 $querystring = '?';
             }
 
             $this->baseurl = strip_querystring(qualified_me()) . $querystring;
         }
 
-        // If it's "the first time" we 've been here, forget the previous initials filters
-        if(qualified_me() == $this->reseturl) {
-            $this->sess->i_first = '';
-            $this->sess->i_last  = '';
+        // If it's "the first time" we 've been here, forget the previous initials filters.
+        if (qualified_me() == $this->reseturl) {
+            $this->sess->ifirst = '';
+            $this->sess->ilast  = '';
         }
 
         $this->currpage = optional_param($this->request[TABLE_VAR_PAGE], 0);
         $this->setup = true;
 
-    /// Always introduce the "flexible" class for the table if not specified
-    /// No attributes, add flexible class
+        // Always introduce the "flexible" class for the table if not specified.
+        // No attributes, add flexible class.
         if (empty($this->attributes)) {
             $this->attributes['class'] = 'flexible';
-    /// No classes, add flexible class
-        } else if (!isset($this->attributes['class'])) {
+            // No classes, add flexible class.
+        } else if ( !isset($this->attributes['class']) ) {
             $this->attributes['class'] = 'flexible';
-    /// No flexible class in passed classes, add flexible class
-        } else if (!in_array('flexible', explode(' ', $this->attributes['class']))) {
+            // No flexible class in passed classes, add flexible class.
+        } else if ( !in_array('flexible', explode(' ', $this->attributes['class'])) ) {
             $this->attributes['class'] = trim('flexible ' . $this->attributes['class']);
         }
-
     }
 
-    function get_sql_sort($uniqueid = NULL) {
-        if($uniqueid === NULL) {
-            // "Non-static" function call
-            if(!$this->setup) {
-               return false;
+    public function get_sql_sort($uniqueid = null) {
+        if ($uniqueid === null) {
+            // Non-static function call.
+            if ( !$this->setup ) {
+                return false;
             }
             $sess = &$this->sess;
-        }
-        else {
-            // "Static" function call
+        } else {
+            // Static function call.
             global $SESSION;
-            if(empty($SESSION->flextable[$uniqueid])) {
-               return '';
+            if ( empty($SESSION->flextable[$uniqueid]) ) {
+                return '';
             }
             $sess = &$SESSION->flextable[$uniqueid];
         }
 
-        if(!empty($sess->sortby)) {
+        if ( !empty($sess->sortby) ) {
             $sortstring = '';
-            foreach($sess->sortby as $column => $order) {
-                if(!empty($sortstring)) {
+            foreach ($sess->sortby as $column => $order) {
+                if ( !empty($sortstring) ) {
                     $sortstring .= ', ';
                 }
                 $sortstring .= $column.($order == SORT_ASC ? ' ASC' : ' DESC');
@@ -341,98 +362,96 @@ class email_flexible_table {
         return '';
     }
 
-    function get_page_start() {
-        if(!$this->use_pages) {
+    public function get_page_start() {
+        if ( !$this->usepages ) {
             return '';
         }
         return $this->currpage * $this->pagesize;
     }
 
-    function get_page_size() {
-        if(!$this->use_pages) {
+    public function get_page_size() {
+        if ( !$this->usepages ) {
             return '';
         }
         return $this->pagesize;
     }
 
-    function get_sql_where() {
-        if(!isset($this->columns['fullname'])) {
+    public function get_sql_where() {
+        if ( !isset($this->columns['fullname']) ) {
             return '';
         }
 
-        $LIKE = $DB->sql_ilike();
-        if(!empty($this->sess->i_first) && !empty($this->sess->i_last)) {
-            return 'firstname '.$LIKE.' \''.$this->sess->i_first.'%\' AND lastname '.$LIKE.' \''.$this->sess->i_last.'%\'';
-        }
-        else if(!empty($this->sess->i_first)) {
-            return 'firstname '.$LIKE.' \''.$this->sess->i_first.'%\'';
-        }
-        else if(!empty($this->sess->i_last)) {
-            return 'lastname '.$LIKE.' \''.$this->sess->i_last.'%\'';
+        $like = $DB->sql_ilike();
+        if ( !empty($this->sess->ifirst) && !empty($this->sess->ilast) ) {
+            return 'firstname '.$like.' \''.$this->sess->ifirst.'%\' AND lastname '.$like.' \''.$this->sess->ilast.'%\'';
+        } else if ( !empty($this->sess->ifirst) ) {
+            return 'firstname '.$like.' \''.$this->sess->ifirst.'%\'';
+        } else if ( !empty($this->sess->ilast) ) {
+            return 'lastname '.$like.' \''.$this->sess->ilast.'%\'';
         }
 
         return '';
     }
 
-    function get_initial_first() {
-        if(!$this->use_initials) {
-            return NULL;
+    public function get_initial_first() {
+        if ( !$this->useinitials ) {
+            return null;
         }
 
-        return $this->sess->i_first;
+        return $this->sess->ifirst;
     }
 
-    function get_initial_last() {
-        if(!$this->use_initials) {
-            return NULL;
+    public function get_initial_last() {
+        if ( !$this->useinitials ) {
+            return null;
         }
 
-        return $this->sess->i_last;
+        return $this->sess->ilast;
     }
 
-    function print_html() {
+    public function print_html() {
         global $CFG;
 
-        if(!$this->setup) {
+        if ( !$this->setup ) {
             return false;
         }
 
-        // Antoni Mas
+        // Antoni Mas.
         if ( $this->input ) {
-        	echo '<script type="text/javascript" language="JavaScript">
+            echo '<script type="text/javascript" language="JavaScript">
                 <!--
-                		function select_all( field, checked ) {
-							if ( field.length == null) {
-								field.checked = checked;
-							} else {
-						    	for (var i = 0; i < field.length; i++) {
-									field[i].checked = checked ;
-								}
-							}
-						}
-                	-->
-                 </script>';
+                        function select_all( field, checked ) {
+                            if ( field.length == null) {
+                                field.checked = checked;
+                            } else {
+                                for (var i = 0; i < field.length; i++) {
+                                    field[i].checked = checked ;
+                                }
+                            }
+                        }
+                    -->
+                </script>';
         }
 
         $colcount = count($this->columns);
 
-        // Do we need to print initial bars?
+        // Do we need to print initial bars?.
 
-        if($this->use_initials && isset($this->columns['fullname'])) {
+        if ( $this->useinitials && isset($this->columns['fullname']) ) {
 
             $strall = get_string('all');
             $alpha  = explode(',', get_string('alphabet'));
 
-            // Bar of first initials
+            // Bar of first initials.
 
             echo '<div class="initialbar firstinitial">'.get_string('firstname').' : ';
-            if(!empty($this->sess->i_first)) {
-                echo '<a href="'.$this->baseurl.$this->request[TABLE_VAR_IFIRST].'=">'.$strall.'</a>';
+            if ( !empty($this->sess->ifirst) ) {
+                echo '<a href="'.$this->baseurl . $this->request[TABLE_VAR_IFIRST].'=">' . $strall . '</a>';
             } else {
                 echo '<strong>'.$strall.'</strong>';
             }
             foreach ($alpha as $letter) {
-                if ($letter == $this->sess->i_first) {
+                if ($letter == $this->sess->ifirst) {
                     echo ' <strong>'.$letter.'</strong>';
                 } else {
                     echo ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_IFIRST].'='.$letter.'">'.$letter.'</a>';
@@ -440,16 +459,16 @@ class email_flexible_table {
             }
             echo '</div>';
 
-            // Bar of last initials
+            // Bar of last initials.
 
             echo '<div class="initialbar lastinitial">'.get_string('lastname').' : ';
-            if(!empty($this->sess->i_last)) {
+            if ( !empty($this->sess->ilast) ) {
                 echo '<a href="'.$this->baseurl.$this->request[TABLE_VAR_ILAST].'=">'.$strall.'</a>';
             } else {
                 echo '<strong>'.$strall.'</strong>';
             }
             foreach ($alpha as $letter) {
-                if ($letter == $this->sess->i_last) {
+                if ($letter == $this->sess->ilast) {
                     echo ' <strong>'.$letter.'</strong>';
                 } else {
                     echo ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_ILAST].'='.$letter.'">'.$letter.'</a>';
@@ -459,10 +478,10 @@ class email_flexible_table {
 
         }
 
-        // End of initial bars code
+        // End of initial bars code.
 
-        // Paging bar
-        if($this->use_pages) {
+        // Paging bar.
+        if ($this->usepages) {
             print_paging_bar($this->totalrows, $this->currpage, $this->pagesize, $this->baseurl, $this->request[TABLE_VAR_PAGE]);
         }
 
@@ -471,215 +490,223 @@ class email_flexible_table {
             return true;
         }
 
-
-        $suppress_enabled = array_sum($this->column_suppress);
-        $suppress_lastrow = NULL;
-        // Start of main data table
+        $suppressenabled = array_sum($this->columnsuppress);
+        $suppresslastrow = null;
+        // Start of main data table.
 
         echo '<table'.$this->make_attributes_string($this->attributes).'>';
 
         echo '<tr>';
-        foreach($this->columns as $column => $index) {
-            $icon_hide = '';
-            $icon_sort = '';
+        foreach ($this->columns as $column => $index) {
+            $iconhide = '';
+            $iconsort = '';
 
-            if($this->is_collapsible) {
-                if(!empty($this->sess->collapse[$column])) {
-                    // some headers contain < br/> tags, do not include in title
-                    $icon_hide = ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_SHOW].'='.$column.'"><img src="'.$CFG->pixpath.'/t/switch_plus.gif" title="'.get_string('show').' '.strip_tags($this->headers[$index]).'" alt="'.get_string('show').'" /></a>';
-                }
-                else if($this->headers[$index] !== NULL) {
-                    // some headers contain < br/> tags, do not include in title
-                    $icon_hide = ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_HIDE].'='.$column.'"><img src="'.$CFG->pixpath.'/t/switch_minus.gif" title="'.get_string('hide').' '.strip_tags($this->headers[$index]).'" alt="'.get_string('hide').'" /></a>';
+            if ($this->iscollapsible) {
+                if ( !empty($this->sess->collapse[$column]) ) {
+                    // Some headers contain < br/> tags, do not include in title.
+                    $iconhide = ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_SHOW].
+                        '='.$column.'"><img src="'.$CFG->pixpath.'/t/switch_plus.gif" title="'.
+                        get_string('show').' '.strip_tags($this->headers[$index]).'" alt="'.get_string('show').'" /></a>';
+                } else if ($this->headers[$index] !== null) {
+                    // Some headers contain < br/> tags, do not include in title.
+                    $iconhide = ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_HIDE].'='.$column.
+                        '"><img src="'.$CFG->pixpath.'/t/switch_minus.gif" title="'.
+                        get_string('hide').' '.strip_tags($this->headers[$index]).'" alt="'.get_string('hide').'" /></a>';
                 }
             }
 
-            $primary_sort_column = '';
-            $primary_sort_order  = '';
-            if(reset($this->sess->sortby)) {
-                $primary_sort_column = key($this->sess->sortby);
-                $primary_sort_order  = current($this->sess->sortby);
+            $primarysortcolumn = '';
+            $primarysortorder  = '';
+            if (reset($this->sess->sortby)) {
+                $primarysortcolumn = key($this->sess->sortby);
+                $primarysortorder  = current($this->sess->sortby);
             }
 
-            switch($column) {
-
+            switch ($column) {
                 case 'fullname':
-                if($this->is_sortable) {
-                    $icon_sort_first = $icon_sort_last = '';
-                    if($primary_sort_column == 'firstname') {
-                        $lsortorder = get_string('asc');
-                        if($primary_sort_order == SORT_ASC) {
-                            $icon_sort_first = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                    if ($this->issortable) {
+                        $iconsortfirst = $iconsortlast = '';
+                        if ($primarysortcolumn == 'firstname') {
+                            $lsortorder = get_string('asc');
+                            if ($primarysortorder == SORT_ASC) {
+                                $iconsortfirst = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                                $fsortorder = get_string('asc');
+                            } else {
+                                $iconsortfirst = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+                                $fsortorder = get_string('desc');
+                            }
+                        } else if ($primarysortcolumn == 'lastname') {
                             $fsortorder = get_string('asc');
-                        }
-                        else {
-                            $icon_sort_first = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
-                            $fsortorder = get_string('desc');
-                        }
-                    }
-                    else if($primary_sort_column == 'lastname') {
-                        $fsortorder = get_string('asc');
-                        if($primary_sort_order == SORT_ASC) {
-                            $icon_sort_last = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                            if ($primarysortorder == SORT_ASC) {
+                                $iconsortlast = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                                $lsortorder = get_string('asc');
+                            } else {
+                                $iconsortlast = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+                                $lsortorder = get_string('desc');
+                            }
+                        } else {
+                            $fsortorder = get_string('asc');
                             $lsortorder = get_string('asc');
                         }
-                        else {
-                            $icon_sort_last = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
-                            $lsortorder = get_string('desc');
-                        }
-                    } else {
-                        $fsortorder = get_string('asc');
-                        $lsortorder = get_string('asc');
+                        $this->headers[$index] = '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'=firstname">'.
+                            get_string('firstname').'<span class="accesshide">'.get_string('sortby').
+                            ' '.get_string('firstname').' '.$fsortorder.'</span></a> '.$iconsortfirst.' / '.
+                            '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'=lastname">'.
+                            get_string('lastname').'<span class="accesshide">'.get_string('sortby').' '.
+                            get_string('lastname').' '.$lsortorder.'</span></a> '.$iconsortlast;
                     }
-                    $this->headers[$index] = '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'=firstname">'.get_string('firstname').'<span class="accesshide">'.get_string('sortby').' '.get_string('firstname').' '.$fsortorder.'</span></a> '.$icon_sort_first.' / '.
-                                          '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'=lastname">'.get_string('lastname').'<span class="accesshide">'.get_string('sortby').' '.get_string('lastname').' '.$lsortorder.'</span></a> '.$icon_sort_last;
-                }
-                break;
+                    break;
 
                 case 'userpic':
-                    // do nothing, do not display sortable links
-                break;
+                    // Do nothing, do not display sortable links.
+                    break;
 
                 default:
-                if($this->is_sortable) {
-                    if($primary_sort_column == $column) {
-                        if($primary_sort_order == SORT_ASC) {
-                            $icon_sort = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                    if ($this->issortable) {
+                        if ($primarysortcolumn == $column) {
+                            if ($primarysortorder == SORT_ASC) {
+                                $iconsort = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                                $localsortorder = get_string('asc');
+                            } else {
+                                $iconsort = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+                                $localsortorder = get_string('desc');
+                            }
+                        } else {
                             $localsortorder = get_string('asc');
                         }
-                        else {
-                            $icon_sort = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
-                            $localsortorder = get_string('desc');
-                        }
-                    } else {
-                        $localsortorder = get_string('asc');
+                        $this->headers[$index] = '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'='.$column.
+                            '">'.$this->headers[$index].'<span class="accesshide">'.get_string('sortby').
+                            ' '.$this->headers[$index].' '.$localsortorder.'</span></a>';
                     }
-                    $this->headers[$index] = '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'='.$column.'">'.$this->headers[$index].'<span class="accesshide">'.get_string('sortby').' '.$this->headers[$index].' '.$localsortorder.'</span></a>';
-                }
+                    break;
             }
 
-            if($this->headers[$index] === NULL) {
-                echo '<th class="header c'.$index.$this->column_class[$column].'" scope="col">&nbsp;</th>';
-            }
-            else if(!empty($this->sess->collapse[$column])) {
-                echo '<th class="header c'.$index.$this->column_class[$column].'" scope="col">'.$icon_hide.'</th>';
-            }
-            else {
-                // took out nowrap for accessibility, might need replacement
-                if (!is_array($this->column_style[$column])) {
-                    // $usestyles = array('white-space:nowrap');
+            if ($this->headers[$index] === null) {
+                echo '<th class="header c'.$index.$this->columnclass[$column].'" scope="col">&nbsp;</th>';
+            } else if ( !empty($this->sess->collapse[$column]) ) {
+                echo '<th class="header c'.$index.$this->columnclass[$column].'" scope="col">'.$iconhide.'</th>';
+            } else {
+                // Took out nowrap for accessibility, might need replacement.
+                if ( !is_array($this->columnstyle[$column]) ) {
                     $usestyles = '';
-                 } else {
-                    // $usestyles = $this->column_style[$column]+array('white-space'=>'nowrap');
-                    $usestyles = $this->column_style[$column];
-                 }
-                echo '<th class="header c'.$index.$this->column_class[$column].'" '.$this->make_styles_string($usestyles).' scope="col">'.$this->headers[$index].$icon_sort.'<div class="commands">'.$icon_hide.'</div></th>';
+                } else {
+                    $usestyles = $this->columnstyle[$column];
+                }
+                echo '<th class="header c'.$index.$this->columnclass[$column].'" '.
+                    $this->make_styles_string($usestyles).' scope="col">'.$this->headers[$index].
+                    $iconsort.'<div class="commands">'.$iconhide.'</div></th>';
             }
 
         }
         echo '</tr>';
 
-        if(!empty($this->data)) {
+        if ( !empty($this->data) ) {
             $oddeven = 1;
             $colbyindex = array_flip($this->columns);
-            foreach($this->data as $row) {
+            foreach ($this->data as $row) {
                 $oddeven = $oddeven ? 0 : 1;
                 echo '<tr class="r'.$oddeven.'">';
 
-                // If we have a separator, print it
-                if($row === NULL && $colcount) {
+                // If we have a separator, print it.
+                if ($row === null && $colcount) {
                     echo '<td colspan="'.$colcount.'"><div class="tabledivider"></div></td>';
-                }
-                else {
-                    // Antoni Mas
-                    foreach($row->data as $index => $data) {
-                        if($index >= $colcount) {
+                } else {
+                    // Antoni Mas.
+                    foreach ($row->data as $index => $data) {
+                        if ($index >= $colcount) {
                             break;
                         }
                         $column = $colbyindex[$index];
-                        echo '<td class="cell c'.$index.$this->column_class[$column].'"'.$this->make_styles_string($this->column_style[$column]).' '.$this->make_attributes_string($row->attributes).' >';
-                        if(empty($this->sess->collapse[$column])) {
-                            if($this->column_suppress[$column] && $suppress_lastrow !== NULL && $suppress_lastrow[$index] === $data) {
+                        echo '<td class="cell c'.$index.$this->columnclass[$column].'"'.
+                            $this->make_styles_string($this->columnstyle[$column]).' '.
+                            $this->make_attributes_string($row->attributes).' >';
+                        if (empty($this->sess->collapse[$column])) {
+                            if ($this->columnsuppress[$column] &&
+                                $suppresslastrow !== null &&
+                                $suppresslastrow[$index] === $data) {
                                 echo '&nbsp;';
-                            }
-                            else {
+                            } else {
                                 echo $data;
                             }
-                        }
-                        else {
+                        } else {
                             echo '&nbsp;';
                         }
                         echo '</td>';
                     }
                 }
                 echo '</tr>';
-                if($suppress_enabled) {
-                    $suppress_lastrow = $row;
+                if ($suppressenabled) {
+                    $suppresslastrow = $row;
                 }
             }
         }
 
-        // Antoni Mas. select all/none
+        // Antoni Mas. select all/none.
         if ( $this->input ) {
-        	$all = '<a href="javascript:void(0);" onclick="select_all(document.sendmail.mail, true);">'.get_string('all') . '</a>';
-        	$none = '<a href="javascript:void(0);" onclick="select_all(document.sendmail.mail, false);">'.get_string('none') . '</a>';
-        	echo '<tr><td colspan="'.$colcount.'">'. $all .' / '. $none .'</td></tr>';
+            $all = '<a href="javascript:void(0);" onclick="select_all(document.sendmail.mail, true);">'.
+                get_string('all') . '</a>';
+            $none = '<a href="javascript:void(0);" onclick="select_all(document.sendmail.mail, false);">'.
+                get_string('none') . '</a>';
+            echo '<tr><td colspan="'.$colcount.'">'. $all .' / '. $none .'</td></tr>';
         }
 
         echo '</table>';
 
-        // Paging bar
-        if($this->use_pages) {
-            print_paging_bar($this->totalrows, $this->currpage, $this->pagesize, $this->baseurl, $this->request[TABLE_VAR_PAGE]);
+        // Paging bar.
+        if ($this->usepages) {
+            print_paging_bar($this->totalrows,
+                $this->currpage,
+                $this->pagesize,
+                $this->baseurl,
+                $this->request[TABLE_VAR_PAGE]
+            );
         }
     }
 
-
-    function get_html($addslashes=false) {
+    public function get_html($addslashes=false) {
         global $CFG;
 
-        if(!$this->setup) {
+        if ( !$this->setup ) {
             return false;
         }
 
         $code = '';
 
-        // Antoni Mas
+        // Antoni Mas.
         if ( $this->input ) {
-        	$code = '<script type="text/javascript" language="JavaScript">
+            $code = '<script type="text/javascript" language="JavaScript">
                 <!--
-                		function select_all( field, checked ) {
-							if ( field.length == null) {
-								field.checked = checked;
-							} else {
-						    	for (var i = 0; i < field.length; i++) {
-									field[i].checked = checked ;
-								}
-							}
-						}
-                	-->
+                        function select_all( field, checked ) {
+                            if ( field.length == null) {
+                                field.checked = checked;
+                            } else {
+                                for (var i = 0; i < field.length; i++) {
+                                    field[i].checked = checked ;
+                                }
+                            }
+                        }
+                    -->
                  </script>';
         }
 
         $colcount = count($this->columns);
 
-        // Do we need to print initial bars?
+        // Do we need to print initial bars?.
 
-        if($this->use_initials && isset($this->columns['fullname'])) {
-
+        if ($this->useinitials && isset($this->columns['fullname'])) {
             $strall = get_string('all');
             $alpha  = explode(',', get_string('alphabet'));
 
-            // Bar of first initials
+            // Bar of first initials.
 
             $code .= '<div class="initialbar firstinitial">'.get_string('firstname').' : ';
-            if(!empty($this->sess->i_first)) {
+            if ( !empty($this->sess->ifirst) ) {
                 $code .= '<a href="'.$this->baseurl.$this->request[TABLE_VAR_IFIRST].'=">'.$strall.'</a>';
             } else {
                 $code .= '<strong>'.$strall.'</strong>';
             }
             foreach ($alpha as $letter) {
-                if ($letter == $this->sess->i_first) {
+                if ($letter == $this->sess->ifirst) {
                     $code .= ' <strong>'.$letter.'</strong>';
                 } else {
                     $code .= ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_IFIRST].'='.$letter.'">'.$letter.'</a>';
@@ -687,16 +714,16 @@ class email_flexible_table {
             }
             $code .= '</div>';
 
-            // Bar of last initials
+            // Bar of last initials.
 
             $code .= '<div class="initialbar lastinitial">'.get_string('lastname').' : ';
-            if(!empty($this->sess->i_last)) {
+            if ( !empty($this->sess->ilast) ) {
                 $code .= '<a href="'.$this->baseurl.$this->request[TABLE_VAR_ILAST].'=">'.$strall.'</a>';
             } else {
                 $code .= '<strong>'.$strall.'</strong>';
             }
             foreach ($alpha as $letter) {
-                if ($letter == $this->sess->i_last) {
+                if ($letter == $this->sess->ilast) {
                     $code .= ' <strong>'.$letter.'</strong>';
                 } else {
                     $code .= ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_ILAST].'='.$letter.'">'.$letter.'</a>';
@@ -706,197 +733,217 @@ class email_flexible_table {
 
         }
 
-        // End of initial bars code
+        // End of initial bars code.
 
-        // Paging bar
-        if($this->use_pages) {
-            $code .= print_paging_bar($this->totalrows, $this->currpage, $this->pagesize, $this->baseurl, $this->request[TABLE_VAR_PAGE], false, true);
+        // Paging bar.
+        if ($this->usepages) {
+            $code .= print_paging_bar($this->totalrows,
+                $this->currpage,
+                $this->pagesize,
+                $this->baseurl,
+                $this->request[TABLE_VAR_PAGE],
+                false,
+                true
+            );
         } else {
-        	$code .= '<div>';
+            $code .= '<div>';
         }
 
         if (empty($this->data)) {
-            $code .= print_heading(get_string('nothingtodisplay'), '',2, 'main', true);
+            $code .= print_heading(get_string('nothingtodisplay'), '', 2, 'main', true);
             if ( $addslashes ) {
-            	return addslashes($code);
+                return addslashes($code);
             } else {
-            	return $code;
+                return $code;
             }
         }
 
-
-        $suppress_enabled = array_sum($this->column_suppress);
-        $suppress_lastrow = NULL;
-        // Start of main data table
+        $suppressenabled = array_sum($this->columnsuppress);
+        $suppresslastrow = null;
+        // Start of main data table.
 
         $code .= '<table'.$this->make_attributes_string($this->attributes).'>';
 
         $code .= '<tr>';
-        foreach($this->columns as $column => $index) {
-            $icon_hide = '';
-            $icon_sort = '';
+        foreach ($this->columns as $column => $index) {
+            $iconhide = '';
+            $iconsort = '';
 
-            if($this->is_collapsible) {
-                if(!empty($this->sess->collapse[$column])) {
-                    // some headers contain < br/> tags, do not include in title
-                    $icon_hide = ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_SHOW].'='.$column.'"><img src="'.$CFG->pixpath.'/t/switch_plus.gif" title="'.get_string('show').' '.strip_tags($this->headers[$index]).'" alt="'.get_string('show').'" /></a>';
-                }
-                else if($this->headers[$index] !== NULL) {
-                    // some headers contain < br/> tags, do not include in title
-                    $icon_hide = ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_HIDE].'='.$column.'"><img src="'.$CFG->pixpath.'/t/switch_minus.gif" title="'.get_string('hide').' '.strip_tags($this->headers[$index]).'" alt="'.get_string('hide').'" /></a>';
+            if ($this->iscollapsible) {
+                if ( !empty($this->sess->collapse[$column]) ) {
+                    // Some headers contain < br/> tags, do not include in title.
+                    $iconhide = ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_SHOW].'='.
+                        $column.'"><img src="'.$CFG->pixpath.'/t/switch_plus.gif" title="'.
+                        get_string('show').' '.strip_tags($this->headers[$index]).
+                        '" alt="'.get_string('show').'" /></a>';
+                } else if ($this->headers[$index] !== null) {
+                    // Some headers contain < br/> tags, do not include in title.
+                    $iconhide = ' <a href="'.$this->baseurl.$this->request[TABLE_VAR_HIDE].'='.$column.
+                        '"><img src="'.$CFG->pixpath.'/t/switch_minus.gif" title="'.get_string('hide').
+                        ' '.strip_tags($this->headers[$index]).'" alt="'.get_string('hide').'" /></a>';
                 }
             }
 
-            $primary_sort_column = '';
-            $primary_sort_order  = '';
-            if(reset($this->sess->sortby)) {
-                $primary_sort_column = key($this->sess->sortby);
-                $primary_sort_order  = current($this->sess->sortby);
+            $primarysortcolumn = '';
+            $primarysortorder  = '';
+            if (reset($this->sess->sortby)) {
+                $primarysortcolumn = key($this->sess->sortby);
+                $primarysortorder  = current($this->sess->sortby);
             }
 
-            switch($column) {
-
+            switch ($column) {
                 case 'fullname':
-                if($this->is_sortable) {
-                    $icon_sort_first = $icon_sort_last = '';
-                    if($primary_sort_column == 'firstname') {
-                        $lsortorder = get_string('asc');
-                        if($primary_sort_order == SORT_ASC) {
-                            $icon_sort_first = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                    if ($this->issortable) {
+                        $iconsortfirst = $iconsortlast = '';
+                        if ($primarysortcolumn == 'firstname') {
+                            $lsortorder = get_string('asc');
+                            if ($primarysortorder == SORT_ASC) {
+                                $iconsortfirst = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                                $fsortorder = get_string('asc');
+                            } else {
+                                $iconsortfirst = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+                                $fsortorder = get_string('desc');
+                            }
+                        } else if ($primarysortcolumn == 'lastname') {
                             $fsortorder = get_string('asc');
-                        }
-                        else {
-                            $icon_sort_first = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
-                            $fsortorder = get_string('desc');
-                        }
-                    }
-                    else if($primary_sort_column == 'lastname') {
-                        $fsortorder = get_string('asc');
-                        if($primary_sort_order == SORT_ASC) {
-                            $icon_sort_last = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                            if ($primarysortorder == SORT_ASC) {
+                                $iconsortlast = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                                $lsortorder = get_string('asc');
+                            } else {
+                                $iconsortlast = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+                                $lsortorder = get_string('desc');
+                            }
+                        } else {
+                            $fsortorder = get_string('asc');
                             $lsortorder = get_string('asc');
                         }
-                        else {
-                            $icon_sort_last = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
-                            $lsortorder = get_string('desc');
-                        }
-                    } else {
-                        $fsortorder = get_string('asc');
-                        $lsortorder = get_string('asc');
+                        $this->headers[$index] = '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'=firstname">'.
+                            get_string('firstname').'<span class="accesshide">'.get_string('sortby').' '.
+                            get_string('firstname').' '.$fsortorder.'</span></a> '.$iconsortfirst.' / '.
+                            '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'=lastname">'.get_string('lastname').
+                            '<span class="accesshide">'.get_string('sortby').' '.get_string('lastname').' '.$lsortorder.
+                            '</span></a> '.$iconsortlast;
                     }
-                    $this->headers[$index] = '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'=firstname">'.get_string('firstname').'<span class="accesshide">'.get_string('sortby').' '.get_string('firstname').' '.$fsortorder.'</span></a> '.$icon_sort_first.' / '.
-                                          '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'=lastname">'.get_string('lastname').'<span class="accesshide">'.get_string('sortby').' '.get_string('lastname').' '.$lsortorder.'</span></a> '.$icon_sort_last;
-                }
-                break;
+                    break;
 
                 case 'userpic':
-                    // do nothing, do not display sortable links
-                break;
+                    // Do nothing, do not display sortable links.
+                    break;
 
                 default:
-                if($this->is_sortable) {
-                    if($primary_sort_column == $column) {
-                        if($primary_sort_order == SORT_ASC) {
-                            $icon_sort = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                    if ($this->issortable) {
+                        if ($primarysortcolumn == $column) {
+                            if ($primarysortorder == SORT_ASC) {
+                                $iconsort = ' <img src="'.$CFG->pixpath.'/t/down.gif" alt="'.get_string('asc').'" />';
+                                $localsortorder = get_string('asc');
+                            } else {
+                                $iconsort = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
+                                $localsortorder = get_string('desc');
+                            }
+                        } else {
                             $localsortorder = get_string('asc');
                         }
-                        else {
-                            $icon_sort = ' <img src="'.$CFG->pixpath.'/t/up.gif" alt="'.get_string('desc').'" />';
-                            $localsortorder = get_string('desc');
-                        }
-                    } else {
-                        $localsortorder = get_string('asc');
+                        $this->headers[$index] = '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'='.
+                            $column.'">'.$this->headers[$index].'<span class="accesshide">'.get_string('sortby').
+                            ' '.$this->headers[$index].' '.$localsortorder.'</span></a>';
                     }
-                    $this->headers[$index] = '<a href="'.$this->baseurl.$this->request[TABLE_VAR_SORT].'='.$column.'">'.$this->headers[$index].'<span class="accesshide">'.get_string('sortby').' '.$this->headers[$index].' '.$localsortorder.'</span></a>';
-                }
+                    break;
             }
 
-            if($this->headers[$index] === NULL) {
-                $code .= '<th class="header c'.$index.$this->column_class[$column].'" scope="col">&nbsp;</th>';
-            }
-            else if(!empty($this->sess->collapse[$column])) {
-                $code .= '<th class="header c'.$index.$this->column_class[$column].'" scope="col">'.$icon_hide.'</th>';
-            }
-            else {
-                // took out nowrap for accessibility, might need replacement
-                if (!is_array($this->column_style[$column])) {
-                    // $usestyles = array('white-space:nowrap');
+            if ($this->headers[$index] === null) {
+                $code .= '<th class="header c'.$index.$this->columnclass[$column].'" scope="col">&nbsp;</th>';
+            } else if ( !empty($this->sess->collapse[$column]) ) {
+                $code .= '<th class="header c'.$index.$this->columnclass[$column].'" scope="col">'.$iconhide.'</th>';
+            } else {
+                // Took out nowrap for accessibility, might need replacement.
+                if ( !is_array($this->columnstyle[$column]) ) {
                     $usestyles = '';
-                 } else {
-                    // $usestyles = $this->column_style[$column]+array('white-space'=>'nowrap');
-                    $usestyles = $this->column_style[$column];
-                 }
-                $code .= '<th class="header c'.$index.$this->column_class[$column].'" '.$this->make_styles_string($usestyles).' scope="col">'.$this->headers[$index].$icon_sort.'<div class="commands">'.$icon_hide.'</div></th>';
+                } else {
+                    $usestyles = $this->columnstyle[$column];
+                }
+                $code .= '<th class="header c'.$index.$this->columnclass[$column].'" '.
+                    $this->make_styles_string($usestyles).' scope="col">'.$this->headers[$index].
+                    $iconsort.'<div class="commands">'.$iconhide.'</div></th>';
             }
 
         }
         $code .= '</tr>';
 
-        if(!empty($this->data)) {
+        if ( !empty($this->data) ) {
             $oddeven = 1;
             $colbyindex = array_flip($this->columns);
-            foreach($this->data as $row) {
+            foreach ($this->data as $row) {
                 $oddeven = $oddeven ? 0 : 1;
                 $code .= '<tr class="r'.$oddeven.'">';
 
-                // If we have a separator, print it
-                if($row === NULL && $colcount) {
+                // If we have a separator, print it.
+                if ($row === null && $colcount) {
                     $code .= '<td colspan="'.$colcount.'"><div class="tabledivider"></div></td>';
-                }
-                else {
-                    // Antoni Mas
-                    foreach($row->data as $index => $data) {
-                        if($index >= $colcount) {
+                } else {
+                    // Antoni Mas.
+                    foreach ($row->data as $index => $data) {
+                        if ($index >= $colcount) {
                             break;
                         }
                         $column = $colbyindex[$index];
-                        $code .= '<td class="cell c'.$index.$this->column_class[$column].'"'.$this->make_styles_string($this->column_style[$column]).' '.$this->make_attributes_string($row->attributes).' >';
-                        if(empty($this->sess->collapse[$column])) {
-                            if($this->column_suppress[$column] && $suppress_lastrow !== NULL && $suppress_lastrow[$index] === $data) {
+                        $code .= '<td class="cell c'.$index.$this->columnclass[$column].'"'.
+                            $this->make_styles_string($this->columnstyle[$column]).' '.
+                            $this->make_attributes_string($row->attributes).' >';
+                        if (empty($this->sess->collapse[$column])) {
+                            if ($this->columnsuppress[$column] &&
+                                $suppresslastrow !== null &&
+                                $suppresslastrow[$index] === $data) {
                                 $code .= '&nbsp;';
-                            }
-                            else {
+                            } else {
                                 $code .= $data;
                             }
-                        }
-                        else {
+                        } else {
                             $code .= '&nbsp;';
                         }
                         $code .= '</td>';
                     }
                 }
                 $code .= '</tr>';
-                if($suppress_enabled) {
-                    $suppress_lastrow = $row;
+                if ($suppressenabled) {
+                    $suppresslastrow = $row;
                 }
             }
         }
 
-        // Antoni Mas. select all/none
+        // Antoni Mas. select all/none.
         if ( $this->input ) {
-        	$all = '<a href="javascript:void(0);" onclick="select_all(document.sendmail.mail, true);">'.get_string('all') . '</a>';
-        	$none = '<a href="javascript:void(0);" onclick="select_all(document.sendmail.mail, false);">'.get_string('none') . '</a>';
-        	$code .= '<tr><td colspan="'.$colcount.'">'. $all .' / '. $none .'</td></tr>';
+            $all = '<a href="javascript:void(0);" onclick="select_all(document.sendmail.mail, true);">'.
+                get_string('all') . '</a>';
+            $none = '<a href="javascript:void(0);" onclick="select_all(document.sendmail.mail, false);">'.
+                get_string('none') . '</a>';
+            $code .= '<tr><td colspan="'.$colcount.'">'. $all .' / '. $none .'</td></tr>';
         }
 
         $code .= '</table>';
 
-        // Paging bar
-        if($this->use_pages) {
-            $code .= print_paging_bar($this->totalrows, $this->currpage, $this->pagesize, $this->baseurl, $this->request[TABLE_VAR_PAGE], false, true);
+        // Paging bar.
+        if ($this->usepages) {
+            $code .= print_paging_bar($this->totalrows,
+                $this->currpage,
+                $this->pagesize,
+                $this->baseurl,
+                $this->request[TABLE_VAR_PAGE],
+                false,
+                true
+            );
         } else {
-        	$code .= '</div>';
+            $code .= '</div>';
         }
 
         if ( $addslashes ) {
-        	return addslashes($code);
+            return addslashes($code);
         } else {
-        	return $code;
+            return $code;
         }
     }
 
-    function add_data($row, $attributes = NULL) {
-        if(!$this->setup) {
+    public function add_data($row, $attributes = null) {
+        if ( !$this->setup ) {
             return false;
         }
         $data = new stdClass;
@@ -905,13 +952,10 @@ class email_flexible_table {
         $this->data[] = $data;
     }
 
-    function add_separator() {
-        if(!$this->setup) {
+    public function add_separator() {
+        if ( !$this->setup ) {
             return false;
         }
-        $this->data[] = NULL;
+        $this->data[] = null;
     }
-
 }
-
-?>

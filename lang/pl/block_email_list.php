@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -19,8 +19,8 @@ defined('MOODLE_INTERNAL') || die();
 $string['accept'] = 'Akceptuj';
 $string['addusersto'] = 'Do';
 $string['anotherfile'] = 'Dołącz kolejny plik';
-$string['attachment']= 'Załącznik';
-$string['attachments']= 'Załączniki';
+$string['attachment'] = 'Załącznik';
+$string['attachments'] = 'Załączniki';
 $string['bcc'] = 'Udw (Bcc)(Niewidoczna kopia)';
 $string['body'] = 'Wiadomość';
 $string['cc'] = 'Dw (Cc)(Kopia)';
@@ -46,12 +46,12 @@ $string['emptysearch'] = 'Search parameters are incorrect. You have mark where t
 $string['errorsavepreferences'] = 'Error when it is saving preferences';
 $string['folder'] = 'Folder';
 $string['folders'] = 'Foldery';
-$string['for']= 'Do (To)';
+$string['for'] = 'Do (To)';
 $string['forward'] = 'Prześlij dalej';
 $string['from'] = 'Od';
 $string['fw'] = 'Fw:';
-$string['havesubfolders']= 'This folder have subfolder/s. Forbbiden remove. First remove this subfolders';
-$string['inbox']= 'Nowe';
+$string['havesubfolders'] = 'This folder have subfolder/s. Forbbiden remove. First remove this subfolders';
+$string['inbox'] = 'Nowe';
 $string['linkto'] = 'Umieść w';
 $string['listmails'] = 'Lista nieprzeczytanych meili';
 $string['mail'] = 'eMail';
@@ -59,7 +59,7 @@ $string['mailbox'] = 'Skrzynka adresowa';
 $string['mailboxs'] = 'Skrzynki adresowe';
 $string['mails'] = 'eMails';
 $string['mailsperpage'] = 'Określi ile nagłówków meili ma być wyświetlane na stronie';
-$string['markas']= 'Oznacz jako';
+$string['markas'] = 'Oznacz jako';
 $string['marriedfolders2courses'] = 'Can you associate folder to courses? (if this option is selected, you only view this folders on this course)';
 $string['modifyfolderok'] = 'Ustawienie folderu zostało uaktualnione.';
 $string['modulename'] = 'eMail';
@@ -103,12 +103,12 @@ $string['searchtext'] = 'Tekst do wyszukania';
 $string['searchword'] = 'Words has been searched';
 $string['selectaction'] = 'Wybierz użytkownika/ów, do którego/ych ma być wysłany mail';
 $string['selectedusersremove'] = 'Usuń';
-$string['send']= 'Wyślij';
+$string['send'] = 'Wyślij';
 $string['sendbox'] = 'Wysłane';
 $string['sendmail'] = 'Czy chcesz otrzymywać ostrzeżenia na swoją skrzynkę meil?';
 $string['sendok'] = 'Wiadomość została wysłana';
 $string['subject'] = 'Temat';
-$string['to']= 'Nadawca';
+$string['to'] = 'Nadawca';
 $string['toread'] = 'Zaznacz jako przeczytane';
 $string['toreadok'] = 'Wiadomość/ci oznaczona/e jako przeczytana/e.';
 $string['tounread'] = 'Zaznacz jako nieprzeczytane';

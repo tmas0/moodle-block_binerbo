@@ -17,15 +17,15 @@
 /**
  * Control version for eMail.
  *
- * @package 	email
+ * @package     email
  * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   	= 2015051600;        // The current plugin version.
-$plugin->requires  	= 2014051200;        // Requires this Moodle version.
-$plugin->cron 		= 1;
-$plugin->release 	= 'Version 2.x';
-$plugin->component 	= 'block_email_list'; // Full name of the plugin (used for diagnostics).
+$plugin->version    = 2015051600;        // The current plugin version.
+$plugin->requires   = 2014051200;        // Requires this Moodle version.
+$plugin->cron       = 1;
+$plugin->release    = 'Version 2.x';
+$plugin->component  = 'block_email_list'; // Full name of the plugin (used for diagnostics).
