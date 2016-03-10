@@ -22,6 +22,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot .'/blocks/email_list/email/lib.php');
 
 /**
@@ -115,11 +117,12 @@ class block_email_list extends block_list {
             '/blocks/email_list/email/images/openicon.gif" height="16" width="16" alt="' .
             get_string("course") . '" />';
 
+        $maxcourses = get_config('email_list', 'max_number_courses');
         $number = 0;
         foreach ($mycourses as $mycourse) {
             ++$number; // Increment for first course.
 
-            if ( $number > $CFG->email_max_number_courses && !empty($CFG->email_max_number_courses) ) {
+            if ( $number > $maxcourses && !empty($maxcourses) ) {
                 continue;
             }
             // Get the number of unread mails.
@@ -166,19 +169,18 @@ class block_email_list extends block_list {
      * This function searches for things that need to be done, such
      * as sending out mail, toggling flags etc ...
      *
-     * @uses $CFG
      * @return boolean
      */
     public function cron() {
-        global $CFG;
+        $trackbymail = get_config('email_list', 'trackbymail');
 
         // If no isset trackbymail, return cron.
-        if ( !isset($CFG->email_trackbymail) ) {
+        if ( !isset($trackbymail) ) {
             return true;
         }
 
         // If NOT enabled.
-        if ( $CFG->email_trackbymail == 0 ) {
+        if ( $trackbymail == 0 ) {
             return true;
         }
 

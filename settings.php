@@ -65,6 +65,7 @@ if ($ADMIN->fulltree) {
     $settings->add($setting);
 
     // Block settings.
+    $options = array();
     $options[0] = get_string('all');
     $options[5] = 5;
     $options[10] = 10;
