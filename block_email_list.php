@@ -59,10 +59,10 @@ class block_email_list extends block_list {
      * @return stdClass
      */
     public function get_content() {
-        global $USER, $CFG, $COURSE, $DB;
+        global $USER, $CFG, $COURSE, $DB, $OUTPUT;
 
         // Get course id.
-        if ( ! empty($COURSE) ) {
+        if ( !empty($COURSE) ) {
             $this->courseid = $COURSE->id;
         }
 
@@ -76,28 +76,28 @@ class block_email_list extends block_list {
         $this->content->icons = array();
 
         // Get context.
-        $context = get_context_instance(CONTEXT_BLOCK, $this->instance->id);
+        $context = context_block::instance($this->instance->id);
 
         $emailicon = '<img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/sobre.png" height="11" width="15" alt="' .
             get_string("course") . '" />';
-        $composeicon = '<img src="'.$CFG->pixpath.'/i/edit.gif" alt="" />';
+        $composeicon = $OUTPUT->pix_url('/i/edit.gif');
 
         // Only show all course in principal course, others, show it.
-        if ( $this->instance->pageid == 1 ) {
+        if ( $this->page->course->id == 1 ) {
             // Get the courses of the user.
-            $mycourses = get_my_courses($USER->id);
+            $mycourses = enrol_get_my_courses();
             $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
                 '/blocks/email_list/email/">' . get_string('view_all', 'block_email_list') . ' ' . $emailicon . '</a>';
         } else {
 
             if ( !empty($CFG->mymoodleredirect) and $COURSE->id == 1 ) {
                 // Get the courses of the user.
-                $mycourses = get_my_courses($USER->id);
+                $mycourses = enrol_get_my_courses();
                 $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
                     '/blocks/email_list/email/">' . get_string('view_all', 'block_email_list') . ' ' . $emailicon . '</a>';
             } else {
                 // Get this course.
-                $course = $DB->get_record('course', 'id', $this->instance->pageid);
+                $course = $DB->get_record('course', 'id', $this->page->course->id);
                 $mycourses[] = $course;
                 $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
                     '/blocks/email_list/email/index.php?id=' . $course->id . '">' .
