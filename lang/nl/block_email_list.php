@@ -16,7 +16,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'Email';
+$string['pluginname'] = 'eMail List';
 $string['modulenameplural'] = 'Email';
 $string['emailname'] = 'Email';
 $string['maxsizeattachment'] = 'Maximum omvang aangehecht bestand';

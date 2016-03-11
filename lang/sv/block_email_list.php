@@ -16,7 +16,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'E-post';
+$string['pluginname'] = 'eMail List';
 $string['modulenameplural'] = 'E-post';
 $string['emailname'] = 'E-post';
 $string['maxsizeattachment'] = 'Max storlek bilaga';

@@ -82,6 +82,7 @@ $string['nosubject'] = 'Specify an subject for this message';
 $string['nothing'] = 'Nothing';
 $string['on'] = 'On';
 $string['participants'] = 'Kontakty';
+$string['pluginname'] = 'eMail List';
 $string['preferences'] = 'Ustawienia';
 $string['preferencesnotenable'] = 'Preferences are not enable';
 $string['previous'] = 'Poprzednie';

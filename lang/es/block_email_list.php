@@ -125,6 +125,7 @@ $string['nosubject'] = 'Especifique el asunto del mensaje';
 $string['nothing'] = 'Ninguno';
 $string['on'] = 'A';
 $string['participants'] = 'Contactos';
+$string['pluginname'] = 'eMail List';
 $string['preferences'] = 'Preferencias';
 $string['preferencesnotenable'] = 'Las preferencias no están habilitadas';
 $string['previous'] = 'Anterior';

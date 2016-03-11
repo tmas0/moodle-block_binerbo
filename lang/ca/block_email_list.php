@@ -126,6 +126,7 @@ $string['nosubject'] = 'Especificau l\'assumpte del missatge';
 $string['nothing'] = 'Cap';
 $string['on'] = 'A';
 $string['participants'] = 'Contactes';
+$string['pluginname'] = 'eMail List';
 $string['preferences'] = 'Preferències';
 $string['preferencesnotenable'] = 'Les preferències estan deshabilitades';
 $string['previous'] = 'Anterior';

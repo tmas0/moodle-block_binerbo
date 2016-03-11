@@ -126,6 +126,7 @@ $string['nosubject'] = 'Specify an subject for this message';
 $string['nothing'] = 'Nothing';
 $string['on'] = 'On';
 $string['participants'] = 'Contacts';
+$string['pluginname'] = 'eMail List';
 $string['preferences'] = 'Settings';
 $string['preferencesnotenable'] = 'Settings are not enable';
 $string['previous'] = 'Previous';

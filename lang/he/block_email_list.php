@@ -126,6 +126,7 @@ $string['nosubject'] = 'Specify an subject for this message';
 $string['nothing'] = 'Nothing';
 $string['on'] = 'ב';
 $string['participants'] = 'נמענים';
+$string['pluginname'] = 'eMail List';
 $string['preferences'] = 'הגדרות';
 $string['preferencesnotenable'] = 'לא ניתן לעדכן את ההגדרות';
 $string['previous'] = 'קודם';
