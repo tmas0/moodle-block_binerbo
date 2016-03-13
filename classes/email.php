@@ -21,12 +21,13 @@
  * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace block_email_list;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__) . '/email_base.php');
 
-class block_email_list_email extends email_base {
+class email extends \block_email_list\email_base {
 
     /**
      * Mark if eMail has reply, reply all or forward
@@ -244,7 +245,8 @@ class block_email_list_email extends email_base {
     public function is_answered($userid, $courseid) {
         global $DB;
 
-        $send = $DB->get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid)
+        $params = array('mailid' => $this->id, 'userid' => $userid, 'course' => $courseid);
+        $send = $DB->get_record('email_send', $params);
         if ( !$send ) {
             return false; // User Id is the writer (only apears in email_mail).
         }
@@ -445,7 +447,7 @@ class block_email_list_email extends email_base {
         }
 
         // If mail has saved in draft, delete this reference.
-        if ( $folderdraft = email_get_root_folder($this->userid, EMAIL_DRAFT) ) {
+        if ( $folderdraft = \block_email_list\label::get_root($this->userid, EMAIL_DRAFT) ) {
             if ($foldermail = email_get_reference2foldermail($this->id, $folderdraft->id) ) {
                 if (! $DB->delete_records('email_foldermail', 'id', $foldermail->id)) {
                     print_error( 'failremovingdraft', 'block_email_list');
@@ -483,7 +485,7 @@ class block_email_list_email extends email_base {
             foreach ($this->to as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                email_create_parents_folders($userid);
+                \blocks_email_list\label::create_parents($userid);
 
                 $send->userid = $userid;
 
@@ -507,7 +509,7 @@ class block_email_list_email extends email_base {
             foreach ($this->cc as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                email_create_parents_folders($userid);
+                \blocks_email_list\label::create_parents($userid);
 
                 $send->userid = $userid;
 
@@ -531,7 +533,7 @@ class block_email_list_email extends email_base {
             foreach ($this->bcc as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                email_create_parents_folders($userid);
+                \blocks_email_list\label::create_parents($userid);
 
                 $send->userid = $userid;
 
@@ -589,7 +591,7 @@ class block_email_list_email extends email_base {
                 foreach ($this->to as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    email_create_parents_folders($userid);
+                    \blocks_email_list\label::create_parents($userid);
 
                     $send->userid = $userid;
 
@@ -608,7 +610,7 @@ class block_email_list_email extends email_base {
                 foreach ($this->cc as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    email_create_parents_folders($userid);
+                    \blocks_email_list\label::create_parents($userid);
 
                     $send->userid = $userid;
 
@@ -627,7 +629,7 @@ class block_email_list_email extends email_base {
                 foreach ($this->bcc as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    email_create_parents_folders($userid);
+                    \blocks_email_list\label::create_parents($userid);
 
                     $send->userid = $userid;
 
@@ -741,7 +743,7 @@ class block_email_list_email extends email_base {
         $deletemails = false;
         $success = true;
 
-        if ( email_isfolder_type(get_record('email_folder', 'id', $folderid), EMAIL_TRASH) ) {
+        if ( \block_email_list\label::is_type(get_record('email_folder', 'id', $folderid), EMAIL_TRASH) ) {
             $deletemails = true;
         }
 
@@ -755,7 +757,7 @@ class block_email_list_email extends email_base {
             }
         } else {
             // Get remove folder user.
-            $removefolder = email_get_root_folder($userid, EMAIL_TRASH);
+            $removefolder = \block_email_list\label::get_root($userid, EMAIL_TRASH);
 
             // Get actual folder.
             $actualfolder = email_get_reference2foldermail($this->id, $folderid);
@@ -968,5 +970,101 @@ class block_email_list_email extends email_base {
         $html .= '</table>';
 
         return $html;
+    }
+
+    /**
+     * This function get mails.
+     *
+     * @uses $CFG
+     * @param int $userid User ID
+     * @param int $courseid Course ID
+     * @param string $sort Order by ...
+     * @param string $limitfrom Limit from
+     * @param string $limitnum Limit num
+     * @param object $options Options from get
+     * @return object Contain all send mails
+     * @todo Finish documenting this function
+     **/
+    function get_user_mails($userid, $courseid=null, $sort = null, $limitfrom = '', $limitnum = '', $options = null) {
+        global $CFG, $DB;
+
+        // For apply order, I've writting an sql clause.
+        $sql = "SELECT m.id, m.userid as writer, m.course, m.subject, m.timecreated, m.body
+                                FROM {email_mail} m
+                       LEFT JOIN {email_send} s ON m.id = s.mailid ";
+
+        // WHERE principal clause for filter userid.
+        $wheresql = " WHERE s.userid = $userid
+                        AND s.sended = 1";
+        if ( $courseid != SITEID ) {
+            // WHERE principal clause for filter courseid.
+            $wheresql = " WHERE s.course = $courseid
+                        AND s.sended = 1";
+        }
+
+        if ( $options ) {
+            if ( isset($options->folderid ) ) {
+                // Filter by folder?
+                if ( $options->folderid != 0 ) {
+
+                    // Get folder.
+                    $folder = email_get_folder($options->folderid);
+
+                    if ( \block_email_list\label::is_type($folder, EMAIL_SENDBOX) ) {
+                        // ALERT!!!! Modify where sql, because now I've show my inbox ==> email_send.userid = myuserid.
+                        $wheresql = " WHERE m.userid = $userid
+                                        AND s.sended = 1";
+                        if ( $courseid != SITEID) {
+                            // WHERE principal clause for filter courseid.
+                            $wheresql = " WHERE m.course = $courseid
+                                            AND s.sended = 1";
+                        }
+                    } else if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
+                        // ALERT!!!! Modify where sql, because now I've show my inbox ==> email_send.userid = myuserid.
+                        $wheresql = " WHERE m.userid = $userid
+                                        AND s.sended = 0";
+                        if ( $courseid != SITEID) {
+                            // WHERE principal clause for filter courseid.
+                            $wheresql = " WHERE m.course = $courseid
+                                            AND s.sended = 0";
+                        }
+                    }
+
+                    $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                    $wheresql .= " AND fm.labelid = $options->labelid ";
+                    $groupby = " GROUP BY m.id";
+
+                } else {
+                    // If label == 0, I've get inbox.
+                    // Get label.
+                    $label = \block_email_list\label::get_root($userid, EMAIL_INBOX);
+                    $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                    $wheresql .= " AND fm.labelid = $label->id ";
+                    $groupby = " GROUP BY m.id";
+                }
+            } else {
+                // If label == 0, I've get inbox.
+                // Get folder.
+                $label = \block_email_list\label::get_root($userid, EMAIL_INBOX);
+                $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                $wheresql .= " AND fm.labelid = $label->id ";
+                $groupby = " GROUP BY m.id";
+            }
+        } else {
+            // If no options, I've get inbox, per default get this label.
+            // Get label.
+            $label = \block_email_list\label::get_root($userid, EMAIL_INBOX);
+            $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+            $wheresql .= " AND fm.labelid = $label->id ";
+            $groupby = " GROUP BY m.id";
+        }
+
+        if ($sort) {
+            $sortsql = ' ORDER BY '.$sort;
+        } else {
+            $sortsql = ' ORDER BY m.timecreated';
+        }
+
+        return $DB->get_records_sql($sql.$wheresql.$groupby.$sortsql, array(), $limitfrom, $limitnum);
     }
 }

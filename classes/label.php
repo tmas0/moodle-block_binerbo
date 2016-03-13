@@ -22,6 +22,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_email_list;
+
 defined('MOODLE_INTERNAL') || die();
 
 class label {
@@ -37,17 +39,17 @@ class label {
      * This functions created news labels.
      *
      * @param object $label Fields of new label
-     * @param int $parentfolder Parent label
+     * @param int $parentlabel Parent label
      * @return boolean Success/Fail
      */
-    public function newlabel($label, $parentlabel) {
+    public function create($label, $parentlabel) {
         global $DB;
 
         // Add actual time.
         $label->timecreated = time();
 
         // Make sure course field is not null. Thanks Ann.
-        if ( !isset( $folder->course) ) {
+        if ( !isset( $label->course) ) {
             $label->course = 0;
         }
 
@@ -69,5 +71,211 @@ class label {
         add_to_log($label->userid, "email", "add sublabel", "$label->name");
 
         return true;
+    }
+
+    /**
+     * Get label.
+     *
+     * @param int $labelid The label identifier.
+     * @return Label.
+     */
+    public static function get($labelid) {
+        global $DB;
+
+        $label = $DB->get_record('email_label', array('id' => $labelid));
+
+        if ( isset($label->isparenttype) ) {
+            // Only change in parent labels.
+            if ( ! is_null($label->isparenttype) ) {
+                // If is parent ... return language name.
+                if ( self::is_type($label, EMAIL_INBOX) ) {
+                    $label->name = get_string('inbox', 'block_email_list');
+                }
+
+                if ( self::is_type($label, EMAIL_SENDBOX) ) {
+                    $label->name = get_string('sendbox', 'block_email_list');
+                }
+
+                if ( self::is_type($label, EMAIL_TRASH) ) {
+                    $label->name = get_string('trash', 'block_email_list');
+                }
+
+                if ( self::is_type($label, EMAIL_DRAFT) ) {
+                    $label->name = get_string('draft', 'block_email_list');
+                }
+            }
+        }
+        return $label;
+    }
+
+    /**
+     * This function return success/fail if label corresponding with this type.
+     *
+     * @param object $label Label Object
+     * @param string $type Type label
+     * @return boolean Success/Fail
+     * @todo Finish documenting this function
+     */
+    public static function is_type($label, $type) {
+
+        if ( isset($label->isparenttype) && $label->isparenttype ) {
+            return ($type == $label->isparenttype);
+        } else {
+
+            // Get first parent.
+            $parentlabel = self::get_parent($label);
+
+            if ( !isset($parentlabel->isparenttype) ) {
+                return false;
+            }
+
+            // Return value.
+            return ( $parentlabel->isparenttype == $type );
+        }
+    }
+
+    /**
+     * This function return label parent.
+     *
+     * @param object $label Label
+     * @return object Contain parent label
+     * @todo Finish documenting this function
+     */
+    public static function get_parent($label) {
+        global $DB;
+
+        if ( !$label ) {
+            return false;
+        }
+
+        if ( is_int($label) ) {
+            if ( !$sublabel = $DB->get_record('email_sublabel', array('labelchildid' => $label)) ) {
+                return false;
+            }
+        } else {
+            if ( !$sublabel = $DB->get_record('email_sublabel', array('labelchildid' => $label->id)) ) {
+                return false;
+            }
+        }
+
+        return $DB->get_record('email_label', array('id' => $sublabel->labelparentid));
+    }
+
+    /**
+     * This function return label parent with it.
+     *
+     * @uses $USER
+     * @param int $userid User ID
+     * @param string $label Folder
+     * @return object Contain parent label
+     * @todo Finish documenting this function
+     */
+    public static function get_root($userid, $label) {
+        global $USER, $DB;
+
+        if ( empty($userid) ) {
+            $userid = $USER->id;
+        }
+
+        self::create_parents($userid);
+
+        $rootlabel = new \stdClass();
+
+        if ( $userid > 0 and !empty($userid) ) {
+            if ( $label == EMAIL_INBOX ) {
+                $params = array('userid' => $userid, 'isparenttype' => EMAIL_INBOX);
+                $rootlabel = $DB->get_record('email_label', $params);
+                $rootlabel->name = get_string('inbox', 'block_email_list');
+                return $rootlabel;
+            }
+
+            if ( $label == EMAIL_SENDBOX ) {
+                $params = array('userid' => $userid, 'isparenttype' => EMAIL_SENDBOX);
+                $rootlabel = $DB->get_record('email_label', $params);
+                $rootlabel->name = get_string('sendbox', 'block_email_list');
+                return $rootlabel;
+            }
+
+            if ( $label == EMAIL_TRASH ) {
+                $params = array('userid' => $userid, 'isparenttype' => EMAIL_TRASH);
+                $rootlabel = $DB->get_record('email_label', $params);
+                $rootlabel->name = get_string('trash', 'block_email_list');
+                return $rootlabel;
+            }
+
+            if ( $label == EMAIL_DRAFT ) {
+                $params = array('userid' => $userid, 'isparenttype' => EMAIL_DRAFT);
+                $rootlabel = $DB->get_record('email_label', $params);
+                $rootlabel->name = get_string('draft', 'block_email_list');
+                return $rootlabel;
+            }
+        }
+
+        return $rootlabel;
+    }
+
+    /**
+     * This function created, if no exist, the initial labels
+     * who are Inbox, Sendbox, Trash and Draft
+     *
+     * @param int $userid User ID
+     * @return boolean Success/Fail If Success return object which id's
+     * @todo Finish documenting this function
+     */
+    public static function create_parents($userid) {
+        global $DB;
+
+        $labels = new \stdClass();
+        $label = new \stdClass();
+
+        $label->timecreated = time();
+        $label->userid  = $userid;
+        $label->name    = addslashes(get_string('inbox', 'block_email_list'));
+        $label->isparenttype = EMAIL_INBOX; // Be careful if you change this field.
+
+        // Labels is an object who contain id's of created labels.
+
+        // Insert inbox if no exist.
+        $params = array('userid' => $userid, 'isparenttype' => EMAIL_INBOX);
+        if ( $DB->count_records('email_label', $params) == 0 ) {
+            if ( !$labels->inboxid = $DB->insert_record('email_label', $label)) {
+                return false;
+            }
+        }
+
+        // Insert draft if no exist.
+        $label->name = addslashes(get_string('draft', 'block_email_list'));
+        $label->isparenttype = EMAIL_DRAFT; // Be careful if you change this field.
+
+        $params = array('userid' => $userid, 'isparenttype' => EMAIL_DRAFT);
+        if ( $DB->count_records('email_label', $params) == 0 ) {
+            if ( !$labels->trashid = $DB->insert_record('email_label', $label) ) {
+                return false;
+            }
+        }
+
+        // Insert sendbox if no exits.
+        $label->name = addslashes(get_string('sendbox', 'block_email_list'));
+        $label->isparenttype = EMAIL_SENDBOX; // Be careful if you change this field.
+
+        $params = array('userid' => $userid, 'isparenttype' => EMAIL_SENDBOX);
+        if ( $DB->count_records('email_label', $params) == 0 ) {
+            if ( !$labels->sendboxid = $DB->insert_record('email_label', $label) ) {
+                return false;
+            }
+        }
+
+        // Insert trash if no exits.
+        $label->name = addslashes(get_string('trash', 'block_email_list'));
+        $label->isparenttype = EMAIL_TRASH; // Be careful if you change this field.
+
+        $params = array('userid' => $userid, 'isparenttype' => EMAIL_TRASH);
+        if ( $DB->count_records('email_label', $params) == 0) {
+            if ( !$labels->trashid = $DB->insert_record('email_label', $label) ) {
+                return false;
+            }
+        }
+
+        return $labels;
     }
 }

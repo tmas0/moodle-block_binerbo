@@ -149,7 +149,7 @@ switch ( $action ) {
 
         break;
     case 'cleantrash':
-        $trash = email_get_root_folder($USER->id, EMAIL_TRASH);
+        $trash = \block_email_list\label::get_root($USER->id, EMAIL_TRASH);
 
         // If necessary, delete mail and delete attachments.
         $options->folderid = $trash->id;

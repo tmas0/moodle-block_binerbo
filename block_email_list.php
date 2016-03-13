@@ -257,8 +257,8 @@ class block_email_list extends block_list {
                             foreach ($mails as $mail) {
 
                                 // Get folder.
-                                $folder = email_get_root_folder($mail->userid, EMAIL_SENDBOX);
-                                if ( ! email_isfolder_type($folder, EMAIL_SENDBOX) ) {
+                                $folder = \block_email_list\label::get_root($mail->userid, EMAIL_SENDBOX);
+                                if ( ! \block_email_list\label::is_type($folder, EMAIL_SENDBOX) ) {
                                     continue;
                                 }
 

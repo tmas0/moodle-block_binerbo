@@ -27,7 +27,6 @@ require_once(dirname(__FILE__) . '/lib.php');   // The eMail library funcions.
 
 // For apply ajax and javascript functions.
 require_once($CFG->libdir. '/ajax/ajaxlib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/email.class.php');
 
 $courseid   = optional_param('id', SITEID, PARAM_INT);          // Course Id.
 $folderid   = optional_param('folderid', 0, PARAM_INT);         // folder Id.
@@ -47,7 +46,7 @@ $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
 require_login($course, false); // No autologin guest.
 
-$context = get_context_instance(CONTEXT_COURSE, $course->id);
+$context = context_course::instance($course->id);
 if ( !$course->visible and has_capability('moodle/legacy:student', $context, $USER->id, false) ) {
     print_error('coursehidden', 'moodle');
 }
@@ -59,11 +58,12 @@ $params = array(
     'userid' => $USER->id,
     'courseid' => $course->id
 );
-$event = \block_email\event\email_viewed::create($params);
+$event = \block_email_list\event\email_viewed::create($params);
 $event->trigger();
 
 // Set default page parameters.
 $PAGE->set_pagelayout('incourse');
+$PAGE->set_context($context);
 
 $stremail  = get_string('name', 'block_email_list');
 
@@ -73,7 +73,6 @@ $PAGE->set_heading($course->fullname);
 
 // Get renderer.
 $renderer = $PAGE->get_renderer('block_email_list');
-
 
 // Print the page header.
 echo $renderer->header();
@@ -88,29 +87,19 @@ $options->folderoldid = $folderoldid;
 
 // Print the main part of the page.
 
-// Print principal table. This have 2 columns . . .  and possibility to add right column.
-echo '<table id="layout-table"><tr>';
-
 // Print "blocks" of this account.
-echo '<td style="width: 180px;" id="left-column">';
 email_printblocks($USER->id, $courseid);
 
-// Close left column.
-echo '</td>';
-
-// Print principal column.
-echo '<td id="middle-column">';
-
 // Get actual folder, for show.
-if (! $folder = email_get_folder($folderoldid)) {
-    if (! $folder = email_get_folder($folderid) ) {
+if (! $folder = \block_email_list\label::get($folderoldid)) {
+    if (! $folder = \block_email_list\label::get($folderid) ) {
         // Default, is inbox.
-        $folder = email_get_root_folder($USER->id, EMAIL_INBOX);
+        $folder = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
     }
 }
 
 // Print middle table.
-print_heading_block(get_string('mailbox', 'block_email_list'). ': '. $folder->name);
+$OUTPUT->heading(get_string('mailbox', 'block_email_list'). ': '. $folder->name);
 
 echo '<div>&#160;</div>';
 
@@ -203,12 +192,6 @@ if ( ! empty( $action ) and $mailid > 0 ) {
 
 // Show list all mails.
 email_showmails($USER->id, '', $page, $perpage, $options);
-
-// Close principal column.
-echo '</td>';
-
-// Close table.
-echo '</tr> </table>';
 
 // Finish the page.
 if ( isset( $course ) ) {

@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_email\event;
+namespace block_email_list\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -38,7 +38,7 @@ class email_sended extends \core\event\base {
      */
     protected function init() {
         $this->data['crud'] = 'c';
-        $this->data['level'] = self::LEVEL_PARTICIPATING;
+        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'email_mail';
     }
 

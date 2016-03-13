@@ -22,6 +22,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_email_list;
+
 defined('MOODLE_INTERNAL') || die();
 
 class email_base {
@@ -387,7 +389,7 @@ class email_base {
 
         $foldermail->mailid = $this->id;
 
-        $folder = email_get_root_folder($userid, $foldername);
+        $folder = \block_email_list\label::get_root($userid, $foldername);
 
         $foldermail->folderid = $folder->id;
 

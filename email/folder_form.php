@@ -57,7 +57,7 @@ class folder_form extends moodleform {
         $folders = email_get_my_folders($USER->id, $courseid, true, true);
 
         // Get inbox, there default option on menu.
-        $inbox = email_get_root_folder($USER->id, EMAIL_INBOX);
+        $inbox = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
 
         $menu = array();
 
@@ -127,7 +127,7 @@ class folder_form extends moodleform {
         $folders = email_get_my_folders($USER->id, $mform->getElementValue('course'), true, true);
 
         // Get inbox, there default option on menu.
-        $inbox = email_get_root_folder($USER->id, EMAIL_INBOX);
+        $inbox = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
 
         $menu = array();
 

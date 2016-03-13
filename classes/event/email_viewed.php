@@ -22,7 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_email\event;
+namespace block_email_list\event;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -32,13 +33,13 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2015 Toni Mas
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class email_viwed extends \core\event\base {
+class email_viewed extends \core\event\base {
     /**
      * Init method
      */
     protected function init() {
         $this->data['crud'] = 'r';
-        $this->data['level'] = self::LEVEL_PARTICIPATING;
+        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'email_mail';
     }
 

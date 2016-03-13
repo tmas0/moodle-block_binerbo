@@ -452,7 +452,7 @@ function email_print_tree_myfolders($userid, $courseid) {
                 $unreaded = '';
             }
 
-            if ( email_isfolder_type($folder, EMAIL_TRASH) ) {
+            if ( \block_email_list\label::is_type($folder, EMAIL_TRASH) ) {
                 $clean .= '&#160;&#160;<a href="' . $CFG->wwwroot .
                     '/blocks/email_list/email/folder.php?course=' . $courseid .
                     '&amp;folderid=' . $folder->id .
@@ -490,7 +490,7 @@ function email_print_tree_myfolders($userid, $courseid) {
 /**
  * This function prints blocks.
  *
- * @uses $CGF, $USER
+ * @uses $CGF, $USER, $PAGE
  * @param int $userid User ID
  * @param int $courseid Course ID
  * @param boolean $printsearchblock Print search block
@@ -498,8 +498,7 @@ function email_print_tree_myfolders($userid, $courseid) {
  * @todo Finish documenting this function
  **/
 function email_printblocks($userid, $courseid, $printsearchblock=true) {
-
-    global $CFG, $USER;
+    global $CFG, $USER, $PAGE, $OUTPUT;
 
     $strcourse  = get_string('course');
     $strcourses = get_string('mailboxs', 'block_email_list');
@@ -513,7 +512,7 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     $list = array();
     $icons = array();
 
-    if ( $printsearchblock ) {
+    /*if ( $printsearchblock ) {
         // Print search block.
         $form = email_get_search_form($courseid);
         print_side_block_start($startdivtitle.$strsearch.$enddivtitle);
@@ -569,11 +568,11 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
 
     // Print block of my courses.
     print_side_block($startdivtitle.$strcourses.$enddivtitle, '', $list, $icons);
-
+*/
     block_load_class('online_users');
     $blockonlineusers = new block_online_users;
     $blockonlineusers->get_content();
-    print_side_block($blockonlineusers->title, '', $blockonlineusers->content->text, $icons);
+    $OUTPUT->blocks($blockonlineusers->title, '', $blockonlineusers->content->text, $icons);
 }
 
 /**
@@ -1186,107 +1185,6 @@ function email_get_folders($userid, $sort = 'id') {
 }
 
 /**
- * This function get folder.
- *
- * @param int $folderid
- * @return object Object contain folder
- * @todo Finish documenting this function
- */
-function email_get_folder($folderid) {
-    global $DB;
-
-    $folder = new object();
-
-    if ( $folder = $DB->get_record('email_folder', 'id', $folderid) ) {
-
-        if ( isset($folder->isparenttype) ) {
-            // Only change in parent folders.
-            if ( ! is_null($folder->isparenttype) ) {
-                // If is parent ... return language name.
-                if ( email_isfolder_type($folder, EMAIL_INBOX) ) {
-                    $folder->name = get_string('inbox', 'block_email_list');
-                }
-
-                if ( email_isfolder_type($folder, EMAIL_SENDBOX) ) {
-                    $folder->name = get_string('sendbox', 'block_email_list');
-                }
-
-                if ( email_isfolder_type($folder, EMAIL_TRASH) ) {
-                    $folder->name = get_string('trash', 'block_email_list');
-                }
-
-                if ( email_isfolder_type($folder, EMAIL_DRAFT) ) {
-                    $folder->name = get_string('draft', 'block_email_list');
-                }
-            }
-        }
-    }
-
-    return $folder;
-}
-
-/**
- * This function created, if no exist, the initial folders
- * who are Inbox, Sendbox, Trash and Draft
- *
- * @param int $userid User ID
- * @return boolean Success/Fail If Success return object which id's
- * @todo Finish documenting this function
- */
-function email_create_parents_folders($userid) {
-    global $DB;
-
-    $folders = new stdClass();
-    $folder = new stdClass();
-
-    $folder->timecreated = time();
-    $folder->userid  = $userid;
-    $folder->name    = addslashes(get_string('inbox', 'block_email_list'));
-    $folder->isparenttype = EMAIL_INBOX; // Be careful if you change this field.
-
-    // Folders is an object who contain id's of created folders.
-
-    // Insert inbox if no exist.
-    if ( $DB->count_records('email_folder', 'userid', $userid, 'isparenttype', EMAIL_INBOX) == 0 ) {
-        if ( !$folders->inboxid = $DB->insert_record('email_folder', $folder)) {
-            return false;
-        }
-    }
-
-    // Insert draft if no exist.
-    $folder->name = addslashes(get_string('draft', 'block_email_list'));
-    $folder->isparenttype = EMAIL_DRAFT; // Be careful if you change this field.
-
-    if ( $DB->count_records('email_folder', 'userid', $userid, 'isparenttype', EMAIL_DRAFT) == 0 ) {
-        if ( !$folders->trashid = $DB->insert_record('email_folder', $folder) ) {
-            return false;
-        }
-    }
-
-    // Insert sendbox if no exits.
-    $folder->name = addslashes(get_string('sendbox', 'block_email_list'));
-    $folder->isparenttype = EMAIL_SENDBOX; // Be careful if you change this field.
-
-    if ( $DB->count_records('email_folder', 'userid', $userid, 'isparenttype', EMAIL_SENDBOX) == 0 ) {
-        if ( !$folders->sendboxid = $DB->insert_record('email_folder', $folder) ) {
-            return false;
-        }
-    }
-
-    // Insert trash if no exits.
-    $folder->name = addslashes(get_string('trash', 'block_email_list'));
-    $folder->isparenttype = EMAIL_TRASH; // Be careful if you change this field.
-
-    if ( $DB->count_records('email_folder', 'userid', $userid, 'isparenttype', EMAIL_TRASH) == 0) {
-        if ( !$folders->trashid = $DB->insert_record('email_folder', $folder) ) {
-            return false;
-        }
-    }
-
-    return $folders;
-}
-
-/**
  * This function remove one folder.
  *
  * @uses $CFG
@@ -1395,7 +1293,7 @@ function email_print_administration_folders($options) {
         // Get courses.
         foreach ($folders as $folder) {
             // Trash folder is not showing.
-            if ( !email_isfolder_type($folder, EMAIL_TRASH) ) {
+            if ( !\block_email_list\label::is_type($folder, EMAIL_TRASH) ) {
                 echo '<li>'.$folder->name.'</li>';
 
                 // Now, print all subfolders it.
@@ -1444,7 +1342,7 @@ function email_removefilter($filterid) {
 /**
  * This function prints all mails
  *
- * @uses $CFG, $COURSE, $SESSION
+ * @uses $CFG, $COURSE, $SESSION, $DB, $OUTPUT
  * @param int $userid User ID
  * @param string $order Order by ...
  * @param object $options Options for url
@@ -1454,7 +1352,7 @@ function email_removefilter($filterid) {
  * @todo Finish documenting this function
  */
 function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=null, $search=false, $mailssearch=null) {
-    global $CFG, $COURSE, $SESSION, $DB;
+    global $CFG, $COURSE, $SESSION, $DB, $OUTPUT;
 
     // CONTRIB-690.
     if ( !empty( $_POST['perpage'] ) and is_numeric($_POST['perpage']) ) {
@@ -1463,18 +1361,15 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
         $SESSION->email_mailsperpage = 10; // Default value.
     }
 
-    require_once('tablelib.php');
-    require_once('email.class.php');
-
     // Get actual course.
-    if ( !$course = $DB->get_record("course", "id", $COURSE->id) ) {
+    if ( !$course = $DB->get_record('course', array('id' => $COURSE->id)) ) {
         print_error('invalidcourseid', 'block_email_list');
     }
 
     if ($course->id == SITEID) {
-        $coursecontext = get_context_instance(CONTEXT_SYSTEM); // SYSTEM context.
+        $coursecontext = context_system::instance(); // SYSTEM context.
     } else {
-        $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id); // Course context.
+        $coursecontext = context_course::instance($course->id); // Course context.
     }
 
     $url = '';
@@ -1492,8 +1387,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
     // Print init form from send data.
     echo '<form id="sendmail" action="' . $CFG->wwwroot .
         '/blocks/email_list/email/index.php?id=' . $course->id .
-        '&amp;folderid=' . $options->folderid . '" method="post" target="' . $CFG->framename .
-        '" name="sendmail">';
+        '&amp;folderid=' . $options->folderid . '" method="post" name="sendmail">';
 
     if ( $course->id == SITEID ) {
         $tablecolumns = array('', 'icon', 'course', 'subject', 'writer', 'timecreated');
@@ -1505,19 +1399,19 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
     if ( isset( $options->folderid) ) {
         if ( $options->folderid != 0 ) {
             // Get folder.
-            $folder = email_get_folder($options->folderid);
+            $folder = \block_email_list\label::get($options->folderid);
         } else {
             // Solve problem with select an x mails per page for maintein in this folder.
             if ( isset($options->folderoldid) && $options->folderoldid != 0 ) {
                 $options->folderid = $options->folderoldid;
-                $folder = email_get_folder($options->folderid);
+                $folder = \block_email_list\label::get($options->folderid);
             }
         }
     }
 
     // If actual folder is inbox type, ... change tag showing.
     if ( $folder ) {
-        if ( ( email_isfolder_type($folder, EMAIL_INBOX) ) ) {
+        if ( ( \block_email_list\label::is_type($folder, EMAIL_INBOX) ) ) {
             $strto = get_string('from', 'block_email_list');
         } else {
             $strto = get_string('to', 'block_email_list');
@@ -1543,51 +1437,33 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
         );
     }
 
-    $table = new email_flexible_table('list-mails-' . $userid);
+    $table = new html_table('list-mails-' . $userid);
 
-    $table->define_columns($tablecolumns);
-    $table->define_headers($tableheaders);
-    $table->define_baseurl($baseurl);
-
-    $table->set_attribute('align', 'center');
-    $table->set_attribute('width', '100%');
-    $table->set_attribute('class', 'emailtable');
-
-    $table->set_control_variables(array(
-        TABLE_VAR_SORT    => 'ssort',
-        TABLE_VAR_HIDE    => 'shide',
-        TABLE_VAR_SHOW    => 'sshow',
-        TABLE_VAR_IFIRST  => 'sifirst',
-        TABLE_VAR_ILAST   => 'silast',
-        TABLE_VAR_PAGE    => 'spage'
-    ));
-
-    $table->sortable(true, 'timecreated', SORT_DESC);
-
-    $table->setup();
+    $table->head = $tableheaders;
+    
+    $table->align = array(null, 'center');
+    $table->attributes['class'] = 'emailtable';
 
     // When no search.
     if ( !$search ) {
         // Get mails.
-        $mails = email_get_mails($userid, $course->id, $table->get_sql_sort(), '', '', $options);
+        $mails = \block_email_list\email::get_user_mails($userid, $course->id, null, '', '', $options);
     } else {
         $mails = $mailssearch;
     }
 
     // Define long page.
-    $totalcount = count($mails);
-    $table->pagesize($SESSION->email_mailsperpage, $totalcount);
-
-    $table->inputs(true);
+    $emailcount = count($mails);
+    echo $OUTPUT->paging_bar($emailcount, $page, $perpage, $baseurl);
 
     // Now, re-getting emails, apply pagesize (limit).
     if ( !$search) {
         // Get mails.
-        $mails = email_get_mails($userid,
+        $mails = \block_email_list\email::get_user_mails($userid,
             $course->id,
-            $table->get_sql_sort(),
-            $table->get_page_start(),
-            $table->get_page_size(),
+            null,
+            null,
+            '',
             $options
         );
     }
@@ -1601,25 +1477,25 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
     // Print all rows.
     foreach ($mails as $mail) {
         $attribute = array();
-        $email = new eMail();
+        $email = new \block_email_list\email();
         $email->set_email($mail);
 
         if ( $folder ) {
-            if ( email_isfolder_type($folder, EMAIL_SENDBOX) ) {
+            if ( \block_email_list\label::is_type($folder, EMAIL_SENDBOX) ) {
                 $struser = $email->get_users_send(has_capability('moodle/site:viewfullnames', $coursecontext));
-            } else if ( email_isfolder_type($folder, EMAIL_INBOX) ) {
+            } else if ( \block_email_list\label::is_type($folder, EMAIL_INBOX) ) {
 
                 $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
                 if ( !$email->is_readed($userid, $mail->course) ) {
                     $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
                 }
-            } else if ( email_isfolder_type($folder, EMAIL_TRASH) ) {
+            } else if ( \block_email_list\label::is_type($folder, EMAIL_TRASH) ) {
                 $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                 if ( !$email->is_readed($userid, $mail->course) ) {
                     $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
                 }
-            } else if ( email_isfolder_type($folder, EMAIL_DRAFT) ) {
+            } else if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
 
                 $struser = $email->get_users_send(has_capability('moodle/site:viewfullnames', $coursecontext));
 
@@ -1645,7 +1521,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
             $options->folderid = 0;
         }
 
-        if ( email_isfolder_type($folder, EMAIL_DRAFT) ) {
+        if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
             $urltosent = '<a href="' . $CFG->wwwroot .
                 '/blocks/email_list/email/sendmail.php?id=' . $mail->id .
                 '&amp;action=' . EMAIL_EDITDRAFT . '&amp;course=' . $course->id .
@@ -1693,23 +1569,21 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
         }
 
         if ( $course->id == SITEID ) {
-            $table->add_data( array (
-                                        '<input id="mail" type="checkbox" name="mailid[]" value="'.$mail->id.'" />',
-                                        $coursemail->fullname,
-                                        $newemailicon.$attachment.$extraimginfo,
-                                        $urltosent,
-                                        $struser,
-                                        userdate($mail->timecreated) ) ,
-                              $attribute
+            $table->data[] = array (
+                                '<input id="mail" type="checkbox" name="mailid[]" value="'.$mail->id.'" />',
+                                $coursemail->fullname,
+                                $newemailicon.$attachment.$extraimginfo,
+                                $urltosent,
+                                $struser,
+                                userdate($mail->timecreated)
                             );
         } else {
-            $table->add_data( array (
-                                        '<input id="mail" type="checkbox" name="mailid[]" value="'.$mail->id.'" />',
-                                        $newemailicon.$attachment.$extraimginfo,
-                                        $urltosent,
-                                        $struser,
-                                        userdate($mail->timecreated) ) ,
-                              $attribute
+            $table->data[] = array (
+                                '<input id="mail" type="checkbox" name="mailid[]" value="'.$mail->id.'" />',
+                                $newemailicon.$attachment.$extraimginfo,
+                                $urltosent,
+                                $struser,
+                                userdate($mail->timecreated)
                             );
         }
 
@@ -1717,8 +1591,9 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
         $previousmail = $mail->id;
     }
 
-    $table->print_html();
-
+    //echo html_writter::table($table);
+    print_table($table);
+    
     // Print select action, if have mails.
     if ( $mails ) {
         email_print_select_options($options, $SESSION->email_mailsperpage);
@@ -1733,7 +1608,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
 /**
  * This functions prints tabs options.
  *
- * @uses $CFG
+ * @uses $CFG, $OUTPUT
  * @param int $courseid Course Id
  * @param int $folderid Folder Id
  * @param string $action  Actual action
@@ -1741,12 +1616,12 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
  * @todo Finish documenting this function
  */
 function email_print_tabs_options($courseid, $folderid, $action=null) {
-    global $CFG;
+    global $CFG, $OUTPUT;
 
     if ($courseid == SITEID) {
-        $context = get_context_instance(CONTEXT_SYSTEM, SITEID);   // SYSTEM context.
+        $context = context_system::instance();   // SYSTEM context.
     } else {
-        $context = get_context_instance(CONTEXT_COURSE, $courseid);   // Course context.
+        $context = context_course::instance($courseid);   // Course context.
     }
 
     // Declare tab array.
@@ -1754,22 +1629,18 @@ function email_print_tabs_options($courseid, $folderid, $action=null) {
 
     // Tab for writting new email.
     if ( has_capability('block/email_list:sendmessage', $context)) {
-        $tabrow[] = new email_tabobject('newmail',
-            $CFG->wwwroot . '/blocks/email_list/email/sendmail.php?course=' . $courseid .
-                '&amp;folderid=' . $folderid,
-            get_string('newmail', 'block_email_list'),
-            '<img alt="' . get_string('edit') . '" width="15" height="13" src="' .
-                $CFG->pixpath . '/i/edit.gif" />'
+        $tabrow[] = new tabobject('newmail',
+            new moodle_url('/blocks/email_list/email/sendmail.php', 
+                array('course' => $courseid, 'folderid' => $folderid)),
+            get_string('newmail', 'block_email_list')
         );
     }
 
-    if ( has_capability('block/email_list:createfolder', $context)) {
-        $tabrow[] = new email_tabobject('newfolderform',
-            $CFG->wwwroot . '/blocks/email_list/email/folder.php?course=' . $courseid .
-                '&amp;folderid=' . $folderid,
-            get_string('newfolderform', 'block_email_list'),
-            '<img alt="' . get_string('edit') . '" width="15" height="15" src="' . $CFG->wwwroot .
-                '/blocks/email_list/email/images/folder_add.png" />'
+    if ( has_capability('block/email_list:createlabel', $context)) {
+        $tabrow[] = new tabobject('newfolderform',
+            new moodle_url('/blocks/email_list/email/folder.php',
+                array('course' => $courseid, 'folderid' => $folderid)),
+            get_string('newfolderform', 'block_email_list')
         );
     }
 
@@ -1777,24 +1648,25 @@ function email_print_tabs_options($courseid, $folderid, $action=null) {
 
     // If empty tabrow, add vspace. Only apply on Site Course.
     if ( empty($tabrow) ) {
-        print_spacer(50, 1);
+        $spacer = new html_image();
+        $spacer->height = 50;
+        $spacer->width = 1;
+        echo $OUTPUT->spacer($spacer);
     }
-
-    $tabrows = array($tabrow);
 
     // Print tabs, and if it's in case, selected this.
     switch($action) {
         case 'newmail':
-            print_email_tabs($tabrows, 'newmail');
+            echo $OUTPUT->tabtree($tabrow, 'newmail');
             break;
         case 'newfolderform':
-            print_email_tabs($tabrows, 'newfolderform');
+            echo $OUTPUT->tabtree($tabrow, 'newfolderform');
             break;
         case 'newfilter':
-            print_email_tabs($tabrows, 'filter');
+            echo $OUTPUT->tabtree($tabrow, 'filter');
             break;
         default:
-            print_email_tabs($tabrows);
+            echo $OUTPUT->tabtree($tabrow);
     }
 
     return true;
@@ -1824,130 +1696,6 @@ function email_get_my_writemails($userid, $order = null) {
 }
 
 /**
- * This function get mails.
- *
- * @uses $CFG
- * @param int $userid User ID
- * @param int $courseid Course ID
- * @param string $sort Order by ...
- * @param string $limitfrom Limit from
- * @param string $limitnum Limit num
- * @param object $options Options from get
- * @return object Contain all send mails
- * @todo Finish documenting this function
- **/
-function email_get_mails($userid, $courseid=null, $sort = null, $limitfrom = '', $limitnum = '', $options = null) {
-
-    global $CFG, $DB;
-
-    // For apply order, I've writting an sql clause.
-    $sql = "SELECT m.id, m.userid as writer, m.course, m.subject, m.timecreated, m.body
-                            FROM {email_mail} m
-                   LEFT JOIN {email_send} s ON m.id = s.mailid ";
-
-    // WHERE principal clause for filter userid.
-    $wheresql = " WHERE s.userid = $userid
-                    AND s.sended = 1";
-    if ( $courseid != SITEID ) {
-        // WHERE principal clause for filter courseid.
-        $wheresql = " WHERE s.course = $courseid
-                    AND s.sended = 1";
-    }
-
-    if ( $options ) {
-        if ( isset($options->folderid ) ) {
-            // Filter by folder?
-            if ( $options->folderid != 0 ) {
-
-                // Get folder.
-                $folder = email_get_folder($options->folderid);
-
-                if ( email_isfolder_type($folder, EMAIL_SENDBOX) ) {
-                    // ALERT!!!! Modify where sql, because now I've show my inbox ==> email_send.userid = myuserid.
-                    $wheresql = " WHERE m.userid = $userid
-                                    AND s.sended = 1";
-                    if ( $courseid != SITEID) {
-                        // WHERE principal clause for filter courseid.
-                        $wheresql = " WHERE m.course = $courseid
-                                        AND s.sended = 1";
-                    }
-                } else if ( email_isfolder_type($folder, EMAIL_DRAFT) ) {
-                    // ALERT!!!! Modify where sql, because now I've show my inbox ==> email_send.userid = myuserid.
-                    $wheresql = " WHERE m.userid = $userid
-                                    AND s.sended = 0";
-                    if ( $courseid != SITEID) {
-                        // WHERE principal clause for filter courseid.
-                        $wheresql = " WHERE m.course = $courseid
-                                        AND s.sended = 0";
-                    }
-                }
-
-                $sql .= " LEFT JOIN {email_foldermail} fm ON m.id = fm.mailid ";
-                $wheresql .= " AND fm.folderid = $options->folderid ";
-                $groupby = " GROUP BY m.id";
-
-            } else {
-                // If folder == 0, I've get inbox.
-                // Get folder.
-                $folder = email_get_root_folder($userid, EMAIL_INBOX);
-                $sql .= " LEFT JOIN {email_foldermail} fm ON m.id = fm.mailid ";
-                $wheresql .= " AND fm.folderid = $folder->id ";
-                $groupby = " GROUP BY m.id";
-            }
-        } else {
-            // If folder == 0, I've get inbox.
-            // Get folder.
-            $folder = email_get_root_folder($userid, EMAIL_INBOX);
-            $sql .= " LEFT JOIN {email_foldermail} fm ON m.id = fm.mailid ";
-            $wheresql .= " AND fm.folderid = $folder->id ";
-            $groupby = " GROUP BY m.id";
-        }
-    } else {
-        // If no options, I've get inbox, per default get this folder.
-        // Get folder.
-        $folder = email_get_root_folder($userid, EMAIL_INBOX);
-        $sql .= " LEFT JOIN {email_foldermail} fm ON m.id = fm.mailid ";
-        $wheresql .= " AND fm.folderid = $folder->id ";
-        $groupby = " GROUP BY m.id";
-    }
-
-    if ($sort) {
-        $sortsql = ' ORDER BY '.$sort;
-    } else {
-        $sortsql = ' ORDER BY m.timecreated';
-    }
-
-    return $DB->get_records_sql($sql.$wheresql.$groupby.$sortsql, $limitfrom, $limitnum);
-}
-
-/**
- * This function return success/fail if folder corresponding with this type.
- *
- * @param object $folder Folder Object
- * @param string $type Type folder
- * @return boolean Success/Fail
- * @todo Finish documenting this function
- */
-function email_isfolder_type($folder, $type) {
-
-    if ( isset($folder->isparenttype) && $folder->isparenttype ) {
-        return ($type == $folder->isparenttype);
-    } else {
-
-        // Get first parent.
-        $parentfolder = email_get_parent_folder($folder);
-
-        if ( !isset($parentfolder->isparenttype) ) {
-            return false;
-        }
-
-        // Return value.
-        return ( $parentfolder->isparenttype == $type );
-    }
-
-}
-
-/**
  * This function return folder parent.
  *
  * @param object $folder Folder
@@ -1973,55 +1721,6 @@ function email_get_parent_folder($folder) {
 
     return $DB->get_record('email_folder', 'id', $subfolder->folderparentid);
 
-}
-
-/**
- * This function return folder parent with it.
- *
- * @uses $USER
- * @param int $userid User ID
- * @param string $folder Folder
- * @return object Contain parent folder
- * @todo Finish documenting this function
- */
-function email_get_root_folder($userid, $folder) {
-    global $USER, $DB;
-
-    if ( empty($userid) ) {
-        $userid = $USER->id;
-    }
-
-    email_create_parents_folders($userid);
-
-    $rootfolder = new object();
-
-    if ( $userid > 0 and !empty($userid) ) {
-        if ( $folder == EMAIL_INBOX ) {
-            $rootfolder = $DB->get_record('email_folder', 'userid', $userid, 'isparenttype', EMAIL_INBOX);
-            $rootfolder->name = get_string('inbox', 'block_email_list');
-            return $rootfolder;
-        }
-
-        if ( $folder == EMAIL_SENDBOX ) {
-            $rootfolder = $DB->get_record('email_folder', 'userid', $userid, 'isparenttype', EMAIL_SENDBOX);
-            $rootfolder->name = get_string('sendbox', 'block_email_list');
-            return $rootfolder;
-        }
-
-        if ( $folder == EMAIL_TRASH ) {
-            $rootfolder = $DB->get_record('email_folder', 'userid', $userid, 'isparenttype', EMAIL_TRASH);
-            $rootfolder->name = get_string('trash', 'block_email_list');
-            return $rootfolder;
-        }
-
-        if ( $folder == EMAIL_DRAFT ) {
-            $rootfolder = $DB->get_record('email_folder', 'userid', $userid, 'isparenttype', EMAIL_DRAFT);
-            $rootfolder->name = get_string('draft', 'block_email_list');
-            return $rootfolder;
-        }
-    }
-
-    return $rootfolder;
 }
 
 /**
@@ -2082,27 +1781,27 @@ function email_get_my_folders($userid, $courseid, $excludetrash, $excludedraft, 
  * @todo Finish documenting this function
  */
 function email_get_root_folders($userid, $draft=true, $trash=true, $sendbox=true, $inbox=true) {
-    email_create_parents_folders($userid);
+    \blocks_email_list\label::create_parents($userid);
 
     $folders = array();
 
     // Include inbox folder.
     if ( $inbox ) {
-        $folders[] = email_get_root_folder( $userid, EMAIL_INBOX);
+        $folders[] = \block_email_list\label::get_root($userid, EMAIL_INBOX);
     }
 
     // Include return draft folder.
     if ( $draft ) {
-        $folders[] = email_get_root_folder( $userid, EMAIL_DRAFT);
+        $folders[] = \block_email_list\label::get_root($userid, EMAIL_DRAFT);
     }
 
     // Include sendbox folder.
     if ( $sendbox ) {
-        $folders[] = email_get_root_folder( $userid, EMAIL_SENDBOX);
+        $folders[] = \block_email_list\label::get_root($userid, EMAIL_SENDBOX);
     }
 
     if ( $trash ) {
-        $folders[] = email_get_root_folder( $userid, EMAIL_TRASH);
+        $folders[] = \block_email_list\label::get_root($userid, EMAIL_TRASH);
     }
 
     return $folders;
@@ -2262,7 +1961,7 @@ function email_print_select_options($options, $perpage) {
 
     if ( $options->id != SITEID ) {
         echo '<div class="emailfloat emailleft">';
-        if ( ! email_isfolder_type(email_get_folder($options->folderid), EMAIL_SENDBOX) ) {
+        if ( ! \block_email_list\label::is_type(email_get_folder($options->folderid), EMAIL_SENDBOX) ) {
             echo '<select name="action" onchange="this.form.submit()">
                             <option value="" selected="selected">' . get_string('markas', 'block_email_list') .':</option>
                             <option value="toread">' . get_string('toread', 'block_email_list') . '</option>
@@ -2345,16 +2044,16 @@ function email_print_movefolder_button($options) {
         $folderbe = email_get_folder($options->folderoldid);
     } else {
         // Inbox folder.
-        $folderbe = email_get_root_folder($USER->id, EMAIL_INBOX);
+        $folderbe = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
     }
 
-    if ( email_isfolder_type($folderbe, EMAIL_SENDBOX ) ) {
+    if ( \block_email_list\label::is_type($folderbe, EMAIL_SENDBOX ) ) {
         // Get my sendbox folders.
         $folders = email_get_my_folders( $USER->id, $courseid, false, true, false, true );
-    } else if ( email_isfolder_type($folderbe, EMAIL_DRAFT )) {
+    } else if ( \block_email_list\label::is_type($folderbe, EMAIL_DRAFT )) {
         // Get my sendbox folders.
         $folders = email_get_my_folders( $USER->id, $courseid, false, true, true, true );
-    } else if ( email_isfolder_type($folderbe, EMAIL_TRASH ) ) {
+    } else if ( \block_email_list\label::is_type($folderbe, EMAIL_TRASH ) ) {
         // Get my folders.
         $folders = email_get_my_folders( $USER->id, $courseid, false, false, false, false );
     } else {
@@ -2381,7 +2080,7 @@ function email_print_movefolder_button($options) {
 
     // Change, now folderoldid is actual folderid.
     if ( !$options->folderid ) {
-        if ( $inbox = email_get_root_folder($USER->id, EMAIL_INBOX) ) {
+        if ( $inbox = \block_email_list\label::get_root($USER->id, EMAIL_INBOX) ) {
             echo '<input type="hidden" name="folderoldid" value="'.$inbox->id.'" />';
         }
     } else {
@@ -2428,7 +2127,7 @@ function email_count_unreaded_mails($userid, $courseid, $folderid=null) {
 
     if ( !$folderid or $folderid <= 0 ) {
         // Get draft folder.
-        if ( $folder = email_get_root_folder($userid, EMAIL_INBOX) ) {
+        if ( $folder = \block_email_list\label::get_root($userid, EMAIL_INBOX) ) {
             $foldersid = $folder->id;
 
             // Get all subfolders.
@@ -2461,7 +2160,7 @@ function email_count_unreaded_mails($userid, $courseid, $folderid=null) {
             return 0;
         }
 
-        if ( email_isfolder_type($folder, EMAIL_INBOX) ) {
+        if ( \block_email_list\label::is_type($folder, EMAIL_INBOX) ) {
             // For apply order, I've writting an sql clause.
             $sql = "SELECT count(*)
                                     FROM {email_mail} m
@@ -2477,7 +2176,7 @@ function email_count_unreaded_mails($userid, $courseid, $folderid=null) {
 
             return $DB->count_records_sql( $sql.$wheresql );
 
-        } else if ( email_isfolder_type($folder, EMAIL_DRAFT) ) {
+        } else if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
             // For apply order, I've writting an sql clause.
             $sql = "SELECT count(*)
                             FROM {email_mail} m
@@ -2668,215 +2367,6 @@ function email_have_asociated_folders($userid) {
     }
 
     return false;
-}
-
-// The eMail tabs.
-// Some code to print tabs.
-
-// A class for tabs.
-class email_tabobject {
-    public $id;
-    public $link;
-    public $text;
-    public $linkedwhenselected;
-
-    // A constructor just because I like constructors.
-    public function __construct($id, $link='', $text='', $img='', $title='', $linkedwhenselected=false) {
-        $this->id   = $id;
-        $this->link = $link;
-        $this->text = $text;
-        $this->title = $title ? $title : $text;
-        $this->img  = $img;
-        $this->linkedwhenselected = $linkedwhenselected;
-    }
-}
-
-
-
-/**
- * Returns a string containing a nested list, suitable for formatting into tabs with CSS.
- *
- * @param array $tabrows An array of rows where each row is an array of tab objects
- * @param string $selected  The id of the selected tab (whatever row it's on)
- * @param array  $inactive  An array of ids of inactive tabs that are not selectable.
- * @param array  $activated An array of ids of other tabs that are currently activated
- */
-function print_email_tabs($tabrows, $selected=null, $inactive=null, $activated=null, $return=false) {
-    global $CFG;
-
-    // Inactive must be an array.
-    if (!is_array($inactive)) {
-        $inactive = array();
-    }
-
-    // Activated must be an array.
-    if (!is_array($activated)) {
-        $activated = array();
-    }
-
-    // Convert the tab rows into a tree that's easier to process.
-    if ( !$tree = convert_tabrows_to_tree($tabrows, $selected, $inactive, $activated) ) {
-        return false;
-    }
-
-    // Print out the current tree of tabs (this function is recursive).
-
-    $output = email_convert_tree_to_html($tree);
-
-    $output = "\n\n".'<div class="tabtree">'.$output.'</div><div class="clearer"> </div>'."\n\n";
-
-    // We're done!
-
-    if ($return) {
-        return $output;
-    }
-    echo $output;
-}
-
-function email_convert_tree_to_html($tree, $row=0) {
-
-    $str = "\n".'<ul class="tabrow'.$row.'">'."\n";
-
-    $first = true;
-    $count = count($tree);
-
-    foreach ($tree as $tab) {
-        $count--;   // Countdown to zero.
-
-        $liclass = '';
-
-        if ($first && ($count == 0)) {   // Just one in the row.
-            $liclass = 'first last';
-            $first = false;
-        } else if ($first) {
-            $liclass = 'first';
-            $first = false;
-        } else if ($count == 0) {
-            $liclass = 'last';
-        }
-
-        if ((empty($tab->subtree)) && (!empty($tab->selected))) {
-            $liclass .= (empty($liclass)) ? 'onerow' : ' onerow';
-        }
-
-        if ($tab->inactive || $tab->active || ($tab->selected && !$tab->linkedwhenselected)) {
-            if ($tab->selected) {
-                $liclass .= (empty($liclass)) ? 'here selected' : ' here selected';
-            } else if ($tab->active) {
-                $liclass .= (empty($liclass)) ? 'here active' : ' here active';
-            }
-        }
-
-        $str .= (!empty($liclass)) ? '<li class="'.$liclass.'">' : '<li>';
-
-        if ($tab->inactive || $tab->active || ($tab->selected && !$tab->linkedwhenselected)) {
-            $str .= '<a href="#" title="'.$tab->title.'"><span>'.$tab->text.print_spacer(1, 4, false, true).$tab->img.'</span></a>';
-        } else {
-            $str .= '<a href="' .
-                $tab->link . '" title="' . $tab->title .
-                '"><span>' . $tab->text.print_spacer(1, 4, false, true) .
-                $tab->img . '</span></a>';
-        }
-
-        if ( !empty($tab->subtree) ) {
-            $str .= convert_tree_to_html($tab->subtree, $row + 1);
-        } else if ($tab->selected) {
-            $str .= '<div class="tabrow' . ($row + 1) . ' empty">&nbsp;</div>' . "\n";
-        }
-
-        $str .= ' </li>'."\n";
-    }
-    $str .= '</ul>'."\n";
-
-    return $str;
-}
-
-// Compatibility moodle 1.7.
-
-if ( !function_exists('convert_tree_to_html') ) {
-    function convert_tree_to_html($tree, $row=0) {
-        $str = "\n".'<ul class="tabrow'.$row.'">'."\n";
-
-        $first = true;
-        $count = count($tree);
-
-        foreach ($tree as $tab) {
-            $count--;   // Countdown to zero.
-
-            $liclass = '';
-
-            if ($first && ($count == 0)) {   // Just one in the row.
-                $liclass = 'first last';
-                $first = false;
-            } else if ($first) {
-                $liclass = 'first';
-                $first = false;
-            } else if ($count == 0) {
-                $liclass = 'last';
-            }
-
-            if ((empty($tab->subtree)) && (!empty($tab->selected))) {
-                $liclass .= (empty($liclass)) ? 'onerow' : ' onerow';
-            }
-
-            if ($tab->inactive || $tab->active || ($tab->selected && !$tab->linkedwhenselected)) {
-                if ($tab->selected) {
-                    $liclass .= (empty($liclass)) ? 'here selected' : ' here selected';
-                } else if ($tab->active) {
-                    $liclass .= (empty($liclass)) ? 'here active' : ' here active';
-                }
-            }
-
-            $str .= ( !empty($liclass) ) ? '<li class="'.$liclass.'">' : '<li>';
-
-            if ($tab->inactive || $tab->active || ($tab->selected && !$tab->linkedwhenselected)) {
-                $str .= '<a href="#" title="'.$tab->title.'"><span>'.$tab->text.'</span></a>';
-            } else {
-                $str .= '<a href="'.$tab->link.'" title="'.$tab->title.'"><span>'.$tab->text.'</span></a>';
-            }
-
-            if ( !empty($tab->subtree) ) {
-                $str .= convert_tree_to_html($tab->subtree, $row + 1);
-            } else if ($tab->selected) {
-                $str .= '<div class="tabrow' . ($row + 1) . ' empty">&nbsp;</div>' . "\n";
-            }
-
-            $str .= ' </li>'."\n";
-        }
-        $str .= '</ul>'."\n";
-
-        return $str;
-    }
-}
-
-if ( !function_exists( 'convert_tabrows_to_tree' ) ) {
-    function convert_tabrows_to_tree($tabrows, $selected, $inactive, $activated) {
-
-        // Work backwards through the rows (bottom to top) collecting the tree as we go.
-        $tabrows = array_reverse($tabrows);
-
-        $subtree = array();
-
-        foreach ($tabrows as $row) {
-            $tree = array();
-
-            foreach ($row as $tab) {
-                $tab->inactive = in_array((string)$tab->id, $inactive);
-                $tab->active = in_array((string)$tab->id, $activated);
-                $tab->selected = (string)$tab->id == $selected;
-
-                if ($tab->active || $tab->selected) {
-                    if ($subtree) {
-                        $tab->subtree = $subtree;
-                    }
-                }
-                $tree[] = $tab;
-            }
-            $subtree = $tree;
-        }
-
-        return $subtree;
-    }
 }
 
 /**
