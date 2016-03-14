@@ -257,7 +257,7 @@ class email_base {
     /**
      * This function remove this eMail. If email does in TRASH folder, drop of BBDD, else move to TRASH folder.
      */
-    public function remove() {
+    public function remove($userid, $courseid, $folderid, $silent=false) {
         return null;
     }
 

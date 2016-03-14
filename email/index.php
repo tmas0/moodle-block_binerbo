@@ -191,11 +191,11 @@ if ( ! empty( $action ) and $mailid > 0 ) {
 }
 
 // Show list all mails.
-email_showmails($USER->id, '', $page, $perpage, $options);
+$renderer->showmails($USER->id, '', $page, $perpage, $options);
 
 // Finish the page.
 if ( isset( $course ) ) {
-    print_footer($course);
+    $OUTPUT->footer($course);
 } else {
-    print_footer($SITE);
+    $OUTPUT->footer($SITE);
 }

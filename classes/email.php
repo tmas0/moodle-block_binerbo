@@ -736,7 +736,7 @@ class email extends \block_email_list\email_base {
      * @return boolean Success/Fail
      * @todo Finish documenting this function
      */
-    public function remove($userid, $courseid, $folderid, $silent=false ) {
+    public function remove($userid, $courseid, $folderid, $silent=false) {
         global $DB;
         // First, show if folder remove or not.
 
@@ -985,7 +985,7 @@ class email extends \block_email_list\email_base {
      * @return object Contain all send mails
      * @todo Finish documenting this function
      **/
-    function get_user_mails($userid, $courseid=null, $sort = null, $limitfrom = '', $limitnum = '', $options = null) {
+    public static function get_user_mails($userid, $courseid=null, $sort = null, $limitfrom = '', $limitnum = '', $options = null) {
         global $CFG, $DB;
 
         // For apply order, I've writting an sql clause.
