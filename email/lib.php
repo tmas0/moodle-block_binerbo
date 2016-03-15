@@ -387,7 +387,7 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
         }
 
         // Now, print all subfolders it.
-        $subfoldersrecursive = email_get_subfolders($subfolder->id, null, $admin);
+        $subfoldersrecursive = \block_email_list\label::get_sublabels($subfolder->id, null, $admin);
 
         // Print recursive all this subfolders.
         if ( $subfoldersrecursive ) {
@@ -411,8 +411,7 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
  * @todo Finish documenting this function
  */
 function email_print_tree_myfolders($userid, $courseid) {
-
-    global $CFG;
+    global $CFG, $PAGE;
 
     $strfolders = get_string('folders', 'block_email_list');
     $stredit    = get_string('editfolders', 'block_email_list');
@@ -422,12 +421,6 @@ function email_print_tree_myfolders($userid, $courseid) {
 
     $spancounter = 1;
 
-    // For title blocks.
-    $startdivtitle  = '<div class="title">';
-    $enddivtitle    = '</div>';
-
-    print_side_block_start($startdivtitle.$strfolders.$enddivtitle);
-
     // Get my folders.
     if ( $folders = email_get_root_folders($userid) ) {
 
@@ -435,7 +428,7 @@ function email_print_tree_myfolders($userid, $courseid) {
         $unreaded = '';
         $row = 0;
 
-        echo '<ul class="c_menu">';
+        $content = '<ul class="c_menu">';
 
         // Clean trash.
         $clean = '';
@@ -460,29 +453,35 @@ function email_print_tree_myfolders($userid, $courseid) {
             }
 
             // Now, print all subfolders it.
-            $subfolders = email_get_subfolders($folder->id, $courseid);
+            $subfolders = \block_email_list\label::get_sublabels($folder->id, $courseid);
 
             // LI.
-            echo '<li class="r'. $row .'">';
-            echo '<a href="' . $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid .
+            $content .= '<li class="r'. $row .'">';
+            $content .=  '<a href="' . $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid .
                     '&amp;folderid=' . $folder->id . '">' . $folder->name . $unreaded . '</a>';
 
             // If subfolders.
             if ( $subfolders ) {
                 email_print_subfolders( $subfolders, $userid, $courseid );
             }
-            echo '</li>';
+            $content .= '</li>';
             $row = $row ? 0 : 1;
         }
 
-        echo '</ul>';
+        $content .= '</ul>';
 
-        echo '<div class="footer">' . $clean . '</div>';
+        $content .= '<div class="footer">' . $clean . '</div>';
         // For admin folders.
-        echo '<div class="footer"><a href="' . $CFG->wwwroot . '/blocks/email_list/email/folder.php?course=' . $courseid .
+        $content .= '<div class="footer"><a href="' . $CFG->wwwroot . '/blocks/email_list/email/folder.php?course=' . $courseid .
                 '&amp;action=' . md5('admin') . '"><b>' . $stredit . '</b></a></div>';
 
-        print_side_block_end();
+        // Create the block content.
+        $bc = new block_contents();
+        $bc->title = $strfolders;
+        $bc->content = $content;
+
+        $defaultregion = $PAGE->blocks->get_default_region();
+        $PAGE->blocks->add_fake_block($bc, $defaultregion);
     }
 
 }
@@ -505,33 +504,27 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     $strsearch  = get_string('search');
     $strmail    = get_string('name', 'block_email_list');
 
-    // For title blocks.
-    $startdivtitle  = '<div class="title">';
-    $enddivtitle    = '</div>';
+    $list = '';
+    $icons = '';
 
-    $list = array();
-    $icons = array();
-
-    /*if ( $printsearchblock ) {
+    if ( $printsearchblock ) {
         // Print search block.
         $form = email_get_search_form($courseid);
-        print_side_block_start($startdivtitle.$strsearch.$enddivtitle);
-        echo $form;
-        print_side_block_end();
+
+        // Create the block content.
+        $bc = new block_contents();
+        $bc->title = $strsearch;
+        $bc->content = $form;
+
+        $defaultregion = $PAGE->blocks->get_default_region();
+        $PAGE->blocks->add_fake_block($bc, $defaultregion);
     }
 
     // Print my folders.
     email_print_tree_myfolders( $userid, $courseid );
 
-    // Remove old fields.
-    unset($list);
-    unset($icons);
-
     // Get my course.
-    $mycourses = get_my_courses($USER->id, null, 'id, fullname, visible');
-
-    $list = array();
-    $icons = array();
+    $mycourses = enrol_get_my_courses();
 
     // Get courses.
     foreach ($mycourses as $mycourse) {
@@ -546,11 +539,11 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
         if ( $numberunreadmails > 0 ) {
             $unreadmails = '<b>('.$numberunreadmails.')</b>';
             // Define default path of icon for course.
-            $icon = '<img src="' . $CFG->wwwroot .
+            $icon .= '<img src="' . $CFG->wwwroot .
                 '/blocks/email_list/email/images/openicon.gif" height="16" width="16" alt="' . $strcourse . '" />';
         } else {
             // Define default path of icon for course.
-            $icon = '<img src="' . $CFG->wwwroot .
+            $icon .= '<img src="' . $CFG->wwwroot .
                 '/blocks/email_list/email/icon.gif" height="16" width="16" alt="' . $strcourse . '" />';
         }
 
@@ -559,64 +552,19 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
         if ( ( !$mycourse->visible and !has_capability('moodle/legacy:student', $context, $USER->id, false) )
                 or !has_capability('moodle/legacy:student', $context, $USER->id, false)
                 or ( has_capability('moodle/legacy:student', $context, $USER->id, false) and $mycourse->visible) ) {
-            $list[] = '<a href="' . $CFG->wwwroot .
+            $list .= '<a href="' . $CFG->wwwroot .
                         '/blocks/email_list/email/index.php?id=' . $mycourse->id .
                         '" ' . $linkcss . '>' . $mycourse->fullname . ' ' . $unreadmails . '</a>';
-            $icons[] = $icon;
+            $list .= $icon;
         }
     }
 
-    // Print block of my courses.
-    print_side_block($startdivtitle.$strcourses.$enddivtitle, '', $list, $icons);
-*/
-    block_load_class('online_users');
-    $blockonlineusers = new block_online_users;
-    $blockonlineusers->get_content();
-    $OUTPUT->blocks($blockonlineusers->title, '', $blockonlineusers->content->text, $icons);
-}
-
-/**
- * This fuctions return all subfolders with one folder (one level), if it've.
- *
- * @uses $USER, $COURSE
- * @param int $folderid Folder parent
- * @param int $courseid Course ID.
- * @param boolean $admin Admin folders
- * @return array Contain all subfolders
- * @todo Finish documenting this function
- */
-function email_get_subfolders($folderid, $courseid = null, $admin = false) {
-
-    global $USER, $DB;
-
-    // Get childs for this parent.
-    $childs = $DB->get_records('email_subfolder', 'folderparentid', $folderid);
-
-    $subfolders = array();
-
-    // If have childs.
-    if ( $childs ) {
-
-        // Save child folder in array.
-        foreach ($childs as $child) {
-
-            if ( is_null($courseid) or !email_have_asociated_folders($USER->id) ) {
-                $subfolders[] = $DB->get_record('email_folder', 'id', $child->folderchildid);
-            } else {
-                if ( $folder = $DB->get_record('email_folder', 'id', $child->folderchildid, 'course', $courseid) ) {
-                    $subfolders[] = $folder;
-                } else if ( $folder = $DB->get_record('email_folder', 'id', $child->folderchildid, 'course', '0') ) {
-                    $subfolders[] = $folder; // Add general folder's.
-                }
-            }
-        }
-    } else {
-        // If no childs, return false.
-        return false;
-    }
-
-    // Return subfolders.
-    return $subfolders;
+    // Create the block content.
+    $bc = new block_contents();
+    $bc->title = $strcourses;
+    $bc->content = $list;
+    $defaultregion = $PAGE->blocks->get_default_region();
+    $PAGE->blocks->add_fake_block($bc, $defaultregion);
 }
 
 /**
@@ -1297,7 +1245,7 @@ function email_print_administration_folders($options) {
                 echo '<li>'.$folder->name.'</li>';
 
                 // Now, print all subfolders it.
-                $subfolders = email_get_subfolders($folder->id, null, true);
+                $subfolders = \block_email_list\label::get_sublabels($folder->id, null, true);
 
                 // If subfolders.
                 if ( $subfolders ) {
@@ -1731,7 +1679,7 @@ function email_my_folders($folderid, $courseid, $myfolders, $space) {
 
     $space .= '&#160;&#160;&#160;';
 
-    $folders = email_get_subfolders($folderid, $courseid);
+    $folders = \block_email_list\label::get_sublabels($folderid, $courseid);
     if ( $folders ) {
         foreach ($folders as $folder) {
             $myfolders[$folder->id] = $space.$folder->name;
@@ -1781,7 +1729,7 @@ function email_get_my_folders($userid, $courseid, $excludetrash, $excludedraft, 
  * @todo Finish documenting this function
  */
 function email_get_root_folders($userid, $draft=true, $trash=true, $sendbox=true, $inbox=true) {
-    \blocks_email_list\label::create_parents($userid);
+    \block_email_list\label::create_parents($userid);
 
     $folders = array();
 
@@ -2118,34 +2066,34 @@ function email_print_movefolder_button($options) {
  * @uses $CFG
  * @param int $userid User ID
  * @param int $courseid Course ID
- * @param int $folderid Folder ID (Optional) When fault this param, return total number of unreaded mails
+ * @param int $labelid Folder ID (Optional) When fault this param, return total number of unreaded mails
  * @return int Number of unread mails.
  * @todo Finish documenting this function
  */
-function email_count_unreaded_mails($userid, $courseid, $folderid=null) {
+function email_count_unreaded_mails($userid, $courseid, $labelid=null) {
     global $CFG, $DB;
 
-    if ( !$folderid or $folderid <= 0 ) {
+    if ( !$labelid or $labelid <= 0 ) {
         // Get draft folder.
-        if ( $folder = \block_email_list\label::get_root($userid, EMAIL_INBOX) ) {
-            $foldersid = $folder->id;
+        if ( $label = \block_email_list\label::get_root($userid, EMAIL_INBOX) ) {
+            $labelsid = $label->id;
 
             // Get all subfolders.
-            if ( $subfolders = email_get_all_subfolders($folder->id) ) {
-                foreach ($subfolders as $subfolder) {
-                    $foldersid .= ', '.$subfolder->id;
+            if ( $sublabels = email_get_all_subfolders($label->id) ) {
+                foreach ($sublabels as $sublabel) {
+                    $labelsid .= ', '.$sublabel->id;
                 }
             }
 
             $sql = "SELECT count(*)
                                     FROM {email_mail} m
                            LEFT JOIN {email_send} s ON m.id = s.mailid
-                           LEFT JOIN {email_foldermail} fm ON m.id = fm.mailid ";
+                           LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
 
             // WHERE principal clause for filter by user and course.
             $wheresql = " WHERE s.userid = $userid
                           AND s.course = $courseid
-                          AND fm.folderid IN ( $foldersid )
+                          AND fm.labelid IN ( $labelsid )
                           AND s.readed = 0
                           AND s.sended = 1";
 
@@ -2155,37 +2103,37 @@ function email_count_unreaded_mails($userid, $courseid, $folderid=null) {
         }
     } else {
 
-        // Get folder.
-        if ( !$folder = email_get_folder($folderid) ) {
+        // Get label.
+        if ( !$label = \block_email_list\label::get($labelid) ) {
             return 0;
         }
 
-        if ( \block_email_list\label::is_type($folder, EMAIL_INBOX) ) {
+        if ( \block_email_list\label::is_type($label, EMAIL_INBOX) ) {
             // For apply order, I've writting an sql clause.
             $sql = "SELECT count(*)
                                     FROM {email_mail} m
                            LEFT JOIN {email_send} s ON m.id = s.mailid
-                           LEFT JOIN {email_foldermail} fm ON m.id = fm.mailid ";
+                           LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
 
             // WHERE principal clause for filter by user and course.
             $wheresql = " WHERE s.userid = $userid
                           AND s.course = $courseid
-                          AND fm.folderid = $folder->id
+                          AND fm.labelid = $label->id
                           AND s.readed = 0
                           AND s.sended = 1";
 
             return $DB->count_records_sql( $sql.$wheresql );
 
-        } else if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
+        } else if ( \block_email_list\label::is_type($label, EMAIL_DRAFT) ) {
             // For apply order, I've writting an sql clause.
             $sql = "SELECT count(*)
                             FROM {email_mail} m
-                            LEFT JOIN {email_foldermail} fm ON m.id = fm.mailid ";
+                            LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
 
             // WHERE principal clause for filter user and course.
             $wheresql = " WHERE m.userid = $userid
                           AND m.course = $courseid
-                          AND fm.folderid = $folder->id";
+                          AND fm.labelid = $label->id";
 
             return $DB->count_records_sql( $sql.$wheresql );
 

@@ -69,7 +69,20 @@ $stremail  = get_string('name', 'block_email_list');
 
 $PAGE->set_url('/blocks/email_list/index.php', array('id' => $courseid));
 $PAGE->set_title($course->shortname.': '.$stremail);
-$PAGE->set_heading($course->fullname);
+
+// Get actual folder, for show.
+if (! $folder = \block_email_list\label::get($folderoldid)) {
+    if (! $folder = \block_email_list\label::get($folderid) ) {
+        // Default, is inbox.
+        $folder = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
+    }
+}
+
+// Print middle table.
+$PAGE->set_heading(get_string('mailbox', 'block_email_list'). ': '. $folder->name);
+
+// Print "blocks" of this account.
+email_printblocks($USER->id, $courseid);
 
 // Get renderer.
 $renderer = $PAGE->get_renderer('block_email_list');
@@ -86,20 +99,6 @@ $options->filterid = $filterid;
 $options->folderoldid = $folderoldid;
 
 // Print the main part of the page.
-
-// Print "blocks" of this account.
-email_printblocks($USER->id, $courseid);
-
-// Get actual folder, for show.
-if (! $folder = \block_email_list\label::get($folderoldid)) {
-    if (! $folder = \block_email_list\label::get($folderid) ) {
-        // Default, is inbox.
-        $folder = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
-    }
-}
-
-// Print middle table.
-$OUTPUT->heading(get_string('mailbox', 'block_email_list'). ': '. $folder->name);
 
 echo '<div>&#160;</div>';
 
@@ -195,7 +194,7 @@ $renderer->showmails($USER->id, '', $page, $perpage, $options);
 
 // Finish the page.
 if ( isset( $course ) ) {
-    $OUTPUT->footer($course);
+    echo $OUTPUT->footer($course);
 } else {
-    $OUTPUT->footer($SITE);
+    echo $OUTPUT->footer($SITE);
 }

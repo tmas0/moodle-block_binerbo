@@ -278,4 +278,47 @@ class label {
 
         return $labels;
     }
+
+    /**
+     * This fuctions return all sublabels with one label (one level), if it've.
+     *
+     * @uses $USER, $COURSE
+     * @param int $labelid Parent label
+     * @param int $courseid Course ID.
+     * @param boolean $admin Admin labels
+     * @return array Contain all sublabels
+     * @todo Finish documenting this function
+     */
+    public static function get_sublabels($labelid, $courseid = null, $admin = false) {
+        global $USER, $DB;
+
+        // Get childs for this parent.
+        $childs = $DB->get_records('email_sublabel', array('labelparentid' => $labelid));
+
+        $sublabels = array();
+
+        // If have childs.
+        if ( $childs ) {
+
+            // Save child label in array.
+            foreach ($childs as $child) {
+
+                if ( is_null($courseid) or !email_have_asociated_folders($USER->id) ) {
+                    $sublabels[] = $DB->get_record('email_label', array('id' => $child->labelchildid));
+                } else {
+                    if ( $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => $courseid)) ) {
+                        $sublabels[] = $label;
+                    } else if ( $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => '0')) ) {
+                        $sublabels[] = $label; // Add general label's.
+                    }
+                }
+            }
+        } else {
+            // If no childs, return false.
+            return false;
+        }
+
+        // Return sublabels.
+        return $sublabels;
+    }
 }
