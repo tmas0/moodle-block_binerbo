@@ -24,6 +24,7 @@ $string['alphabetical'] = 'Orden alfabético';
 $string['allusersincourse'] = 'Ver todos los participantes del curso';
 $string['attachment'] = 'Adjunto';
 $string['attachments'] = 'Adjuntos';
+$string['arenotenrolledanycourse'] = 'No estas inscrito en ningún curso.';
 $string['bcc'] = 'Copia oculta';
 $string['ccall'] = 'Copia a todos';
 $string['blockname'] = 'Correo interno';

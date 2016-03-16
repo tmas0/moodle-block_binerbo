@@ -405,13 +405,13 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
  * This function print block for show my folders.
  * Prints all tree.
  *
- * @uses $CFG
+ * @uses $CFG, $PAGE, $OUTPUT
  * @param int $userid User ID
  * @param int $courseid Course ID
  * @todo Finish documenting this function
  */
 function email_print_tree_myfolders($userid, $courseid) {
-    global $CFG, $PAGE;
+    global $CFG, $PAGE, $OUTPUT;
 
     $strfolders = get_string('folders', 'block_email_list');
     $stredit    = get_string('editfolders', 'block_email_list');
@@ -428,14 +428,13 @@ function email_print_tree_myfolders($userid, $courseid) {
         $unreaded = '';
         $row = 0;
 
-        $content = '<ul class="c_menu">';
+        $content = html_writer::start_tag('ul', array('class' => 'c_menu'));
 
         // Clean trash.
         $clean = '';
 
         // Get courses.
         foreach ($folders as $folder) {
-
             unset($numbermails);
             unset($unreaded);
             // Get number of unreaded mails.
@@ -456,21 +455,29 @@ function email_print_tree_myfolders($userid, $courseid) {
             $subfolders = \block_email_list\label::get_sublabels($folder->id, $courseid);
 
             // LI.
-            $content .= '<li class="r'. $row .'">';
-            $content .=  '<a href="' . $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid .
-                    '&amp;folderid=' . $folder->id . '">' . $folder->name . $unreaded . '</a>';
+            $content .= html_writer::start_tag('li', array('class' => 'r'. $row));
+            $url = new moodle_url('/blocks/email_list/email/index.php',
+                    array('id' => $courseid, 'folderid' => $folder->id)
+            );
+
+            $content .= html_writer::link($url, $OUTPUT->pix_icon('t/email', '') .
+                $OUTPUT->spacer(array('height' => 5, 'width' => 5)) .
+                $folder->name .
+                $unreaded
+            );
 
             // If subfolders.
             if ( $subfolders ) {
                 email_print_subfolders( $subfolders, $userid, $courseid );
             }
-            $content .= '</li>';
+            $content .= html_writer::end_tag('li');
             $row = $row ? 0 : 1;
         }
 
-        $content .= '</ul>';
+        $content .= html_writer::end_tag('ul');
 
-        $content .= '<div class="footer">' . $clean . '</div>';
+        $content .= '<div class="footer">' . $OUTPUT->pix_icon('e/cleanup_messy_code' , '') .
+            $clean . '</div>';
         // For admin folders.
         $content .= '<div class="footer"><a href="' . $CFG->wwwroot . '/blocks/email_list/email/folder.php?course=' . $courseid .
                 '&amp;action=' . md5('admin') . '"><b>' . $stredit . '</b></a></div>';
@@ -504,9 +511,6 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     $strsearch  = get_string('search');
     $strmail    = get_string('name', 'block_email_list');
 
-    $list = '';
-    $icons = '';
-
     if ( $printsearchblock ) {
         // Print search block.
         $form = email_get_search_form($courseid);
@@ -527,6 +531,8 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     $mycourses = enrol_get_my_courses();
 
     // Get courses.
+    $list = get_string('arenotenrolledanycourse', 'block_email_list');
+    $icons = '';
     foreach ($mycourses as $mycourse) {
 
         $context = get_context_instance(CONTEXT_COURSE, $mycourse->id);
@@ -565,40 +571,6 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     $bc->content = $list;
     $defaultregion = $PAGE->blocks->get_default_region();
     $PAGE->blocks->add_fake_block($bc, $defaultregion);
-}
-
-/**
- * This fuctions return all subfolders with one folder, if it've.
- *
- * @param int $folderid Folder parent
- * @return array Contain all subfolders
- * @todo Finish documenting this function
- */
-function email_get_all_subfolders($folderid) {
-    global $DB;
-
-    // Get childs for this parent.
-    $childs = $DB->get_records('email_subfolder', 'folderparentid', $folderid);
-
-    $subfolders = array();
-
-    // If have childs.
-    if ( $childs ) {
-
-        // Save child folder in array.
-        foreach ($childs as $child) {
-            $subfolders[] = $DB->get_record('email_folder', 'id', $child->folderchildid);
-            if ( $morechilds = $DB->get_records('email_subfolder', 'folderparentid',  $child->folderchildid) ) {
-                $childs = array_merge($childs, $morechilds);
-            }
-        }
-    } else {
-        // If no childs, return false.
-        return false;
-    }
-
-    // Return subfolders.
-    return $subfolders;
 }
 
 /**
@@ -2079,7 +2051,7 @@ function email_count_unreaded_mails($userid, $courseid, $labelid=null) {
             $labelsid = $label->id;
 
             // Get all subfolders.
-            if ( $sublabels = email_get_all_subfolders($label->id) ) {
+            if ( $sublabels = \block_email_list\label::get_all_sublabels($label->id) ) {
                 foreach ($sublabels as $sublabel) {
                     $labelsid .= ', '.$sublabel->id;
                 }
@@ -2272,7 +2244,7 @@ function email_get_user($mailid) {
  * @todo Finish documenting this function.
  */
 function email_get_preferences_button($courseid) {
-    global $CFG;
+    global $CFG, $OUTPUT, $PAGE;
 
     // Security.
     if ( empty($courseid) ) {
@@ -2282,14 +2254,13 @@ function email_get_preferences_button($courseid) {
     if ( empty($CFG->email_trackbymail) and empty($CFG->email_marriedfolders2courses) ) {
         return '';
     } else {
-        return print_single_button(
-            $CFG->wwwroot . '/blocks/email_list/email/preferences.php',
-            array('id' => $courseid),
-            get_string('preferences', 'block_email_list'),
-            'post',
-            '_self',
-            true
-        );
+        $form = new html_form();
+        $form->url = new moodle_url($link, $options);
+        $form->button = new html_button();
+        $form->button->text = get_string('preferences', 'block_email_list');
+        $form->button->title = get_string('preferences', 'block_email_list');
+        $form->method = 'post';
+        return $OUTPUT->button($form);
     }
 }
 

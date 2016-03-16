@@ -303,7 +303,7 @@ class label {
             // Save child label in array.
             foreach ($childs as $child) {
 
-                if ( is_null($courseid) or !email_have_asociated_folders($USER->id) ) {
+                if ( is_null($courseid) or !email_have_asociated_labels($USER->id) ) {
                     $sublabels[] = $DB->get_record('email_label', array('id' => $child->labelchildid));
                 } else {
                     if ( $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => $courseid)) ) {
@@ -311,6 +311,40 @@ class label {
                     } else if ( $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => '0')) ) {
                         $sublabels[] = $label; // Add general label's.
                     }
+                }
+            }
+        } else {
+            // If no childs, return false.
+            return false;
+        }
+
+        // Return sublabels.
+        return $sublabels;
+    }
+
+    /**
+     * This fuctions return all sublabels with one label, if it've.
+     *
+     * @param int $labelid Folder parent
+     * @return array Contain all sublabels
+     * @todo Finish documenting this function
+     */
+    public static function get_all_sublabels($labelid) {
+        global $DB;
+
+        // Get childs for this parent.
+        $childs = $DB->get_records('email_sublabel', 'labelparentid', $labelid);
+
+        $sublabels = array();
+
+        // If have childs.
+        if ( $childs ) {
+
+            // Save child label in array.
+            foreach ($childs as $child) {
+                $sublabels[] = $DB->get_record('email_label', 'id', $child->labelchildid);
+                if ( $morechilds = $DB->get_records('email_sublabel', 'labelparentid',  $child->labelchildid) ) {
+                    $childs = array_merge($childs, $morechilds);
                 }
             }
         } else {

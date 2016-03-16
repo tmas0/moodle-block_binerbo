@@ -40,7 +40,7 @@ $courseid   = optional_param('course', SITEID, PARAM_INT);      // Course Id.
 $action     = optional_param('action', '', PARAM_ALPHANUM);     // Action.
 
 // If defined course to view.
-if (! $course = $DB->get_record('course', 'id', $courseid)) {
+if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 
@@ -250,7 +250,7 @@ switch ( $action ) {
                 if ( $preference->marriedfolders2courses ) {
                     // Change on all subfolders if this course has changed.
                     if ( $oldfolder->course != $data->foldercourse ) {
-                        if ( $subfolders = email_get_all_subfolders($data->id) ) {
+                        if ( $subfolders = \block_email_list\label::get_all_sublabels($data->id) ) {
                             foreach ($subfolders as $subfolder0) {
                                 $DB->set_field('email_folder', 'course', $data->foldercourse, 'id', $subfolder0->id);
                             }

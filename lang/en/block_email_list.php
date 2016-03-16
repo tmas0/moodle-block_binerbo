@@ -24,6 +24,7 @@ $string['alphabetical'] = 'Alphabetical';
 $string['allusersincourse'] = 'All users in course';
 $string['attachment'] = 'Attachment';
 $string['attachments'] = 'Attachments';
+$string['arenotenrolledanycourse'] = 'You are not enrolled in any course.';
 $string['bcc'] = 'BCC';
 $string['bccall'] = 'BCC to all';
 $string['body'] = 'Message';

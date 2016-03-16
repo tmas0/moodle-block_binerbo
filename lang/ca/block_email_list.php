@@ -92,6 +92,7 @@ $string['linkto'] = 'La carpeta pare serà';
 $string['listmails'] = 'Llistat de missatges pendents de llegir';
 $string['mail'] = 'Missatge';
 $string['mailbox'] = 'Bústia';
+$string['arenotenrolledanycourse'] = 'No estas inscrit en cap curs.';
 $string['mailboxs'] = 'Bústies';
 $string['mails'] = 'Missatges';
 $string['mailsperpage'] = 'Número de missatges per pàgina';
