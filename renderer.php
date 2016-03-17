@@ -295,4 +295,66 @@ class block_email_list_renderer extends plugin_renderer_base {
 
         return true;
     }
+
+    /**
+     * Print header buttons. Send email and create new label.
+     *
+     * @uses $CFG, $OUTPUT
+     * @param int $courseid Course Id
+     * @param int $folderid Folder Id
+     * @return boolean Success/Fail
+     * @todo Finish documenting this function
+     */
+    public function compose_button($courseid, $folderid, $action = null) {
+        global $CFG, $OUTPUT, $PAGE;
+
+        if ($courseid == SITEID) {
+            $context = context_system::instance();   // SYSTEM context.
+        } else {
+            $context = context_course::instance($courseid);   // Course context.
+        }
+        $compose = $OUTPUT->single_button(
+                new moodle_url('/blocks/email_list/email/sendmail.php', 
+                    array('course' => $courseid)),
+                get_string('newmail', 'block_email_list')
+            );
+        $compose = html_writer::tag('div', $compose, array('class' => 'text-center bg-danger'));
+
+        $defaultregion = $PAGE->blocks->get_default_region();
+        // Create the block content.
+        $bc = new block_contents();
+        $bc->title = '';
+        $bc->content = $compose;
+
+        $PAGE->blocks->add_fake_block($bc, $defaultregion);
+    }
+
+    /**
+     * This function return, if corresponding, preferences button.
+     *
+     * @uses $CFG
+     * @param int $courseid Course Id.
+     * @return string. Preferences button if corresponding.
+     * @todo Finish documenting this function.
+     */
+    function email_get_preferences_button($courseid) {
+        global $CFG, $OUTPUT, $PAGE;
+
+        // Security.
+        if ( empty($courseid) ) {
+            $courseid = SITEID;
+        }
+
+        if ( empty($CFG->email_trackbymail) and empty($CFG->email_marriedfolders2courses) ) {
+            return '';
+        } else {
+            $form = new html_form();
+            $form->url = new moodle_url($link, $options);
+            $form->button = new html_button();
+            $form->button->text = get_string('preferences', 'block_email_list');
+            $form->button->title = get_string('preferences', 'block_email_list');
+            $form->method = 'post';
+            return $OUTPUT->action_button($form);
+        }
+    }
 }

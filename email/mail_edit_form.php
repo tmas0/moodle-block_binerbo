@@ -32,7 +32,6 @@ global $CFG;
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/email.class.php');
 
 class mail_edit_form extends moodleform {
 
@@ -238,7 +237,7 @@ class mail_edit_form extends moodleform {
         $mform->closeHeaderBefore('buttonar');
     }
 
-    public function validation($data) {
+    public function validation($data, $files) {
         $error = array();
 
         // Get form.

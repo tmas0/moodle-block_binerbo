@@ -29,12 +29,8 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  */
 
-require_once( "../../../config.php" );
-require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
-
-// For apply ajax and javascript functions.
-require_once($CFG->libdir. '/ajax/ajaxlib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/email.class.php');
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once(dirname(__FILE__) . '/lib.php');   // The eMail library funcions.
 
 $mailid         = optional_param('id', 0, PARAM_INT);               // Email ID.
 $courseid       = optional_param('course', SITEID, PARAM_INT);      // Course ID.
@@ -50,16 +46,16 @@ $body           = optional_param('body', '', PARAM_ALPHANUM);       // Body of m
 $mails          = optional_param('mails', '', PARAM_ALPHANUM);          // Next and previous mails.
 $selectedusers  = optional_param('selectedusers', '', PARAM_ALPHANUM);  // User who send mail.
 
-if ( !$course = $DB->get_record('course', 'id', $courseid) ) {
+if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 
 require_login($course->id);
 
 if ($course->id == SITEID) {
-    $context = get_context_instance(CONTEXT_SYSTEM, SITEID);   // SYSTEM context.
+    $context = context_system::instance();   // SYSTEM context.
 } else {
-    $context = get_context_instance(CONTEXT_COURSE, $course->id);   // Course context.
+    $context = context_course::instance($course->id);   // Course context.
 }
 
 // CONTRIB-626. Add capability for send messages. Thanks Jeff.
@@ -70,60 +66,21 @@ if ( !has_capability('block/email_list:sendmessage', $context) ) {
     );
 }
 
-$preferencesbutton = email_get_preferences_button($courseid);
-
 $stremail  = get_string('name', 'block_email_list');
 
-if ( function_exists( 'build_navigation') ) {
-    // Prepare navlinks.
-    $navlinks = array();
-    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'),
-        'link' => 'index.php?id=' . $course->id,
-        'type' => 'misc'
-    );
-    $navlinks[] = array('name' => get_string('name', 'block_email_list'), 'link' => null, 'type' => 'misc');
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_email_list');
 
-    // Build navigation.
-    $navigation = build_navigation($navlinks);
-
-    print_header("$course->shortname: $stremail",
-        "$course->fullname",
-        $navigation,
-        "",
-        '<link type="text/css" href="email.css" rel="stylesheet" />
-            <link type="text/css" href="treemenu.css" rel="stylesheet" />
-            <link type="text/css" href="tree.css" rel="stylesheet" />
-            <link type="text/css" rel="stylesheet" href="participants/autocomplete-skin.css">
-            <script type="text/javascript" src="treemenu.js"></script>
-            <script type="text/javascript" src="email.js"></script>',
-        true,
-        $preferencesbutton
-    );
-} else {
-    $navigation = '';
-    if ( isset($course) ) {
-        if ($course->category) {
-            $navigation = '<a href="' . $CFG->wwwroot . '/course/view.php?id=' . $course->id .
-                '">' . $course->shortname . '</a> ->';
-        }
-    }
-
-    $stremails = get_string('nameplural', 'block_email_list');
-
-    print_header("$course->shortname: $stremail",
-        "$course->fullname",
-        "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $stremail",
-        "",
-        '<link type="text/css" href="email.css" rel="stylesheet" />
-            <link type="text/css" href="treemenu.css" rel="stylesheet" />
-            <link type="text/css" href="tree.css" rel="stylesheet" />
-            <link type="text/css" rel="stylesheet" href="participants/autocomplete-skin.css">
-            <script type="text/javascript" src="treemenu.js"></script>
-            <script type="text/javascript" src="email.js"></script>',
-        true,
-        $preferencesbutton
-    );
-}
+// Set default page parameters.
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_context($context);
+$PAGE->set_url('/blocks/email_list/email/sendmail.php',
+    array(
+        'id' => $mailid,
+        'course' => $course->id
+    )
+);
+$PAGE->set_title($course->shortname . ': ' . $stremail);
 
 // Options for new mail and new folder.
 $options = new stdClass();
@@ -185,34 +142,25 @@ if ( $CFG->email_enable_ajax ) {
 
 // Print the main part of the page.
 
-// Print principal table. This have 2 columns . . .  and possibility to add right column.
-echo '<table id="layout-table"><tr>';
-
-// Print "blocks" of this account.
-echo '<td style="width: 180px;" id="left-column">';
-email_printblocks($USER->id, $courseid);
-
-// Close left column.
-echo '</td>';
-
-// Print principal column.
-echo '<td id="middle-column">';
-
 // Get actual folder, for show.
-if ( !$folder = email_get_folder($folderid) ) {
+if ( !$folder = \block_email_list\label::get($folderid) ) {
+    $folder = new stdClass();
     // Default, is inbox.
     $folder->name = get_string('inbox', 'block_email_list');
 }
 
 // Print middle table.
-print_heading_block(get_string('mailbox', 'block_email_list') . ': ' . $folder->name);
+$PAGE->set_heading(get_string('mailbox', 'block_email_list') . ': ' . $folder->name);
 
-echo '<div>&#160;</div>';
+// Print "blocks" of this account.
+email_printblocks($USER->id, $courseid);
 
-// Print tabs options.
-email_print_tabs_options($courseid, $folderid, $action);
+// Print the page header.
+echo $renderer->header();
 
 require_once('mail_edit_form.php');
+
+$mail = new stdClass();
 
 // Solve bug.
 if ( !isset( $mail->body ) ) {
@@ -226,7 +174,7 @@ if ( !isset( $mail->subject ) ) {
 // First create the form.
 $mailform = new mail_edit_form(
         'sendmail.php',
-        array('oldmail' => $DB->get_record('email_mail', 'id', $mailid),
+        array('oldmail' => $DB->get_record('email_mail', array('id' => $mailid)),
             'action' => $action
         ),
         'post',

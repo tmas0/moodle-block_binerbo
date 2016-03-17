@@ -419,6 +419,12 @@ function email_print_tree_myfolders($userid, $courseid) {
     $strfolderopened = s(get_string('folderopened'));
     $strfolderclosed = s(get_string('folderclosed'));
 
+    if ($courseid == SITEID) {
+        $context = context_system::instance();   // SYSTEM context.
+    } else {
+        $context = context_course::instance($courseid);   // Course context.
+    }
+
     $spancounter = 1;
 
     // Get my folders.
@@ -445,10 +451,12 @@ function email_print_tree_myfolders($userid, $courseid) {
             }
 
             if ( \block_email_list\label::is_type($folder, EMAIL_TRASH) ) {
-                $clean .= '&#160;&#160;<a href="' . $CFG->wwwroot .
-                    '/blocks/email_list/email/folder.php?course=' . $courseid .
-                    '&amp;folderid=' . $folder->id .
-                    '&amp;action=cleantrash">' . get_string('cleantrash', 'block_email_list') . '</a>';
+                $clean .= html_writer::link( new moodle_url('/blocks/email_list/email/folder.php',
+                    array('course' => $courseid,
+                        'folderid' => $folder->id,
+                        'action' => 'cleantrash')),
+                    get_string('cleantrash', 'block_email_list')
+                );
             }
 
             // Now, print all subfolders it.
@@ -460,7 +468,8 @@ function email_print_tree_myfolders($userid, $courseid) {
                     array('id' => $courseid, 'folderid' => $folder->id)
             );
 
-            $content .= html_writer::link($url, $OUTPUT->pix_icon('t/email', '') .
+            $content .= html_writer::link($url,
+                $OUTPUT->pix_icon('t/email', '') .
                 $OUTPUT->spacer(array('height' => 5, 'width' => 5)) .
                 $folder->name .
                 $unreaded
@@ -476,11 +485,25 @@ function email_print_tree_myfolders($userid, $courseid) {
 
         $content .= html_writer::end_tag('ul');
 
-        $content .= '<div class="footer">' . $OUTPUT->pix_icon('e/cleanup_messy_code' , '') .
-            $clean . '</div>';
+        $content .= html_writer::tag('div',
+            $OUTPUT->pix_icon('e/cleanup_messy_code' , '') .
+                $OUTPUT->spacer(array('height' => 5, 'width' => 5)) .
+                $clean,
+            array('class' => 'footer'));
+
         // For admin folders.
         $content .= '<div class="footer"><a href="' . $CFG->wwwroot . '/blocks/email_list/email/folder.php?course=' . $courseid .
                 '&amp;action=' . md5('admin') . '"><b>' . $stredit . '</b></a></div>';
+
+        // Create new label.
+        if ( has_capability('block/email_list:createlabel', $context)) {
+            $newlabel = html_writer::link(
+                new moodle_url('/blocks/email_list/email/folder.php',
+                    array('course' => $courseid)),
+                get_string('newfolderform', 'block_email_list')
+            );
+            $content .= html_writer::tag('div', $newlabel, array('class' => 'text-center'));
+        }
 
         // Create the block content.
         $bc = new block_contents();
@@ -511,6 +534,8 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     $strsearch  = get_string('search');
     $strmail    = get_string('name', 'block_email_list');
 
+    $defaultregion = $PAGE->blocks->get_default_region();
+    
     if ( $printsearchblock ) {
         // Print search block.
         $form = email_get_search_form($courseid);
@@ -520,7 +545,6 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
         $bc->title = $strsearch;
         $bc->content = $form;
 
-        $defaultregion = $PAGE->blocks->get_default_region();
         $PAGE->blocks->add_fake_block($bc, $defaultregion);
     }
 
@@ -2233,35 +2257,6 @@ function email_get_user($mailid) {
 
     // Return user record.
     return $DB->get_record('user', 'id', $mail->userid);
-}
-
-/**
- * This function return, if corresponding, preferences button.
- *
- * @uses $CFG
- * @param int $courseid Course Id.
- * @return string. Preferences button if corresponding.
- * @todo Finish documenting this function.
- */
-function email_get_preferences_button($courseid) {
-    global $CFG, $OUTPUT, $PAGE;
-
-    // Security.
-    if ( empty($courseid) ) {
-        $courseid = SITEID;
-    }
-
-    if ( empty($CFG->email_trackbymail) and empty($CFG->email_marriedfolders2courses) ) {
-        return '';
-    } else {
-        $form = new html_form();
-        $form->url = new moodle_url($link, $options);
-        $form->button = new html_button();
-        $form->button->text = get_string('preferences', 'block_email_list');
-        $form->button->title = get_string('preferences', 'block_email_list');
-        $form->method = 'post';
-        return $OUTPUT->button($form);
-    }
 }
 
 /**

@@ -65,14 +65,14 @@ $event->trigger();
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_context($context);
 
-$stremail  = get_string('name', 'block_email_list');
+$stremail = get_string('name', 'block_email_list');
 
 $PAGE->set_url('/blocks/email_list/index.php', array('id' => $courseid));
 $PAGE->set_title($course->shortname.': '.$stremail);
 
 // Get actual folder, for show.
-if (! $folder = \block_email_list\label::get($folderoldid)) {
-    if (! $folder = \block_email_list\label::get($folderid) ) {
+if ( !$folder = \block_email_list\label::get($folderoldid)) {
+    if ( !$folder = \block_email_list\label::get($folderid) ) {
         // Default, is inbox.
         $folder = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
     }
@@ -81,11 +81,14 @@ if (! $folder = \block_email_list\label::get($folderoldid)) {
 // Print middle table.
 $PAGE->set_heading(get_string('mailbox', 'block_email_list'). ': '. $folder->name);
 
-// Print "blocks" of this account.
-email_printblocks($USER->id, $courseid);
-
 // Get renderer.
 $renderer = $PAGE->get_renderer('block_email_list');
+
+// Print compose button.
+$renderer->compose_button($courseid, $folderid);
+
+// Print "blocks" of this account.
+email_printblocks($USER->id, $courseid);
 
 // Print the page header.
 echo $renderer->header();
@@ -99,11 +102,6 @@ $options->filterid = $filterid;
 $options->folderoldid = $folderoldid;
 
 // Print the main part of the page.
-
-echo '<div>&#160;</div>';
-
-// Print tabs options.
-email_print_tabs_options($courseid, $folderid);
 
 // Prepare action.
 if ( ! empty( $action ) and $mailid > 0 ) {
