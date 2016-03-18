@@ -53,7 +53,7 @@ $action     = optional_param('action', 0, PARAM_INT);           // Action.
 
 
 // If defined course to view.
-if (! $course = $DB->get_record('course', 'id', $courseid)) {
+if (! $course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 

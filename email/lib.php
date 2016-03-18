@@ -608,7 +608,7 @@ function email_get_parentfolder($folderid) {
     global $DB;
 
     // Get parent for this child.
-    $parent = $DB->get_record('email_subfolder', 'folderchildid', $folderid);
+    $parent = $DB->get_record('email_subfolder', array('folderchildid' => $folderid));
 
     // If has parent.
     if ( $parent ) {
@@ -618,7 +618,7 @@ function email_get_parentfolder($folderid) {
         // While not find parent root, searching.
         while ( is_null($folder->isparenttype) ) {
             // Searching.
-            $parent = $DB->get_record('email_subfolder', 'folderchildid', $folder->id);
+            $parent = $DB->get_record('email_subfolder', array('folderchildid' => $folder->id));
             $folder = email_get_folder($parent->folderparentid);
         }
 
@@ -705,7 +705,7 @@ function email_print_users_to_send($users, $nosenders = false, $options = null) 
                 name="to" cols="65" rows="3" disabled="true" multiple="multiple">';
 
         foreach ($users as $userid) {
-            echo fullname( $DB->get_record('user', 'id', $userid) ) . ', ';
+            echo fullname( $DB->get_record('user', array('id' => $userid)) ) . ', ';
         }
 
         echo '</textarea>';
@@ -747,7 +747,7 @@ function email_print_users_to_send($users, $nosenders = false, $options = null) 
 function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
     global $CFG, $USER, $DB;
 
-    if ( !$course = $DB->get_record('course', 'id', $courseid) ) {
+    if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
         print_error('invalidcourseid', 'block_email_list');
     }
 
@@ -1026,7 +1026,7 @@ function email_get_foldermail($mailid, $userid) {
 function email_get_reference2foldermail($mailid, $folderid) {
     global $DB;
 
-    return $DB->get_record('email_foldermail', 'mailid', $mailid, 'folderid', $folderid);
+    return $DB->get_record('email_foldermail', array('mailid' => $mailid, 'folderid' => $folderid));
 
 }
 
@@ -1045,14 +1045,19 @@ function email_move2folder($mailid, $foldermailid, $folderidnew) {
     if ( $DB->record_exists('email_folder', 'id', $folderidnew) ) {
 
         // Folder have exist in this new folder?.
-        if ( !$DB->get_record('email_foldermail', 'mailid', $mailid, 'folderid', $folderidnew) ) {
+        if ( !$DB->get_record('email_foldermail', array('mailid' => $mailid, 'folderid' => $folderidnew)) ) {
 
             // Change folder reference to mail.
-            if ( !$DB->set_field('email_foldermail', 'folderid', $folderidnew, 'id', $foldermailid, 'mailid', $mailid) ) {
+            $set = $DB->set_field('email_foldermail',
+                array('folderid' => $folderidnew,
+                    'id' => $foldermailid,
+                    'mailid' => $mailid)
+            );
+            if ( !$set ) {
                 return false;
             }
         } else {
-            if ( !$DB->delete_records('email_foldermail', 'id', $foldermailid) ) {
+            if ( !$DB->delete_records('email_foldermail', array('id' => $foldermailid)) ) {
                 return false;
             }
         }
@@ -1125,7 +1130,7 @@ function email_newfolder($folder, $parentfolder) {
 function email_get_folders($userid, $sort = 'id') {
     global $DB;
 
-    return $DB->get_records('email_folder', 'userid', $userid, $sort);
+    return $DB->get_records('email_folder', array('userid' => $userid), $sort);
 }
 
 /**
@@ -1141,7 +1146,7 @@ function email_removefolder($folderid, $options) {
     global $CFG, $DB;
 
     // Check if this folder have subfolders.
-    if ( $DB->get_record('email_subfolder', 'folderparentid', $folderid) ) {
+    if ( $DB->get_record('email_subfolder', array('folderparentid' => $folderid)) ) {
         // This folder is parent of other/s folders. Don't remove this.
         // Notify.
         redirect($CFG->wwwroot .
@@ -1152,13 +1157,13 @@ function email_removefolder($folderid, $options) {
     }
 
     // Get folder.
-    if ($folders = $DB->get_records('email_folder', 'id', $folderid)) {
+    if ($folders = $DB->get_records('email_folder', array('id' => $folderid)) ) {
 
         // For all folders.
         foreach ($folders as $folder) {
 
             // Before removing references to foldermail, move this mails to root folder parent.
-            if ($foldermails = $DB->get_records('email_foldermail', 'folderid', $folder->id) ) {
+            if ($foldermails = $DB->get_records('email_foldermail', array('folderid' => $folder->id)) ) {
 
                 // Move mails.
                 foreach ($foldermails as $foldermail) {
@@ -1227,7 +1232,7 @@ function email_print_administration_folders($options) {
 
     if ( $folders = email_get_root_folders($USER->id, false) ) {
 
-        $course = $DB->get_record('course', 'id', $options->course);
+        $course = $DB->get_record('course', array('id' => $options->course));
 
         echo '<ul>';
 
@@ -1267,7 +1272,7 @@ function email_print_administration_folders($options) {
 function email_is_subfolder($folderid) {
     global $DB;
 
-    return $DB->get_record('email_subfolder', 'folderchildid', $folderid);
+    return $DB->get_record('email_subfolder', array('folderchildid' => $folderid));
 }
 
 function email_createfilter($folderid) {
@@ -1508,7 +1513,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
 
         }
 
-        if ( !$coursemail = $DB->get_record("course", "id", $mail->course) ) {
+        if ( !$coursemail = $DB->get_record('course', array('id' => $mail->course)) ) {
             print_error('invalidcourseid', 'block_email_list');
         }
 
@@ -1631,9 +1636,9 @@ function email_get_my_writemails($userid, $order = null) {
 
     // Get my write mails.
     if ($order) {
-        $mails = $DB->get_records('email_mail', 'userid', $userid, $order);
+        $mails = $DB->get_records('email_mail', array('userid' => $userid), $order);
     } else {
-        $mails = $DB->get_records('email_mail', 'userid', $userid);
+        $mails = $DB->get_records('email_mail', array('userid' => $userid));
     }
 
     return $mails;
@@ -1654,16 +1659,16 @@ function email_get_parent_folder($folder) {
     }
 
     if ( is_int($folder) ) {
-        if ( !$subfolder = $DB->get_record('email_subfolder', 'folderchildid', $folder) ) {
+        if ( !$subfolder = $DB->get_record('email_subfolder', array('folderchildid' => $folder)) ) {
             return false;
         }
     } else {
-        if ( !$subfolder = $DB->get_record('email_subfolder', 'folderchildid', $folder->id) ) {
+        if ( !$subfolder = $DB->get_record('email_subfolder', array('folderchildid' => $folder->id)) ) {
             return false;
         }
     }
 
-    return $DB->get_record('email_folder', 'id', $subfolder->folderparentid);
+    return $DB->get_record('email_folder', array('id' => $subfolder->folderparentid));
 
 }
 
@@ -1765,7 +1770,7 @@ function email_get_users_sent($mailid, $forreplyall=false, $writer=null, $type='
     global $DB;
 
     // Get mails with send to my.
-    if (! $sends = $DB->get_records('email_send', 'mailid', $mailid) ) {
+    if (! $sends = $DB->get_records('email_send', array('mailid' => $mailid)) ) {
         return false;
     }
 
@@ -1775,7 +1780,7 @@ function email_get_users_sent($mailid, $forreplyall=false, $writer=null, $type='
     foreach ($sends as $send) {
 
         // Get user.
-        if ( !$user = $DB->get_record('user', 'id', $send->userid) ) {
+        if ( !$user = $DB->get_record('user', array('id' => $send->userid)) ) {
             return false;
         }
 
@@ -2251,12 +2256,12 @@ function email_get_user($mailid) {
     global $DB;
 
     // Get mail record.
-    if ( !$mail = $DB->get_record('email_mail', 'id', $mailid)) {
+    if ( !$mail = $DB->get_record('email_mail', array('id' => $mailid)) ) {
         error('failgetmail', 'block_email_list');
     }
 
     // Return user record.
-    return $DB->get_record('user', 'id', $mail->userid);
+    return $DB->get_record('user', array('id' => $mail->userid));
 }
 
 /**
@@ -2273,7 +2278,7 @@ function email_have_asociated_folders($userid) {
     }
 
     if ( $CFG->email_marriedfolders2courses ) {
-        if ( $preferences = $DB->get_record('email_preference', 'userid', $userid) ) {
+        if ( $preferences = $DB->get_record('email_preference', array('userid' => $userid)) ) {
             if ($preferences->marriedfolders2courses) {
                 return true;
             }

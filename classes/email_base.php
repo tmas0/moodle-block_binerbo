@@ -425,7 +425,7 @@ class email_base {
         }
 
         // Get course for upload manager.
-        if ( !$course = $DB->get_record('course', 'id', $this->course)) {
+        if ( !$course = $DB->get_record('course', array('id' => $this->course)) ) {
             return '';
         }
 
@@ -513,7 +513,7 @@ class email_base {
         global $DB;
 
         // Get mail.
-        if ( !$mail = $DB->get_record('email_mail', 'id', $this->id) ) {
+        if ( !$mail = $DB->get_record('email_mail', array('id' => $this->id)) ) {
             return false;
         }
 

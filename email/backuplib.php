@@ -34,7 +34,7 @@ function email_backup_instance($bf, $preferences, $courseid) {
     global $DB;
 
     // Are there any emails to backup?
-    $emails = $DB->get_records('email_mail', 'course', $courseid);
+    $emails = $DB->get_records('email_mail', array('course', $courseid));
     if ( $emails ) {
 
         fwrite($bf, start_tag('EMAILS', 5, true));
@@ -73,7 +73,7 @@ function email_backup_instance($bf, $preferences, $courseid) {
         }
 
         // Any sent email to back up.
-        $sentemails = $DB->get_records('email_send', 'course', $courseid);
+        $sentemails = $DB->get_records('email_send', array('course' => $courseid));
         if ( $sentemails ) {
             fwrite($bf, start_tag('SENTEMAILS', 5, true));
             foreach ($sentemails as $sentemail) {
@@ -109,7 +109,7 @@ function email_backup_mail($bf, $preferences, $email) {
     fwrite($bf, full_tag('TIMECREATED', 7, false, $email->timecreated));
     fwrite($bf, full_tag('BODY', 7, false, $email->body));
 
-    $foldermails = $DB->get_records('email_foldermail', 'mailid', $email->id);
+    $foldermails = $DB->get_records('email_foldermail', array('mailid' => $email->id));
     if ( $foldermails ) {
         fwrite($bf, start_tag('FOLDERMAILS', 7, true));
 
@@ -194,7 +194,7 @@ function email_backup_folder($bf, $preferences, $folder, $folders) {
     fwrite($bf, full_tag('COURSE', 7, false, $folder->course));
 
     // Check for subfolders.
-    if ( $subfolders = $DB->get_records('email_subfolder', 'folderparentid', $folder->id) ) {
+    if ( $subfolders = $DB->get_records('email_subfolder', array('folderparentid' => $folder->id)) ) {
         fwrite($bf, start_tag('SUBFOLDERS', 7, true));
 
         foreach ($subfolders as $subfolder) {

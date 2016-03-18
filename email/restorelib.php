@@ -193,12 +193,10 @@ function email_folders_restore($info, $restore) {
 
         // Make sure the folder doesn't exists.
         $existingfolder = $DB->get_record('email_folder',
-            'userid',
-            $folder->userid,
-            'name',
-            $folder->name,
-            'course',
-            $folder->course
+            array('userid' => $folder->userid,
+                'name' => $folder->name,
+                'course' => $folder->course
+            )
         );
         if ( $existingfolder ) {
             $newfolderid = $existingfolder->id;

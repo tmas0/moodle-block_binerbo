@@ -28,7 +28,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $mailids  = required_param('mailids', PARAM_SEQUENCE);
 $mailids  = explode(',', $mailids);
 
-if ( !$course = $DB->get_record('course', 'id', $courseid) ) {
+if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 

@@ -97,7 +97,7 @@ class block_email_list extends block_list {
                     '/blocks/email_list/email/">' . get_string('view_all', 'block_email_list') . ' ' . $emailicon . '</a>';
             } else {
                 // Get this course.
-                $course = $DB->get_record('course', 'id', $this->page->course->id);
+                $course = $DB->get_record('course', array('id' => $this->page->course->id));
                 $mycourses[] = $course;
                 $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
                     '/blocks/email_list/email/index.php?id=' . $course->id . '">' .
@@ -188,7 +188,7 @@ class block_email_list extends block_list {
         $now = time();
 
         // Get record for mail list.
-        if ( $block = $DB->get_record('block', 'name', 'email_list') ) {
+        if ( $block = $DB->get_record('block', array('name' => 'email_list')) ) {
 
             if ( $now > $block->lastcron ) {
 
@@ -220,7 +220,7 @@ class block_email_list extends block_list {
                         // 1.3.- User denied trackbymail -> Don't send mail.
 
                         // User can definied this preferences?
-                        if ( $preferences = $DB->get_record('email_preference', 'userid', $user->id) ) {
+                        if ( $preferences = $DB->get_record('email_preference', array('userid' => $user->id)) ) {
                             if ( $preferences->trackbymail == 0 ) {
                                 continue;
                             }
@@ -263,8 +263,8 @@ class block_email_list extends block_list {
                                 }
 
                                 if ( isset($mail->mailid) ) {
-                                    $message = $DB->get_record('email_mail', 'id', $mail->mailid);
-                                    $mailcourse = $DB->get_record('course', 'id', $mail->course);
+                                    $message = $DB->get_record('email_mail', array('id' => $mail->mailid));
+                                    $mailcourse = $DB->get_record('course', array('id' => $mail->course));
 
                                     $body .= "---------------------------------------------------------------------\n";
                                     $body .= get_string('course') . ": $mailcourse->fullname \n";

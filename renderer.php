@@ -256,7 +256,7 @@ class block_email_list_renderer extends plugin_renderer_base {
 
             }
 
-            if ( !$coursemail = $DB->get_record("course", "id", $mail->course) ) {
+            if ( !$coursemail = $DB->get_record('course', array('id' => $mail->course)) ) {
                 print_error('invalidcourseid', 'block_email_list');
             }
 

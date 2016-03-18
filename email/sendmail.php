@@ -297,7 +297,7 @@ if ( $mailform->is_cancelled() ) {
     // DRAFT integration.
     // Prepare mail according action.
     if ( $action == EMAIL_REPLY or $action == EMAIL_REPLYALL or $action == EMAIL_EDITDRAFT ) {
-        if ( !$mail = $DB->get_record('email_mail', 'id', $mailid) ) {
+        if ( !$mail = $DB->get_record('email_mail', array('id' => $mailid)) ) {
             print_error ('Mail not found');
         }
     }
@@ -330,7 +330,7 @@ if ( $mailform->is_cancelled() ) {
 
         $mail->nameto = '';
         foreach ($selectedusersto as $userid) {
-            $mail->nameto .= fullname($DB->get_record('user', 'id', $userid), $context) . ', ';
+            $mail->nameto .= fullname($DB->get_record('user', array('id' => $userid)), $context) . ', ';
         }
 
         // Get users sent mail, with option for reply all.
@@ -340,7 +340,7 @@ if ( $mailform->is_cancelled() ) {
 
         $mail->namecc = '';
         foreach ($selecteduserscc as $userid) {
-            $mail->namecc .= fullname($DB->get_record('user', 'id', $userid), $context) .', ';
+            $mail->namecc .= fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
         }
     }
 
@@ -348,7 +348,7 @@ if ( $mailform->is_cancelled() ) {
         $newmail = new stdClass();
 
         // Get mail.
-        if ( !$oldmail = $DB->get_record('email_mail', 'id', $mailid) ) {
+        if ( !$oldmail = $DB->get_record('email_mail', array('id' => $mailid)) ) {
             error ('Can\'t found mail');
         }
 
@@ -372,7 +372,7 @@ if ( $mailform->is_cancelled() ) {
 
         $mail->nameto = '';
         foreach ($selectedusersto as $userid) {
-            $mail->nameto .= email_fullname($DB->get_record('user', 'id', $userid), $context) .', ';
+            $mail->nameto .= email_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
         }
 
         // Get users sent mail, with option for reply all.
@@ -380,7 +380,7 @@ if ( $mailform->is_cancelled() ) {
 
         $mail->namecc = '';
         foreach ($selecteduserscc as $userid) {
-            $mail->namecc .= email_fullname($DB->get_record('user', 'id', $userid), $context) .', ';
+            $mail->namecc .= email_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
         }
 
         // Get users sent mail, with option for reply all.
@@ -388,7 +388,7 @@ if ( $mailform->is_cancelled() ) {
 
         $mail->namebcc = '';
         foreach ($selectedusersbcc as $userid) {
-            $mail->namebcc .= email_fullname($DB->get_record('user', 'id', $userid), $context) .', ';
+            $mail->namebcc .= email_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
         }
     }
 

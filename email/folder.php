@@ -114,7 +114,7 @@ print_heading_block('');
 echo '<div>&#160;</div>';
 
 if ( isset($folderid) ) {
-    if (! $folder = $DB->get_record('email_folder', 'id', $folderid) ) {
+    if (! $folder = $DB->get_record('email_folder', array('id' => $folderid)) ) {
         print_error( 'failgetfolder', 'block_email_list');
     }
 }
@@ -167,7 +167,7 @@ switch ( $action ) {
         if ( $mails ) {
             foreach ($mails as $mail) {
                 // If mailid exist, continue.
-                if ( $DB->get_records('email_foldermail', 'mailid', $mail->id) ) {
+                if ( $DB->get_records('email_foldermail', array('mailid' => $mail->id)) ) {
                     continue;
                 } else {
                     // Mail is not reference by never folder (not possibility readed).
@@ -229,7 +229,7 @@ switch ( $action ) {
             // Update folder.
 
             // Get old folder params.
-            if (! $oldfolder = $DB->get_record('email_folder', 'id', $data->id) ) {
+            if (! $oldfolder = $DB->get_record('email_folder', array('id' => $data->id)) ) {
                 print_error('failgetfolder', 'block_email_list');
             }
 
@@ -246,7 +246,7 @@ switch ( $action ) {
             // Unset parentfolder.
             unset($data->parentfolder);
 
-            if ( $preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
+            if ( $preference = $DB->get_record('email_preference', array('userid' => $USER->id)) ) {
                 if ( $preference->marriedfolders2courses ) {
                     // Change on all subfolders if this course has changed.
                     if ( $oldfolder->course != $data->foldercourse ) {

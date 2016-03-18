@@ -44,7 +44,7 @@ $mails      = optional_param('mails', '', PARAM_ALPHANUM);  // Next and previous
 $selectedusers = optional_param('selectedusers', '', PARAM_ALPHANUM); // User who send mail.
 
 // If defined course to view.
-if ( !$course = $DB->get_record("course", "id", $courseid) ) {
+if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 
@@ -165,7 +165,7 @@ email_print_tabs_options($courseid, $folderid, $action);
 
 // Print action in case . . .
 // Get user, for show this fields.
-if ( !$user = $DB->get_record('user', 'id', $USER->id) ) {
+if ( !$user = $DB->get_record('user', array('id' => $USER->id)) ) {
     notify('Fail reading user');
 }
 

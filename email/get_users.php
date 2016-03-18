@@ -42,7 +42,7 @@ $lastinitial    = optional_param('lname', '', PARAM_ALPHA);     // Order by last
 
 
 // Get course, if exist.
-if (! $course = $DB->get_record('course', 'id', $courseid)) {
+if (! $course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 

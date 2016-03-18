@@ -78,7 +78,7 @@ class folder_form extends moodleform {
 
         $mform->addElement('hidden', 'gost');
 
-        if ( $preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
+        if ( $preference = $DB->get_record('email_preference', array('userid' => $USER->id)) ) {
             if ( $preference->marriedfolders2courses ) {
                 // Get my courses..
                 $mycourses = get_my_courses($USER->id);

@@ -89,7 +89,7 @@ class email extends \block_email_list\email_base {
                 }
                 $this->course = $email->course;
             } else if (is_int($email) ) {
-                if ( $mail = $DB->get_record('email_mail', 'id', $email) ) {
+                if ( $mail = $DB->get_record('email_mail', array('id' => $email)) ) {
                     $this->id = $mail->id;
                     $this->subject = $mail->subject;
                     $this->body = $mail->body;
@@ -138,7 +138,7 @@ class email extends \block_email_list\email_base {
     public function get_fullname_writer($override=false) {
         global $DB;
 
-        if ( $user = $DB->get_record('user', 'id', $this->userid) ) {
+        if ( $user = $DB->get_record('user', array('id' => $this->userid)) ) {
             return $this->fullname($user, $override);
         } else {
             return ''; // User not found.
@@ -153,15 +153,17 @@ class email extends \block_email_list\email_base {
      */
     public function get_users_send($type='', $override=false) {
         global $DB;
-        // Get send's.
 
+        // Get send's.
         if ( isset($this->id) ) {
             if ( $type === 'to' or $type === 'cc' or $type === 'bcc' ) {
-                if (! $sendbox = $DB->get_records_select('email_send', 'mailid='.$this->id.' AND type="'.$type.'"') ) {
+                $sendbox = $DB->get_records('email_send', array('mailid' => $this->id, 'type' => $type));
+                if ( !$sendbox ) {
                     return false;
                 }
             } else {
-                if (! $sendbox = $DB->get_records('email_send', 'mailid', $this->id) ) {
+                $sendbox = $DB->get_records('email_send', array('mailid' => $this->id));
+                if ( !$sendbox ) {
                     return false;
                 }
             }
@@ -170,7 +172,7 @@ class email extends \block_email_list\email_base {
 
             foreach ($sendbox as $sendmail) {
                 // Get user.
-                if ( $user = $DB->get_record('user', 'id', $sendmail->userid) ) {
+                if ( $user = $DB->get_record('user', array('id' => $sendmail->userid)) ) {
                     $users .= $this->fullname($user, $override) .', ';
                 }
             }
@@ -200,7 +202,7 @@ class email extends \block_email_list\email_base {
             return true;
         }
 
-        $senders = $DB->get_records('email_send', 'mailid', $this->id);
+        $senders = $DB->get_records('email_send', array('mailid' => $this->id));
 
         if ( $senders ) {
             foreach ($senders as $sender) {
@@ -226,7 +228,10 @@ class email extends \block_email_list\email_base {
         global $DB;
 
         // Get mail.
-        if (! $send = $DB->get_record('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid) ) {
+        $send = $DB->get_record('email_send', array('mailid' => $this->id,
+            'userid' => $userid,
+            'course' => $courseid);
+        if ( !$send ) {
             return false;
         }
 
@@ -743,7 +748,11 @@ class email extends \block_email_list\email_base {
         $deletemails = false;
         $success = true;
 
-        if ( \block_email_list\label::is_type(get_record('email_folder', 'id', $folderid), EMAIL_TRASH) ) {
+        $type = \block_email_list\label::is_type(
+            get_record('email_folder', array('id' => $folderid)),
+            EMAIL_TRASH
+        );
+        if ( $type ) {
             $deletemails = true;
         }
 
@@ -828,7 +837,7 @@ class email extends \block_email_list\email_base {
         $html .= '<td style="border-left: 1px solid black; border-top:1px solid black" width="7%" align="center">';
 
         // Get user picture.
-        $user = $DB->get_record('user', 'id', $this->userid);
+        $user = $DB->get_record('user', array('id' => $this->userid));
         $html .= print_user_picture($this->userid, $this->course, $user->picture, 0, true, false);
 
         $html .= '</td>';

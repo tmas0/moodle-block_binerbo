@@ -306,9 +306,15 @@ class label {
                 if ( is_null($courseid) or !email_have_asociated_labels($USER->id) ) {
                     $sublabels[] = $DB->get_record('email_label', array('id' => $child->labelchildid));
                 } else {
-                    if ( $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => $courseid)) ) {
+                    $label = $DB->get_record('email_label',
+                        array('id' => $child->labelchildid, 'course' => $courseid)
+                    );
+                    if ( $label ) {
                         $sublabels[] = $label;
-                    } else if ( $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => '0')) ) {
+                    }
+                    
+                    $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => '0'));
+                    if ( $label ) {
                         $sublabels[] = $label; // Add general label's.
                     }
                 }
@@ -333,7 +339,7 @@ class label {
         global $DB;
 
         // Get childs for this parent.
-        $childs = $DB->get_records('email_sublabel', 'labelparentid', $labelid);
+        $childs = $DB->get_records('email_sublabel', array('labelparentid' => $labelid));
 
         $sublabels = array();
 
@@ -342,8 +348,11 @@ class label {
 
             // Save child label in array.
             foreach ($childs as $child) {
-                $sublabels[] = $DB->get_record('email_label', 'id', $child->labelchildid);
-                if ( $morechilds = $DB->get_records('email_sublabel', 'labelparentid',  $child->labelchildid) ) {
+                $sublabels[] = $DB->get_record('email_label', array('id' => $child->labelchildid));
+                $morechilds = $DB->get_records('email_sublabel',
+                    array('labelparentid' => $child->labelchildid)
+                );
+                if ( $morechilds ) {
                     $childs = array_merge($childs, $morechilds);
                 }
             }

@@ -37,7 +37,7 @@ $courseid = optional_param('id', SITEID, PARAM_INT); // Course ID.
 global $CFG, $USER, $DB;
 
 // If defined course to view.
-if ( !$course = $DB->get_record('course', 'id', $courseid)) {
+if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('courseavailablenot', 'moodle');
 }
 
@@ -153,7 +153,7 @@ if ( $mform->is_cancelled() ) {
 
     if ( $DB->record_exists('email_preference', 'userid', $USER->id) ) {
 
-        if ( !$preference = $DB->get_record('email_preference', 'userid', $USER->id) ) {
+        if ( !$preference = $DB->get_record('email_preference', array('userid' => $USER->id)) ) {
             print_error('failreadingpreferences',
                 'block_email_list',
                 $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid
@@ -211,7 +211,7 @@ if ( $mform->is_cancelled() ) {
 } else {
 
     // Get my preferences, if I have.
-    $preferences = $DB->get_record('email_preference', 'userid', $USER->id);
+    $preferences = $DB->get_record('email_preference', array('userid' => $USER->id));
 
     // Add course.
     $preferences->id = $courseid;
