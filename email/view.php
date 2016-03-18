@@ -28,12 +28,8 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  */
 
-require_once( "../../../config.php" );
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
-
-// For apply ajax and javascript functions.
-require_once($CFG->libdir. '/ajax/ajaxlib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/email.class.php');
 
 $mailid     = required_param('id', PARAM_INT);              // Email ID.
 $courseid   = optional_param('course', SITEID, PARAM_INT);  // Course ID.
@@ -49,75 +45,45 @@ if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
 }
 
 if ($course->id == SITEID) {
-    $coursecontext = get_context_instance(CONTEXT_SYSTEM);   // SYSTEM context.
+    $context = context_system::instance();   // SYSTEM context.
 } else {
-    $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);   // Course context.
+    $context = context_course::instance($course->id);   // Course context.
 }
 
 // The eMail.
-$email = new eMail();
+$email = new \block_email_list\email();
 $email->set_email($mailid);
 
 require_login($course->id, false); // No autologin guest.
 
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_email_list');
+
 // Add log for one course.
 add_to_log($courseid, 'email', 'view mail', 'view.php?id=$mailid', "View mail: ".$email->subject, 0, $USER->id);
+
+// Set default page parameters.
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_context($context);
+$PAGE->set_url('/blocks/email_list/email/view.php',
+    array(
+        'id' => $mailid,
+        'course' => $course->id
+    )
+);
 
 // Print the page header.
 
 $preferencesbutton = email_get_preferences_button($courseid);
 
 $stremail  = get_string('name', 'block_email_list');
+$PAGE->set_title($course->shortname . ': ' . $stremail);
+
 // Add subject on information page.
 $stremail .= ' :: '.$email->subject;
 
-if ( function_exists( 'build_navigation') ) {
-    // Prepare navlinks.
-    $navlinks = array();
-    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'),
-        'link' => 'index.php?id='.$course->id,
-        'type' => 'misc'
-    );
-    $navlinks[] = array('name' => get_string('name', 'block_email_list'), 'link' => null, 'type' => 'misc');
-
-    // Build navigation.
-    $navigation = build_navigation($navlinks);
-
-    print_header("$course->shortname: $stremail",
-        "$course->fullname",
-        $navigation,
-        "",
-        '<link type="text/css" href="email.css" rel="stylesheet" />
-            <link type="text/css" href="treemenu.css" rel="stylesheet" />
-            <link type="text/css" href="tree.css" rel="stylesheet" />
-            <script type="text/javascript" src="treemenu.js"></script>
-            <script type="text/javascript" src="email.js"></script>',
-        true,
-        $preferencesbutton
-    );
-} else {
-    $navigation = '';
-    if ( isset($course) ) {
-        if ($course->category) {
-            $navigation = '<a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->shortname.'</a> ->';
-        }
-    }
-
-    $stremails = get_string('nameplural', 'block_email_list');
-
-    print_header("$course->shortname: $stremail",
-        "$course->fullname",
-        "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $stremail",
-        "",
-        '<link type="text/css" href="email.css" rel="stylesheet" />
-            <link type="text/css" href="treemenu.css" rel="stylesheet" />
-            <link type="text/css" href="tree.css" rel="stylesheet" />
-            <script type="text/javascript" src="treemenu.js"></script>
-            <script type="text/javascript" src="email.js"></script>',
-        true,
-        $preferencesbutton
-    );
-}
+// Print the page header.
+echo $renderer->header();
 
 // Options.
 $options = new stdClass();
@@ -210,8 +176,4 @@ echo '</td>';
 echo '</tr> </table>';
 
 // Finish the page.
-if ( isset( $course ) ) {
-    print_footer($course);
-} else {
-    print_footer($SITE);
-}
+echo $renderer->footer();

@@ -31,9 +31,8 @@
 
 global $CFG, $DB;
 
-require_once( "../../../config.php" );
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
-require_once($CFG->libdir.'/ajax/ajaxlib.php');
 
 $courseid   = required_param('id', PARAM_INT);          // Course ID.
 $selgroup   = optional_param('group', 0, PARAM_INT);    // Selected group.
@@ -51,14 +50,29 @@ if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 
-require_login($course->id);
+require_login($course->id, false);
 
-print_header(get_string('selectaction', 'block_email_list'),
-    '',
-    '',
-    '',
-    '<script type="text/javascript" src="manage.js"></script>'
+if ($course->id == SITEID) {
+    $context = context_system::instance(); // SYSTEM context.
+} else {
+    $context = context_course::instance($course->id); // Course context.
+}
+
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_email_list');
+
+// Set default page parameters.
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_context($context);
+$PAGE->set_url('/blocks/email_list/email/participants.php',
+    array(
+        'id' => $course->id
+    )
 );
+$PAGE->set_title($course->shortname . ': ' . get_string('name', 'block_email_list'));
+
+// Print the page header.
+echo $renderer->header();
 
 if ( $CFG->email_old_select_participants ) {
     email_choose_users_to_send($courseid, $roleid, $selgroup);
@@ -236,4 +250,4 @@ if ( $CFG->email_old_select_participants ) {
 // Print close button.
 close_window_button();
 
-print_footer();
+echo $renderer->footer();

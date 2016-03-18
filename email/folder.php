@@ -29,9 +29,7 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  */
 
-global $CFG, $COURSE, $DB;
-
-require_once( "../../../config.php" );
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/folder_form.php');
 
@@ -44,6 +42,28 @@ if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 
+// Only return, if user have login.
+require_login($course->id, false);
+
+if ($course->id == SITEID) {
+    $context = context_system::instance(); // SYSTEM context.
+} else {
+    $context = context_course::instance($course->id); // Course context.
+}
+
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_email_list');
+
+// Set default page parameters.
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_context($context);
+$PAGE->set_url('/blocks/email_list/email/folder.php',
+    array(
+        'id' => $mailid,
+        'course' => $course->id
+    )
+);
+
 // Options for new mail and new folder.
 $options = new stdClass();
 $options->id = $id;
@@ -51,48 +71,11 @@ $options->course = $courseid;
 
 $preferencesbutton = email_get_preferences_button($courseid);
 
-$stremail  = get_string('name', 'block_email_list');
+$stremail = get_string('name', 'block_email_list');
+$PAGE->set_title($course->shortname . ': ' . $stremail);
 
-if ( function_exists( 'build_navigation') ) {
-    // Prepare navlinks.
-    $navlinks = array();
-    $navlinks[] = array('name' => get_string('nameplural', 'block_email_list'),
-        'link' => 'index.php?id=' . $course->id,
-        'type' => 'misc');
-    $navlinks[] = array('name' => get_string('name', 'block_email_list'), 'link' => null, 'type' => 'misc');
-
-    // Build navigation.
-    $navigation = build_navigation($navlinks);
-
-    print_header("$course->shortname: $stremail", "$course->fullname",
-                 $navigation,
-                  "", '<link type="text/css" href="email.css" rel="stylesheet" />
-                  <link type="text/css" href="treemenu.css" rel="stylesheet" />
-                  <link type="text/css" href="tree.css" rel="stylesheet" />
-                  <script type="text/javascript" src="treemenu.js"></script>
-                  <script type="text/javascript" src="email.js"></script>',
-                  true, $preferencesbutton);
-} else {
-    $navigation = '';
-    if ( isset($course) ) {
-        if ($course->category) {
-            $navigation = '<a href="'.$CFG->wwwroot.'/course/view.php?id='.$course->id.'">'.$course->shortname.'</a> ->';
-        }
-    }
-
-    $stremails = get_string('nameplural', 'block_email_list');
-
-    print_header("$course->shortname: $stremail", "$course->fullname",
-             "$navigation <a href=index.php?id=$course->id>$stremails</a> -> $stremail",
-             "",
-             '<link type="text/css" href="email.css" rel="stylesheet" />
-             <link type="text/css" href="treemenu.css" rel="stylesheet" />
-             <link type="text/css" href="tree.css" rel="stylesheet" />
-             <script type="text/javascript" src="treemenu.js"></script>
-             <script type="text/javascript" src="email.js"></script>',
-             true, $preferencesbutton);
-}
-
+// Print the page header.
+echo $renderer->header();
 
 // Print principal table. This have 2 columns and possibility to add right column.
 echo '<table id="layout-table">
@@ -117,14 +100,6 @@ if ( isset($folderid) ) {
     if (! $folder = $DB->get_record('email_folder', array('id' => $folderid)) ) {
         print_error( 'failgetfolder', 'block_email_list');
     }
-}
-
-require_login($course->id, false);
-
-if ($course->id == SITEID) {
-    $context = get_context_instance(CONTEXT_SYSTEM, SITEID);   // SYSTEM context.
-} else {
-    $context = get_context_instance(CONTEXT_COURSE, $course->id);   // Course context.
 }
 
 switch ( $action ) {
@@ -364,4 +339,4 @@ echo '</td>';
 echo '</tr>
         </table>';
 
-print_footer($course);
+echo $renderer->footer();

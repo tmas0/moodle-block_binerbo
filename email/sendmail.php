@@ -517,8 +517,4 @@ echo '</td>';
 echo '</tr> </table>';
 
 // Finish the page.
-if ( isset( $course ) ) {
-    print_footer($course);
-} else {
-    print_footer($SITE);
-}
+echo $renderer->footer();

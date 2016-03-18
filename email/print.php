@@ -20,9 +20,8 @@
  * @version $Id: print.php,v 1.4 2008/09/06 09:11:17 tmas Exp $
  */
 
-require_once('../../../config.php');
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/email.class.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $mailids  = required_param('mailids', PARAM_SEQUENCE);
@@ -34,22 +33,38 @@ if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
 
 require_login($course->id, false); // No autologin guest.
 
-$context = get_context_instance(CONTEXT_COURSE, $course->id);
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_email_list');
+
+if ($course->id == SITEID) {
+    $context = context_system::instance();   // SYSTEM context.
+} else {
+    $context = context_course::instance($course->id);   // Course context.
+}
+
 if ( !$course->visible and has_capability('moodle/legacy:student', $context, $USER->id, false) ) {
     print_error('courseavailablenot', 'moodle');
 }
+
+// Set default page parameters.
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_context($context);
+$PAGE->set_url('/blocks/email_list/email/print.php',
+    array(
+        'courseid' => $courseid,
+        'mailids' => $mailids
+    )
+);
+
+$PAGE->set_title($course->shortname . ': ' . get_string('printpreview', 'block_email_list');
 
 $options           = new stdClass();
 $options->course   = $course->id;
 $options->folderid = 0;
 $baseurl           = email_build_url($options);
 
-print_header(get_string('printpreview', 'block_email_list'),
-    '',
-    '',
-    '',
-    '<link type="text/css" href="email.css" rel="stylesheet" />'
-);
+// Print the page header.
+echo $renderer->header();
 
 foreach ($mailids as $mailid) {
     $email = new eMail();
@@ -118,4 +133,4 @@ if (!pr && !mac) {
 // -->
 </script>';
 
-print_footer('none');
+echo $renderer->footer();

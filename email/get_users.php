@@ -22,9 +22,7 @@
  * @package email
  */
 
-global $DB;
-
-require_once( "../../../config.php" );
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/tablelib.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
 require_once($CFG->libdir.'/searchlib.php');
@@ -42,12 +40,31 @@ $lastinitial    = optional_param('lname', '', PARAM_ALPHA);     // Order by last
 
 
 // Get course, if exist.
-if (! $course = $DB->get_record('course', array('id' => $courseid)) ) {
+if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
     print_error('invalidcourseid', 'block_email_list');
 }
 
 // Only return, if user have login.
-require_login($course->id);
+require_login($course->id, false);
+
+if ($course->id == SITEID) {
+    $context = context_system::instance(); // SYSTEM context.
+} else {
+    $context = context_course::instance($course->id); // Course context.
+}
+
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_email_list');
+
+// Set default page parameters.
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_context($context);
+$PAGE->set_url('/blocks/email_list/email/get_users.php',
+    array(
+        'id' => $course->id
+    )
+);
+$PAGE->set_title($course->shortname . ': ' . get_string('name', 'block_email_list'));
 
 // If course have separated groups, get current group by param.
 /*if ($course->groupmode == 1 || $course->groupmode == 2) {
