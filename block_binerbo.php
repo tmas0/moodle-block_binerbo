@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot .'/blocks/email_list/email/lib.php');
+require_once($CFG->dirroot .'/blocks/binerbo/email/lib.php');
 
 /**
  * This block shows information about user email's
@@ -33,13 +33,13 @@ require_once($CFG->dirroot .'/blocks/email_list/email/lib.php');
  * @copyright   2016 Toni Mas <antoni.mas@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_email_list extends block_list {
+class block_binerbo extends block_list {
 
     /**
      * Set the initial properties for the block.
      */
     public function init() {
-        $this->title = get_string('email_list', 'block_email_list');
+        $this->title = get_string('binerbo', 'block_binerbo');
     }
 
     /**
@@ -78,7 +78,7 @@ class block_email_list extends block_list {
         // Get context.
         $context = context_block::instance($this->instance->id);
 
-        $emailicon = '<img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/sobre.png" height="11" width="15" alt="' .
+        $emailicon = '<img src="' . $CFG->wwwroot . '/blocks/binerbo/email/images/sobre.png" height="11" width="15" alt="' .
             get_string("course") . '" />';
         $composeicon = $OUTPUT->pix_icon('i/edit', '');
 
@@ -87,25 +87,25 @@ class block_email_list extends block_list {
             // Get the courses of the user.
             $mycourses = enrol_get_my_courses();
             $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
-                '/blocks/email_list/email/">' . get_string('view_all', 'block_email_list') . ' ' . $emailicon . '</a>';
+                '/blocks/binerbo/email/">' . get_string('view_all', 'block_binerbo') . ' ' . $emailicon . '</a>';
         } else {
 
             if ( !empty($CFG->mymoodleredirect) and $COURSE->id == 1 ) {
                 // Get the courses of the user.
                 $mycourses = enrol_get_my_courses();
                 $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
-                    '/blocks/email_list/email/">' . get_string('view_all', 'block_email_list') . ' ' . $emailicon . '</a>';
+                    '/blocks/binerbo/email/">' . get_string('view_all', 'block_binerbo') . ' ' . $emailicon . '</a>';
             } else {
                 // Get this course.
                 $course = $DB->get_record('course', array('id' => $this->page->course->id));
                 $mycourses[] = $course;
                 $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
-                    '/blocks/email_list/email/index.php?id=' . $course->id . '">' .
-                    get_string('view_inbox', 'block_email_list') . ' ' . $emailicon.'</a>';
+                    '/blocks/binerbo/email/index.php?id=' . $course->id . '">' .
+                    get_string('view_inbox', 'block_binerbo') . ' ' . $emailicon.'</a>';
                 $this->content->footer .= '<br /><a href="' . $CFG->wwwroot .
-                    '/blocks/email_list/email/sendmail.php?course=' . $course->id .
+                    '/blocks/binerbo/email/sendmail.php?course=' . $course->id .
                     '&folderid=0&filterid=0&folderoldid=0&action=newmail">' .
-                    get_string('compose', 'block_email_list') . ' ' . $composeicon . '</a>';
+                    get_string('compose', 'block_binerbo') . ' ' . $composeicon . '</a>';
             }
         }
 
@@ -114,10 +114,10 @@ class block_email_list extends block_list {
 
         // Configure item and icon for this account.
         $icon = '<img src="' . $CFG->wwwroot .
-            '/blocks/email_list/email/images/openicon.gif" height="16" width="16" alt="' .
+            '/blocks/binerbo/email/images/openicon.gif" height="16" width="16" alt="' .
             get_string("course") . '" />';
 
-        $maxcourses = get_config('email_list', 'max_number_courses');
+        $maxcourses = get_config('binerbo', 'max_number_courses');
         $number = 0;
         foreach ($mycourses as $mycourse) {
             ++$number; // Increment for first course.
@@ -133,14 +133,14 @@ class block_email_list extends block_list {
 
                 $unreadmails = '<b>('.$numberunreadmails.')</b>';
                 $this->content->items[] = '<a href="' . $CFG->wwwroot .
-                    '/blocks/email_list/email/index.php?id=' . $mycourse->id . '">' . $mycourse->fullname .
+                    '/blocks/binerbo/email/index.php?id=' . $mycourse->id . '">' . $mycourse->fullname .
                     ' ' . $unreadmails .'</a>';
                 $this->content->icons[] = $icon;
             }
         }
 
         if ( count( $this->content->items ) == 0 ) {
-            $this->content->items[] = '<div align="center">' . get_string('emptymailbox', 'block_email_list') . '</div>';
+            $this->content->items[] = '<div align="center">' . get_string('emptymailbox', 'block_binerbo') . '</div>';
         }
 
         return $this->content;
@@ -172,7 +172,7 @@ class block_email_list extends block_list {
      * @return boolean
      */
     public function cron() {
-        $trackbymail = get_config('email_list', 'trackbymail');
+        $trackbymail = get_config('binerbo', 'trackbymail');
 
         // If no isset trackbymail, return cron.
         if ( !isset($trackbymail) ) {
@@ -188,7 +188,7 @@ class block_email_list extends block_list {
         $now = time();
 
         // Get record for mail list.
-        if ( $block = $DB->get_record('block', array('name' => 'email_list')) ) {
+        if ( $block = $DB->get_record('block', array('name' => 'binerbo')) ) {
 
             if ( $now > $block->lastcron ) {
 
@@ -244,21 +244,21 @@ class block_email_list extends block_list {
                             $bodyhtml .= '</head>';
                             $bodyhtml .= "\n<body id=\"email\">\n\n";
 
-                            $bodyhtml .= '<div class="content">'.get_string('listmails', 'block_email_list').": </div>\n\n";
-                            $body = get_string('listmails', 'block_email_list')  .": \n\n";
+                            $bodyhtml .= '<div class="content">'.get_string('listmails', 'block_binerbo').": </div>\n\n";
+                            $body = get_string('listmails', 'block_binerbo')  .": \n\n";
 
                             $bodyhtml .= '<table border="0" cellpadding="3" cellspacing="0">';
                             $bodyhtml .= '<th class="header">' . get_string('course') . '</th>';
-                            $bodyhtml .= '<th class="header">' . get_string('subject', 'block_email_list') . '</th>';
-                            $bodyhtml .= '<th class="header">' . get_string('from', 'block_email_list') . '</th>';
-                            $bodyhtml .= '<th class="header">' . get_string('date', 'block_email_list') . '</th>';
+                            $bodyhtml .= '<th class="header">' . get_string('subject', 'block_binerbo') . '</th>';
+                            $bodyhtml .= '<th class="header">' . get_string('from', 'block_binerbo') . '</th>';
+                            $bodyhtml .= '<th class="header">' . get_string('date', 'block_binerbo') . '</th>';
 
                             // Prepare messagetext.
                             foreach ($mails as $mail) {
 
                                 // Get folder.
-                                $folder = \block_email_list\label::get_root($mail->userid, EMAIL_SENDBOX);
-                                if ( ! \block_email_list\label::is_type($folder, EMAIL_SENDBOX) ) {
+                                $folder = \block_binerbo\label::get_root($mail->userid, EMAIL_SENDBOX);
+                                if ( ! \block_binerbo\label::is_type($folder, EMAIL_SENDBOX) ) {
                                     continue;
                                 }
 
@@ -268,8 +268,8 @@ class block_email_list extends block_list {
 
                                     $body .= "---------------------------------------------------------------------\n";
                                     $body .= get_string('course') . ": $mailcourse->fullname \n";
-                                    $body .= get_string('subject', 'block_email_list') . ": $message->subject \n";
-                                    $body .= get_string('from', 'block_email_list') . ": " . fullname(email_get_user($message->id));
+                                    $body .= get_string('subject', 'block_binerbo') . ": $message->subject \n";
+                                    $body .= get_string('from', 'block_binerbo') . ": " . fullname(email_get_user($message->id));
                                     $body .= " - ".userdate($message->timecreated) . "\n";
                                     $body .= "---------------------------------------------------------------------\n\n";
 
@@ -287,9 +287,9 @@ class block_email_list extends block_list {
 
                             $body .= "\n\n\n\n";
 
-                            email_to_user($user, get_string('emailalert', 'block_email_list'),
-                                            get_string('emailalert', 'block_email_list') .
-                                            ': ' . get_string('newmails', 'block_email_list'), $body, $bodyhtml);
+                            email_to_user($user, get_string('emailalert', 'block_binerbo'),
+                                            get_string('emailalert', 'block_binerbo') .
+                                            ': ' . get_string('newmails', 'block_binerbo'), $body, $bodyhtml);
                         }
                     }
                 }
