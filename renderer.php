@@ -132,7 +132,7 @@ class block_email_list_renderer extends plugin_renderer_base {
         $table = new html_table('list-mails-' . $userid);
 
         $table->head = $tableheaders;
-        
+
         $table->align = array(null, 'center');
         $table->attributes['class'] = 'emailtable';
 
@@ -284,7 +284,7 @@ class block_email_list_renderer extends plugin_renderer_base {
         }
 
         echo html_writer::table($table);
-        
+
         // Print select action, if have mails.
         if ( $mails ) {
             email_print_select_options($options, $SESSION->email_mailsperpage);
@@ -294,39 +294,6 @@ class block_email_list_renderer extends plugin_renderer_base {
         echo '</form>';
 
         return true;
-    }
-
-    /**
-     * Print header buttons. Send email and create new label.
-     *
-     * @uses $CFG, $OUTPUT
-     * @param int $courseid Course Id
-     * @param int $folderid Folder Id
-     * @return boolean Success/Fail
-     * @todo Finish documenting this function
-     */
-    public function compose_button($courseid, $folderid, $action = null) {
-        global $CFG, $OUTPUT, $PAGE;
-
-        if ($courseid == SITEID) {
-            $context = context_system::instance();   // SYSTEM context.
-        } else {
-            $context = context_course::instance($courseid);   // Course context.
-        }
-        $compose = $OUTPUT->single_button(
-                new moodle_url('/blocks/email_list/email/sendmail.php', 
-                    array('course' => $courseid)),
-                get_string('newmail', 'block_email_list')
-            );
-        $compose = html_writer::tag('div', $compose, array('class' => 'text-center bg-danger'));
-
-        $defaultregion = $PAGE->blocks->get_default_region();
-        // Create the block content.
-        $bc = new block_contents();
-        $bc->title = '';
-        $bc->content = $compose;
-
-        $PAGE->blocks->add_fake_block($bc, $defaultregion);
     }
 
     /**

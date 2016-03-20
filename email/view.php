@@ -76,14 +76,18 @@ $PAGE->set_url('/blocks/email_list/email/view.php',
 
 $preferencesbutton = email_get_preferences_button($courseid);
 
-$stremail  = get_string('name', 'block_email_list');
-$PAGE->set_title($course->shortname . ': ' . $stremail);
-
 // Add subject on information page.
 $stremail .= ' :: '.$email->subject;
 
+$PAGE->set_title($course->shortname . ': ' . $stremail);
+
+$PAGE->set_heading(get_string('mailbox', 'block_email_list'). ': '. $folder->name);
+
 // Print the page header.
 echo $renderer->header();
+
+// Print "blocks" of this account.
+email_printblocks($USER->id, $courseid);
 
 // Options.
 $options = new stdClass();
@@ -97,37 +101,13 @@ $baseurl = email_build_url($options);
 
 // Print the main part of the page.
 
-// Print principal table. This have 2 columns . . .  and possibility to add right column.
-echo '<table id="layout-table"><tr>';
-
-// Print "blocks" of this account.
-echo '<td style="width: 180px;" id="left-column">';
-
-// HACK for print folder links correct.
-$options->id = $courseid;
-email_printblocks($USER->id, $courseid);
-$options->id = $mailid;
-
-// Close left column.
-echo '</td>';
-
-// Print principal column.
-echo '<td id="middle-column">';
-
 // Get actual folder, for show.
 if ( !$folder = email_get_folder($folderid) ) {
     // Default, is inbox.
     $folder->name = get_string('inbox', 'block_email_list');
 }
 
-// Print middle table.
-print_heading_block(get_string('mailbox', 'block_email_list'). ': '. $folder->name);
-
-echo '<div>&#160;</div>';
-
 unset($options->id);
-// Print tabs options.
-email_print_tabs_options($courseid, $folderid, $action);
 
 // Print action in case . . .
 // Get user, for show this fields.
@@ -166,14 +146,8 @@ $email->display($courseid,
     $urlnextmail,
     $baseurl,
     $user,
-    has_capability('moodle/site:viewfullnames', $coursecontext)
+    has_capability('moodle/site:viewfullnames', $context)
 );
-
-// Close principal column.
-echo '</td>';
-
-// Close table.
-echo '</tr> </table>';
 
 // Finish the page.
 echo $renderer->footer();

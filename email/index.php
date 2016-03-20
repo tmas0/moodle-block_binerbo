@@ -84,9 +84,6 @@ $PAGE->set_heading(get_string('mailbox', 'block_email_list'). ': '. $folder->nam
 // Get renderer.
 $renderer = $PAGE->get_renderer('block_email_list');
 
-// Print compose button.
-$renderer->compose_button($courseid, $folderid);
-
 // Print "blocks" of this account.
 email_printblocks($USER->id, $courseid);
 
@@ -191,8 +188,4 @@ if ( ! empty( $action ) and $mailid > 0 ) {
 $renderer->showmails($USER->id, '', $page, $perpage, $options);
 
 // Finish the page.
-if ( isset( $course ) ) {
-    echo $OUTPUT->footer($course);
-} else {
-    echo $OUTPUT->footer($SITE);
-}
+echo $OUTPUT->footer($course);

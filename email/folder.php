@@ -77,24 +77,7 @@ $PAGE->set_title($course->shortname . ': ' . $stremail);
 // Print the page header.
 echo $renderer->header();
 
-// Print principal table. This have 2 columns and possibility to add right column.
-echo '<table id="layout-table">
-            <tr>';
-
-// Print "blocks" of this account.
-echo '<td style="width: 180px;" id="left-column">';
 email_printblocks($USER->id, $courseid);
-
-// Close left column.
-echo '</td>';
-
-// Print principal column.
-echo '<td id="middle-column">';
-
-// Print block.
-print_heading_block('');
-
-echo '<div>&#160;</div>';
 
 if ( isset($folderid) ) {
     if (! $folder = $DB->get_record('email_folder', array('id' => $folderid)) ) {
@@ -331,12 +314,5 @@ switch ( $action ) {
             $mform->display();
         }
 }
-
-// Close principal column.
-echo '</td>';
-
-// Close table.
-echo '</tr>
-        </table>';
 
 echo $renderer->footer();

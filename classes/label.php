@@ -312,7 +312,7 @@ class label {
                     if ( $label ) {
                         $sublabels[] = $label;
                     }
-                    
+
                     $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => '0'));
                     if ( $label ) {
                         $sublabels[] = $label; // Add general label's.

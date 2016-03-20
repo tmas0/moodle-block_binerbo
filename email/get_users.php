@@ -105,7 +105,7 @@ $baseurl = 'participants.php?id=' . $courseid .
                 '&amp;fname=' . $firstinitial .
                 '&amp;lname=' . $lastinitial;
 
-$table = new email_flexible_table('participants');
+$table = new flexible_table('participants');
 
 $table->define_columns($tablecolumns);
 $table->define_headers($tableheaders);
@@ -118,22 +118,19 @@ $table->setup();
 // Prepare users to choose us.
 if ( $courseid ) {
     if ($course->id == SITEID) {
-        $context = get_context_instance(CONTEXT_SYSTEM, SITEID);   // System context.
+        $context = context_system::instance();   // System context.
     } else {
-        $context = get_context_instance(CONTEXT_COURSE, $course->id);   // Course context.
+        $context = context_course::instance($course->id);   // Course context.
     }
-
-    $sitecontext = get_context_instance(CONTEXT_SYSTEM);
-    $frontpagectx = get_context_instance(CONTEXT_COURSE, SITEID);
 
     $avoidroles = array();
 
     if ($roles = get_roles_used_in_context($context, true)) {
         $canviewroles    = get_roles_with_capability('moodle/course:view', CAP_ALLOW, $context);
-        $doanythingroles = get_roles_with_capability('moodle/site:doanything', CAP_ALLOW, $sitecontext);
+        $doanythingroles = get_roles_with_capability('moodle/site:doanything', CAP_ALLOW, $context);
 
         if ( !$CFG->email_add_admins ) {
-            $adminsroles = get_roles_with_capability('moodle/legacy:admin', CAP_ALLOW, $sitecontext);
+            $adminsroles = get_roles_with_capability('moodle/legacy:admin', CAP_ALLOW, $context);
         }
 
         foreach ($roles as $role) {

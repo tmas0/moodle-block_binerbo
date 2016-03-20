@@ -535,7 +535,21 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     $strmail    = get_string('name', 'block_email_list');
 
     $defaultregion = $PAGE->blocks->get_default_region();
-    
+
+    $compose = $OUTPUT->single_button(
+            new moodle_url('/blocks/email_list/message.php',
+                array('course' => $courseid)),
+            get_string('newmail', 'block_email_list')
+        );
+    $compose = html_writer::tag('div', $compose, array('class' => 'text-center bg-danger'));
+
+    // Create the block content.
+    $bc = new block_contents();
+    $bc->title = '';
+    $bc->content = $compose;
+
+    $PAGE->blocks->add_fake_block($bc, $defaultregion);
+
     if ( $printsearchblock ) {
         // Print search block.
         $form = email_get_search_form($courseid);
@@ -938,7 +952,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
     // Prepare url.
     $toform = email_build_url($options, true);
 
-    $url = $CFG->wwwroot . '/blocks/email_list/email/sendmail.php';
+    $url = $CFG->wwwroot . '/blocks/email_list/message.php';
 
     if ( $options ) {
         $urlhtml = email_build_url($options);
@@ -1389,7 +1403,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
     $table = new html_table('list-mails-' . $userid);
 
     $table->head = $tableheaders;
-    
+
     $table->align = array(null, 'center');
     $table->attributes['class'] = 'emailtable';
 
@@ -1472,7 +1486,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
 
         if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
             $urltosent = '<a href="' . $CFG->wwwroot .
-                '/blocks/email_list/email/sendmail.php?id=' . $mail->id .
+                '/blocks/email_list/message.php?id=' . $mail->id .
                 '&amp;action=' . EMAIL_EDITDRAFT . '&amp;course=' . $course->id .
                 '">' . $mail->subject . '</a>';
         } else {
@@ -1540,9 +1554,8 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
         $previousmail = $mail->id;
     }
 
-    //echo html_writter::table($table);
     print_table($table);
-    
+
     // Print select action, if have mails.
     if ( $mails ) {
         email_print_select_options($options, $SESSION->email_mailsperpage);
@@ -1579,7 +1592,7 @@ function email_print_tabs_options($courseid, $folderid, $action=null) {
     // Tab for writting new email.
     if ( has_capability('block/email_list:sendmessage', $context)) {
         $tabrow[] = new tabobject('newmail',
-            new moodle_url('/blocks/email_list/email/sendmail.php', 
+            new moodle_url('/blocks/email_list/message.php', 
                 array('course' => $courseid, 'folderid' => $folderid)),
             get_string('newmail', 'block_email_list')
         );

@@ -230,7 +230,8 @@ class email extends \block_email_list\email_base {
         // Get mail.
         $send = $DB->get_record('email_send', array('mailid' => $this->id,
             'userid' => $userid,
-            'course' => $courseid);
+            'course' => $courseid)
+        );
         if ( !$send ) {
             return false;
         }

@@ -98,26 +98,13 @@ $options->folderid = $folderid;
 $options->filterid = $filterid;
 
 // Print the main part of the page.
-
-// Print principal table. This have 2 columns . . .  and possibility to add right column.
-echo '<table id="layout-table">
-            <tr>';
-
-
-// Print "blocks" of this account.
-echo '<td style="width: 180px;" id="left-column">';
-email_printblocks($USER->id, $courseid, ($search == get_string('searchtext', 'block_email_list') or $search == '') ? true : false);
-
-// Close left column.
-echo '</td>';
-
-// Print principal column.
-echo '<td id="middle-column">';
+email_printblocks($USER->id,
+    $courseid,
+    ($search == get_string('searchtext', 'block_email_list') or $search == '') ? true : false
+);
 
 // Print middle table.
-print_heading_block($strsearch);
-
-echo '<div>&#160;</div>';
+$PAGE->set_heading($strsearch);
 
 // Create advanced search form.
 $advancedsearch = new advanced_search_form();
@@ -277,7 +264,7 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
     notify(get_string('searchword', 'block_email_list'), 'notifysuccess');
 
     // Show mails searched.
-    email_showmails($USER->id, '', $page, $perpage, $options, true, $searchmails );
+    \block_email_list\email::showmails($USER->id, '', $page, $perpage, $options, true, $searchmails );
 
 } else {
 
@@ -414,14 +401,8 @@ if ( ( $search == get_string('searchtext', 'block_email_list') or $search == '' 
     notify(get_string('searchword', 'block_email_list'), 'notifysuccess');
 
     // Show mails searched.
-    email_showmails($USER->id, '', $page, $perpage, $options, true, $searchmails );
+    \block_email_list\email::showmails($USER->id, '', $page, $perpage, $options, true, $searchmails );
 }
-
-// Close principal column.
-echo '</td>';
-
-// Close table.
-echo '</tr> </table>';
 
 // Finish the page.
 echo $renderer->footer();

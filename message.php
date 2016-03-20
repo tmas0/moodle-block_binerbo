@@ -29,8 +29,8 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  */
 
-require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
-require_once(dirname(__FILE__) . '/lib.php');   // The eMail library funcions.
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once($CFG->dirroot . '/blocks/email_list/email/lib.php');   // The eMail library funcions.
 
 $mailid         = optional_param('id', 0, PARAM_INT);               // Email ID.
 $courseid       = optional_param('course', SITEID, PARAM_INT);      // Course ID.
@@ -46,11 +46,10 @@ $body           = optional_param('body', '', PARAM_ALPHANUM);       // Body of m
 $mails          = optional_param('mails', '', PARAM_ALPHANUM);          // Next and previous mails.
 $selectedusers  = optional_param('selectedusers', '', PARAM_ALPHANUM);  // User who send mail.
 
-if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
-    print_error('invalidcourseid', 'block_email_list');
-}
+// Get course.
+$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
-require_login($course->id);
+require_login($course->id, false);
 
 if ($course->id == SITEID) {
     $context = context_system::instance();   // SYSTEM context.
@@ -74,7 +73,7 @@ $renderer = $PAGE->get_renderer('block_email_list');
 // Set default page parameters.
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_context($context);
-$PAGE->set_url('/blocks/email_list/email/sendmail.php',
+$PAGE->set_url('/blocks/email_list/message.php',
     array(
         'id' => $mailid,
         'course' => $course->id
@@ -156,9 +155,7 @@ $PAGE->set_heading(get_string('mailbox', 'block_email_list') . ': ' . $folder->n
 email_printblocks($USER->id, $courseid);
 
 // Print the page header.
-echo $renderer->header();
-
-require_once('mail_edit_form.php');
+echo $OUTPUT->header();
 
 $mail = new stdClass();
 
@@ -172,7 +169,7 @@ if ( !isset( $mail->subject ) ) {
 }
 
 // First create the form.
-$mailform = new mail_edit_form(
+$mailform = new block_email_list_email_form(
         'sendmail.php',
         array('oldmail' => $DB->get_record('email_mail', array('id' => $mailid)),
             'action' => $action
@@ -510,11 +507,5 @@ if ( $mailform->is_cancelled() ) {
     }
 }
 
-// Close principal column.
-echo '</td>';
-
-// Close table.
-echo '</tr> </table>';
-
 // Finish the page.
-echo $renderer->footer();
+echo $OUTPUT->footer($course);

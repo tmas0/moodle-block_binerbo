@@ -80,7 +80,7 @@ class block_email_list extends block_list {
 
         $emailicon = '<img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/sobre.png" height="11" width="15" alt="' .
             get_string("course") . '" />';
-        $composeicon = $OUTPUT->pix_url('/i/edit.gif');
+        $composeicon = $OUTPUT->pix_icon('i/edit', '');
 
         // Only show all course in principal course, others, show it.
         if ( $this->page->course->id == 1 ) {

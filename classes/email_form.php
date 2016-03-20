@@ -28,12 +28,12 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  */
 
-global $CFG;
+defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
 
-class mail_edit_form extends moodleform {
+class block_email_list_email_form extends moodleform {
 
     // Define the form.
     public function definition () {
@@ -150,9 +150,19 @@ class mail_edit_form extends moodleform {
         );
         $mform->setDefault('subject', '');
         $mform->addRule('subject', get_string('nosubject', 'block_email_list'), 'required', null, 'client');
-        $mform->setType('nosubject', PARAM_MULTILANG);
+        $mform->setType('subject', PARAM_MULTILANG);
 
-        $this->set_upload_manager(new upload_manager('FILE', false, false, $COURSE, false, 0, true, true, false));
+        $mform->addElement('htmleditor',
+            'body',
+            get_string('body', 'block_email_list'),
+            array('rows' => '25',
+                'cols' => '65'
+            )
+        );
+        $mform->setDefault('body', '');
+        $mform->setType('body', PARAM_RAW);
+
+        $mform->addElement('filemanager', 'FILE', get_string('attachment', 'block_email_list'));
 
         // Add old attachments.
         if ( isset($oldmail->id) ) {
@@ -183,17 +193,6 @@ class mail_edit_form extends moodleform {
             }
         }
 
-        // Upload files.
-        $mform->addElement('file', 'FILE_0', get_string('attachment', 'block_email_list'));
-        $mform->addElement('link',
-            'addinput',
-            '<img alt="' . get_string('attachment', 'block_email_list') .
-                '" id="imgattachment" src="images/clip.gif" />',
-            '#',
-            get_string('anotherfile', 'block_email_list'),
-            'onclick="addFileInput(\'' . get_string("remove", "block_email_list") . '\');"'
-        );
-
         // Patch. Thanks.
         // TODO: Add all inputs files who added by user.
         foreach ($_FILES as $key => $value) {
@@ -202,27 +201,23 @@ class mail_edit_form extends moodleform {
             }
         }
 
-        $mform->addElement('htmleditor',
-            'body',
-            get_string('body', 'block_email_list'),
-            array('rows' => '25',
-                'cols' => '65'
-            )
-        );
-        $mform->setDefault('body', '');
-        $mform->setType('body', PARAM_RAW);
-
         // Add some extra hidden fields.
         if ( isset($oldmail->id) ) {
             $mform->addElement('hidden', 'id', $oldmail->id);
         } else {
             $mform->addElement('hidden', 'id');
         }
+        $mform->setType('id', PARAM_INT);
         $mform->addElement('hidden', 'course', $COURSE->id);
+        $mform->setType('course', PARAM_INT);
         $mform->addElement('hidden', 'action', $action);
+        $mform->setType('action', PARAM_TEXT);
         $mform->addElement('hidden', 'to');
+        $mform->setType('to', PARAM_INT);
         $mform->addElement('hidden', 'cc');
+        $mform->setType('cc', PARAM_INT);
         $mform->addElement('hidden', 'bcc');
+        $mform->setType('bcc', PARAM_INT);
 
         if (isset($oldmail->id) ) {
             $mform->addElement('hidden', 'oldmailid', $oldmail->id);
