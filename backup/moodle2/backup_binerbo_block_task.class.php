@@ -1,17 +1,17 @@
 <?php
 
-require_once($CFG->dirroot . '/blocks/email_list/backup/moodle2/backup_email_list_stepslib.php'); // We have structure steps
-require_once($CFG->dirroot . '/blocks/email_list/backup/moodle2/backup_email_list_settingslib.php'); // Because it exists (optional)
+require_once($CFG->dirroot . '/blocks/binerbo/backup/moodle2/backup_binerbo_stepslib.php'); // We have structure steps
+require_once($CFG->dirroot . '/blocks/binerbo/backup/moodle2/backup_binerbo_settingslib.php'); // Because it exists (optional)
 
 
 // adrian.castillo CAM-1741
-class backup_email_list_block_task extends backup_block_task {
+class backup_binerbo_block_task extends backup_block_task {
 
     protected function define_my_settings() {
     }
 
     protected function define_my_steps() {
-          $this->add_step(new backup_email_list_block_structure_step('email_list_structure', 'email_list.xml'));
+          $this->add_step(new backup_binerbo_block_structure_step('binerbo_structure', 'binerbo.xml'));
     }
 
     public function get_fileareas() {
@@ -24,7 +24,7 @@ class backup_email_list_block_task extends backup_block_task {
         echo '<br>'.$sql;
         $registros =  $DB->get_recordset_sql($sql);
 
-        $component = 'blocks_email_list';
+        $component = 'blocks_binerbo';
         $filearea  = 'attachment';
 
         $areas = array();

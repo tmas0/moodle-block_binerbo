@@ -24,6 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-function xmldb_block_email_list_upgrade($oldversion=0) {
+function xmldb_block_binerbo_upgrade($oldversion=0) {
     return true;
 }

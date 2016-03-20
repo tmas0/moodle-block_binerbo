@@ -31,9 +31,9 @@
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/lib/formslib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
+require_once($CFG->dirroot.'/blocks/binerbo/email/lib.php');
 
-class block_email_list_email_form extends moodleform {
+class block_binerbo_email_form extends moodleform {
 
     // Define the form.
     public function definition () {
@@ -46,13 +46,13 @@ class block_email_list_email_form extends moodleform {
         $mform =& $this->_form;
 
         // Print the required moodle fields first.
-        $mform->addElement('header', 'moodle', get_string('mail', 'block_email_list'));
+        $mform->addElement('header', 'moodle', get_string('mail', 'block_binerbo'));
 
         $mform->addElement('button',
             'urlcc',
-            get_string('participants', 'block_email_list') . '...',
+            get_string('participants', 'block_binerbo') . '...',
             array( 'onclick' => "this.target='participants';
-                                    return openpopup('/blocks/email_list/email/participants.php?id=$COURSE->id',
+                                    return openpopup('/blocks/binerbo/email/participants.php?id=$COURSE->id',
                     'participants','menubar=0,location=0,scrollbars=1,resizable,width=760,height=700', 0);"
                 )
         );
@@ -63,7 +63,7 @@ class block_email_list_email_form extends moodleform {
             $mform->addElement('html', '<div class="yui-skin-sam">');
             $mform->addElement('textarea',
                 'nameto',
-                get_string('for', 'block_email_list'),
+                get_string('for', 'block_binerbo'),
                 array('rows' => '2',
                     'cols' => '65',
                     'class' => 'textareacontacts',
@@ -76,7 +76,7 @@ class block_email_list_email_form extends moodleform {
         } else {
             $mform->addElement('textarea',
                 'nameto',
-                get_string('for', 'block_email_list'),
+                get_string('for', 'block_binerbo'),
                 array('rows' => '2',
                     'cols' => '65',
                     'class' => 'textareacontacts',
@@ -91,7 +91,7 @@ class block_email_list_email_form extends moodleform {
             $mform->addElement('html', '<div class="yui-skin-sam">');
             $mform->addElement('textarea',
                 'namecc',
-                get_string('cc', 'block_email_list'),
+                get_string('cc', 'block_binerbo'),
                 array('rows' => '1',
                     'cols' => '65',
                     'class' => 'textareacontacts',
@@ -105,7 +105,7 @@ class block_email_list_email_form extends moodleform {
         } else {
             $mform->addElement('textarea',
                 'namecc',
-                get_string('cc', 'block_email_list'),
+                get_string('cc', 'block_binerbo'),
                 array('rows' => '1',
                     'cols' => '65',
                     'class' => 'textareacontacts',
@@ -120,7 +120,7 @@ class block_email_list_email_form extends moodleform {
             $mform->addElement('html', '<div class="yui-skin-sam">');
             $mform->addElement('textarea',
                 'namebcc',
-                get_string('bcc', 'block_email_list'),
+                get_string('bcc', 'block_binerbo'),
                 array('rows' => '1',
                     'cols' => '65',
                     'class' => 'textareacontacts',
@@ -134,7 +134,7 @@ class block_email_list_email_form extends moodleform {
         } else {
             $mform->addElement('textarea',
                 'namebcc',
-                get_string('bcc', 'block_email_list'),
+                get_string('bcc', 'block_binerbo'),
                 array('rows' => '1',
                     'cols' => '65',
                     'class' => 'textareacontacts',
@@ -145,16 +145,16 @@ class block_email_list_email_form extends moodleform {
 
         $mform->addElement('text',
             'subject',
-            get_string('subject', 'block_email_list'),
+            get_string('subject', 'block_binerbo'),
             'class="emailsubject" maxlength="254" size="60"'
         );
         $mform->setDefault('subject', '');
-        $mform->addRule('subject', get_string('nosubject', 'block_email_list'), 'required', null, 'client');
+        $mform->addRule('subject', get_string('nosubject', 'block_binerbo'), 'required', null, 'client');
         $mform->setType('subject', PARAM_MULTILANG);
 
         $mform->addElement('htmleditor',
             'body',
-            get_string('body', 'block_email_list'),
+            get_string('body', 'block_binerbo'),
             array('rows' => '25',
                 'cols' => '65'
             )
@@ -162,7 +162,7 @@ class block_email_list_email_form extends moodleform {
         $mform->setDefault('body', '');
         $mform->setType('body', PARAM_RAW);
 
-        $mform->addElement('filemanager', 'FILE', get_string('attachment', 'block_email_list'));
+        $mform->addElement('filemanager', 'FILE', get_string('attachment', 'block_binerbo'));
 
         // Add old attachments.
         if ( isset($oldmail->id) ) {
@@ -178,7 +178,7 @@ class block_email_list_email_form extends moodleform {
                         foreach ($attachments as $attachment) {
                             $mform->addElement('checkbox',
                                 'oldattachment' . $i . 'ck',
-                                get_string('attachment', 'block_email_list'),
+                                get_string('attachment', 'block_binerbo'),
                                 $attachment->name
                             );
                             $mform->setDefault('oldattachment'.$i.'ck', true);
@@ -225,8 +225,8 @@ class block_email_list_email_form extends moodleform {
 
         // Add 3 buttons (Send, Draft, Cancel).
         $buttonarray = array();
-        $buttonarray[] = &$mform->createElement('submit', 'send', get_string('send', 'block_email_list'));
-        $buttonarray[] = &$mform->createElement('submit', 'draft', get_string('savedraft', 'block_email_list'));
+        $buttonarray[] = &$mform->createElement('submit', 'send', get_string('send', 'block_binerbo'));
+        $buttonarray[] = &$mform->createElement('submit', 'draft', get_string('savedraft', 'block_binerbo'));
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
@@ -239,9 +239,9 @@ class block_email_list_email_form extends moodleform {
         $mform =& $this->_form;
 
         if ( !( isset($data['to']) or isset($data['cc']) or isset($data['bcc']) )  and empty($data['draft']) ) {
-            $error['nameto'] = get_string('nosenders', 'block_email_list');
-            $error['namecc'] = get_string('nosenders', 'block_email_list');
-            $error['namebcc'] = get_string('nosenders', 'block_email_list');
+            $error['nameto'] = get_string('nosenders', 'block_binerbo');
+            $error['namecc'] = get_string('nosenders', 'block_binerbo');
+            $error['namebcc'] = get_string('nosenders', 'block_binerbo');
         }
 
         // TODO: Add all inputs files who added by user.

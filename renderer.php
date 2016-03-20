@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2015 Toni Mas
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_email_list_renderer extends plugin_renderer_base {
+class block_binerbo_renderer extends plugin_renderer_base {
     /**
      * This function prints all mails
      *
@@ -55,7 +55,7 @@ class block_email_list_renderer extends plugin_renderer_base {
 
         // Get actual course.
         if ( !$course = $DB->get_record('course', array('id' => $COURSE->id)) ) {
-            print_error('invalidcourseid', 'block_email_list');
+            print_error('invalidcourseid', 'block_binerbo');
         }
 
         if ($course->id == SITEID) {
@@ -73,12 +73,12 @@ class block_email_list_renderer extends plugin_renderer_base {
         // Print all mails in this HTML file.
 
         // Should use this variable so that we don't break stuff every time a variable is added or changed.
-        $baseurl = $CFG->wwwroot . '/blocks/email_list/email/index.php?' . $url .
+        $baseurl = $CFG->wwwroot . '/blocks/binerbo/email/index.php?' . $url .
             '&amp;page=' . $page . '&amp;perpage=' . $perpage;
 
         // Print init form from send data.
         echo '<form id="sendmail" action="' . $CFG->wwwroot .
-            '/blocks/email_list/email/index.php?id=' . $course->id .
+            '/blocks/binerbo/email/index.php?id=' . $course->id .
             '&amp;folderid=' . $options->folderid . '" method="post" name="sendmail">';
 
         if ( $course->id == SITEID ) {
@@ -91,41 +91,41 @@ class block_email_list_renderer extends plugin_renderer_base {
         if ( isset( $options->folderid) ) {
             if ( $options->folderid != 0 ) {
                 // Get folder.
-                $folder = \block_email_list\label::get($options->folderid);
+                $folder = \block_binerbo\label::get($options->folderid);
             } else {
                 // Solve problem with select an x mails per page for maintein in this folder.
                 if ( isset($options->folderoldid) && $options->folderoldid != 0 ) {
                     $options->folderid = $options->folderoldid;
-                    $folder = \block_email_list\label::get($options->folderid);
+                    $folder = \block_binerbo\label::get($options->folderid);
                 }
             }
         }
 
         // If actual folder is inbox type, ... change tag showing.
         if ( $folder ) {
-            if ( ( \block_email_list\label::is_type($folder, EMAIL_INBOX) ) ) {
-                $strto = get_string('from', 'block_email_list');
+            if ( ( \block_binerbo\label::is_type($folder, EMAIL_INBOX) ) ) {
+                $strto = get_string('from', 'block_binerbo');
             } else {
-                $strto = get_string('to', 'block_email_list');
+                $strto = get_string('to', 'block_binerbo');
             }
         } else {
-            $strto = get_string('from', 'block_email_list');
+            $strto = get_string('from', 'block_binerbo');
         }
 
         if ( $course->id == SITEID ) {
             $tableheaders = array('',
                                 '',
                                 get_string('course'),
-                                get_string('subject', 'block_email_list'),
+                                get_string('subject', 'block_binerbo'),
                                 $strto,
-                                get_string('date', 'block_email_list')
+                                get_string('date', 'block_binerbo')
             );
         } else {
             $tableheaders = array('',
                                  '',
-                                 get_string('subject', 'block_email_list'),
+                                 get_string('subject', 'block_binerbo'),
                                  $strto,
-                                 get_string('date', 'block_email_list')
+                                 get_string('date', 'block_binerbo')
             );
         }
 
@@ -139,7 +139,7 @@ class block_email_list_renderer extends plugin_renderer_base {
         // When no search.
         if ( !$search ) {
             // Get mails.
-            $mails = \block_email_list\email::get_user_mails($userid, $course->id, null, '', '', $options);
+            $mails = \block_binerbo\email::get_user_mails($userid, $course->id, null, '', '', $options);
         } else {
             $mails = $mailssearch;
         }
@@ -151,7 +151,7 @@ class block_email_list_renderer extends plugin_renderer_base {
         // Now, re-getting emails, apply pagesize (limit).
         if ( !$search) {
             // Get mails.
-            $mails = \block_email_list\email::get_user_mails($userid,
+            $mails = \block_binerbo\email::get_user_mails($userid,
                 $course->id,
                 null,
                 null,
@@ -169,25 +169,25 @@ class block_email_list_renderer extends plugin_renderer_base {
         // Print all rows.
         foreach ($mails as $mail) {
             $attribute = array();
-            $email = new \block_email_list\email();
+            $email = new \block_binerbo\email();
             $email->set_email($mail);
 
             if ( $folder ) {
-                if ( \block_email_list\label::is_type($folder, EMAIL_SENDBOX) ) {
+                if ( \block_binerbo\label::is_type($folder, EMAIL_SENDBOX) ) {
                     $struser = $email->get_users_send(has_capability('moodle/site:viewfullnames', $coursecontext));
-                } else if ( \block_email_list\label::is_type($folder, EMAIL_INBOX) ) {
+                } else if ( \block_binerbo\label::is_type($folder, EMAIL_INBOX) ) {
 
                     $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
                     if ( !$email->is_readed($userid, $mail->course) ) {
                         $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
                     }
-                } else if ( \block_email_list\label::is_type($folder, EMAIL_TRASH) ) {
+                } else if ( \block_binerbo\label::is_type($folder, EMAIL_TRASH) ) {
                     $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                     if ( !$email->is_readed($userid, $mail->course) ) {
                         $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
                     }
-                } else if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
+                } else if ( \block_binerbo\label::is_type($folder, EMAIL_DRAFT) ) {
 
                     $struser = $email->get_users_send(has_capability('moodle/site:viewfullnames', $coursecontext));
 
@@ -213,21 +213,21 @@ class block_email_list_renderer extends plugin_renderer_base {
                 $options->folderid = 0;
             }
 
-            if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
+            if ( \block_binerbo\label::is_type($folder, EMAIL_DRAFT) ) {
                 $urltosent = '<a href="' . $CFG->wwwroot .
-                    '/blocks/email_list/email/sendmail.php?id=' . $mail->id .
+                    '/blocks/binerbo/email/sendmail.php?id=' . $mail->id .
                     '&amp;action=' . EMAIL_EDITDRAFT . '&amp;course=' . $course->id .
                     '">' . $mail->subject . '</a>';
             } else {
                 if ( $course->id == SITEID ) {
                     $urltosent = '<a href="' . $CFG->wwwroot .
-                        '/blocks/email_list/email/view.php?id=' . $mail->id .
+                        '/blocks/binerbo/email/view.php?id=' . $mail->id .
                         '&amp;action=' . EMAIL_VIEWMAIL . '&amp;course=' . $mail->course .
                         '&amp;folderid=' . $options->folderid . '&amp;mails=' . $mailsids . '">' .
                         $mail->subject . '</a>';
                 } else {
                     $urltosent = '<a href="' . $CFG->wwwroot .
-                        '/blocks/email_list/email/view.php?id=' . $mail->id .
+                        '/blocks/binerbo/email/view.php?id=' . $mail->id .
                         '&amp;action=' . EMAIL_VIEWMAIL . '&amp;course=' .$course->id .
                         '&amp;folderid=' . $options->folderid . '&amp;mails=' . $mailsids . '">' .
                         $mail->subject . '</a>';
@@ -236,12 +236,12 @@ class block_email_list_renderer extends plugin_renderer_base {
 
             $attachment = '';
             if ( $email->has_attachments() ) {
-                $attachment = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/clip.gif" alt="attachment" /> ';
+                $attachment = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/clip.gif" alt="attachment" /> ';
             }
 
-            $newemailicon = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/icon.gif" alt="this email was read" /> ';
+            $newemailicon = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/icon.gif" alt="this email was read" /> ';
             if ( $email->is_readed($userid, $mail->course) ) {
-                $newemailicon = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/openicon.gif" alt="new email" /> ';
+                $newemailicon = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/openicon.gif" alt="new email" /> ';
             }
 
             // Display diferent color if mail is reply or reply all.
@@ -252,12 +252,12 @@ class block_email_list_renderer extends plugin_renderer_base {
                 $attribute = array('bgcolor' => $CFG->email_answered_color);
 
                 // Adding info img.
-                $extraimginfo = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/answered.gif" alt="" /> ';
+                $extraimginfo = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/answered.gif" alt="" /> ';
 
             }
 
             if ( !$coursemail = $DB->get_record('course', array('id' => $mail->course)) ) {
-                print_error('invalidcourseid', 'block_email_list');
+                print_error('invalidcourseid', 'block_binerbo');
             }
 
             if ( $course->id == SITEID ) {
@@ -318,8 +318,8 @@ class block_email_list_renderer extends plugin_renderer_base {
             $form = new html_form();
             $form->url = new moodle_url($link, $options);
             $form->button = new html_button();
-            $form->button->text = get_string('preferences', 'block_email_list');
-            $form->button->title = get_string('preferences', 'block_email_list');
+            $form->button->text = get_string('preferences', 'block_binerbo');
+            $form->button->title = get_string('preferences', 'block_binerbo');
             $form->method = 'post';
             return $OUTPUT->action_button($form);
         }

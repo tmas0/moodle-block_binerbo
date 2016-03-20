@@ -30,7 +30,7 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once($CFG->dirroot . '/blocks/email_list/email/lib.php');   // The eMail library funcions.
+require_once($CFG->dirroot . '/blocks/binerbo/email/lib.php');   // The eMail library funcions.
 
 $mailid         = optional_param('id', 0, PARAM_INT);               // Email ID.
 $courseid       = optional_param('course', SITEID, PARAM_INT);      // Course ID.
@@ -58,22 +58,22 @@ if ($course->id == SITEID) {
 }
 
 // CONTRIB-626. Add capability for send messages. Thanks Jeff.
-if ( !has_capability('block/email_list:sendmessage', $context) ) {
+if ( !has_capability('block/binerbo:sendmessage', $context) ) {
     print_error('forbiddensendmessage',
-        'block_email_list',
-        $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $course->id
+        'block_binerbo',
+        $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $course->id
     );
 }
 
-$stremail  = get_string('name', 'block_email_list');
+$stremail  = get_string('name', 'block_binerbo');
 
 // Get renderer.
-$renderer = $PAGE->get_renderer('block_email_list');
+$renderer = $PAGE->get_renderer('block_binerbo');
 
 // Set default page parameters.
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_context($context);
-$PAGE->set_url('/blocks/email_list/message.php',
+$PAGE->set_url('/blocks/binerbo/message.php',
     array(
         'id' => $mailid,
         'course' => $course->id
@@ -135,21 +135,21 @@ if ( $CFG->email_enable_ajax ) {
         echo $output;
 
         echo '<script type="text/javascript" ';
-        echo "src=\"{$CFG->wwwroot}/blocks/email_list/email/participants/emailautocomplete.js\"></script>\n";
+        echo "src=\"{$CFG->wwwroot}/blocks/binerbo/email/participants/emailautocomplete.js\"></script>\n";
     }
 }
 
 // Print the main part of the page.
 
 // Get actual folder, for show.
-if ( !$folder = \block_email_list\label::get($folderid) ) {
+if ( !$folder = \block_binerbo\label::get($folderid) ) {
     $folder = new stdClass();
     // Default, is inbox.
-    $folder->name = get_string('inbox', 'block_email_list');
+    $folder->name = get_string('inbox', 'block_binerbo');
 }
 
 // Print middle table.
-$PAGE->set_heading(get_string('mailbox', 'block_email_list') . ': ' . $folder->name);
+$PAGE->set_heading(get_string('mailbox', 'block_binerbo') . ': ' . $folder->name);
 
 // Print "blocks" of this account.
 email_printblocks($USER->id, $courseid);
@@ -169,7 +169,7 @@ if ( !isset( $mail->subject ) ) {
 }
 
 // First create the form.
-$mailform = new block_email_list_email_form(
+$mailform = new block_binerbo_email_form(
         'sendmail.php',
         array('oldmail' => $DB->get_record('email_mail', array('id' => $mailid)),
             'action' => $action
@@ -181,10 +181,10 @@ $mailform = new block_email_list_email_form(
 
 if ( $mailform->is_cancelled() ) {
     // Only redirect.
-    redirect($CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid, '', '0');
+    redirect($CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $courseid, '', '0');
 } else if ( $form = $mailform->get_data() ) {
     if ( empty($form->to) and empty($form->cc) and empty($form->bcc) ) {
-        notify(get_string('nosenders', 'block_email_list'));
+        notify(get_string('nosenders', 'block_binerbo'));
         $mailform->set_data($form);
         $mailform->display();
     } else if ( !empty($form->send) or !empty($form->draft)) {
@@ -196,7 +196,7 @@ if ( $mailform->is_cancelled() ) {
         $email->set_course($courseid);
 
         // Generic URL for send mails errors.
-        $baseurl = $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid .
+        $baseurl = $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $courseid .
             '&amp;mailid=' . $form->id . '&amp;subject=\'' . $form->subject .
             '\'&amp;body=\'' . $form->body . '\'';
 
@@ -279,12 +279,12 @@ if ( $mailform->is_cancelled() ) {
         }
 
         if ( empty($form->draft) ) {
-            $legend = get_string('sendok', 'block_email_list');
+            $legend = get_string('sendok', 'block_binerbo');
         } else {
-            $legend = get_string('draftok', 'block_email_list');
+            $legend = get_string('draftok', 'block_binerbo');
         }
 
-        redirect($CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $courseid, $legend, '4');
+        redirect($CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $courseid, $legend, '4');
     } else {
         print_error('Fatal error when sending or draft mail');
     }
@@ -391,12 +391,12 @@ if ( $mailform->is_cancelled() ) {
 
     if ( $action == EMAIL_REPLY or $action == EMAIL_REPLYALL ) {
         // Modify subject.
-        $mail->subject = get_string('re', 'block_email_list') . ' ' . $mail->subject;
+        $mail->subject = get_string('re', 'block_binerbo') . ' ' . $mail->subject;
     }
 
     if ( $action == EMAIL_FORWARD ) {
         // Modify subject.
-        $newmail->subject = get_string('fw', 'block_email_list') . ' ' . $oldmail->subject;
+        $newmail->subject = get_string('fw', 'block_binerbo') . ' ' . $oldmail->subject;
     }
 
     if ( $action == EMAIL_REPLY or $action == EMAIL_REPLYALL ) {

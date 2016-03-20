@@ -2,13 +2,13 @@
 
 /*
  * 10-2013 adrian.castillo@uma.es CAM-1741
- * Proceso de backup-restauración de bloque email_list
+ * Proceso de backup-restauración de bloque binerbo
  */
 
-require_once($CFG->dirroot . '/blocks/email_list/backup/moodle2/restore_email_list_stepslib.php'); // We have structure steps
+require_once($CFG->dirroot . '/blocks/binerbo/backup/moodle2/restore_binerbo_stepslib.php'); // We have structure steps
 
 
-class restore_email_list_block_task extends restore_block_task {
+class restore_binerbo_block_task extends restore_block_task {
 
     protected function define_my_settings() {
     }
@@ -39,7 +39,7 @@ class restore_email_list_block_task extends restore_block_task {
                 // Borramos los ficheros del curso !!! haciendo uso del recolector de basura !!!
                 $sql  = ' update {files} ';
                 $sql .= ' set {files}.component = "user",  {files}.filearea  = "draft" ';
-                $sql .= ' where {files}.component = "blocks_email_list" ';
+                $sql .= ' where {files}.component = "blocks_binerbo" ';
                 $sql .= '   and {files}.filearea  = "attachment" ';
                 $sql .= '   and {files}.itemid in ('.$lista_de_correos.') ';
                 $DB->execute($sql);
@@ -57,7 +57,7 @@ class restore_email_list_block_task extends restore_block_task {
         }
 
         // Añadimos información
-        $this->add_step(new restore_email_list_block_structure_step('email_list_structure', 'email_list.xml'));
+        $this->add_step(new restore_binerbo_block_structure_step('binerbo_structure', 'binerbo.xml'));
     }
 
     public function get_fileareas() {

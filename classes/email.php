@@ -21,13 +21,13 @@
  * @copyright   2015 Toni Mas <antoni.mas@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace block_email_list;
+namespace block_binerbo;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__) . '/email_base.php');
 
-class email extends \block_email_list\email_base {
+class email extends \block_binerbo\email_base {
 
     /**
      * Mark if eMail has reply, reply all or forward
@@ -115,7 +115,7 @@ class email extends \block_email_list\email_base {
         if ( isset( $USER->id ) ) {
             if ( $USER->id != $userid or !$userid) {
                 // Display error.
-                print_error ( 'incorrectuserid', 'block_email_list' );
+                print_error ( 'incorrectuserid', 'block_binerbo' );
                 return false;
             }
         }
@@ -183,7 +183,7 @@ class email extends \block_email_list\email_base {
 
             return $users;
         } else {
-            return get_string('neverusers', 'block_email_list');
+            return get_string('neverusers', 'block_binerbo');
         }
     }
 
@@ -302,8 +302,8 @@ class email extends \block_email_list\email_base {
         include_once($CFG->dirroot.'/lib/filelib.php');
 
         // Get strings.
-        $strattachment  = get_string('attachment', 'block_email_list');
-        $strattachments = get_string('attachments', 'block_email_list');
+        $strattachment  = get_string('attachment', 'block_binerbo');
+        $strattachments = get_string('attachments', 'block_binerbo');
 
         $html = '';
 
@@ -336,9 +336,9 @@ class email extends \block_email_list\email_base {
                 $filearea = $this->get_file_area_name();
 
                 if ($CFG->slasharguments) {
-                    $ffurl = "blocks/email_list/email/file.php/$filearea/$file";
+                    $ffurl = "blocks/binerbo/email/file.php/$filearea/$file";
                 } else {
-                    $ffurl = "blocks/email_list/email/file.php?file=/$filearea/$file";
+                    $ffurl = "blocks/binerbo/email/file.php?file=/$filearea/$file";
                 }
 
                 $html .= '<a href="'.$CFG->wwwroot.'/'.$ffurl. '" target="blank">'. $file .'</a>';
@@ -383,7 +383,7 @@ class email extends \block_email_list\email_base {
         if ( empty( $courseid ) and isset($COURSE->id) ) {
             $this->course = $COURSE->id;
         } else if ( empty( $courseid ) ) {
-            print_error('specifycourseid', 'block_email_list');
+            print_error('specifycourseid', 'block_binerbo');
         }
         $this->course = $courseid;
         return true;
@@ -453,10 +453,10 @@ class email extends \block_email_list\email_base {
         }
 
         // If mail has saved in draft, delete this reference.
-        if ( $folderdraft = \block_email_list\label::get_root($this->userid, EMAIL_DRAFT) ) {
+        if ( $folderdraft = \block_binerbo\label::get_root($this->userid, EMAIL_DRAFT) ) {
             if ($foldermail = email_get_reference2foldermail($this->id, $folderdraft->id) ) {
                 if (! $DB->delete_records('email_foldermail', 'id', $foldermail->id)) {
-                    print_error( 'failremovingdraft', 'block_email_list');
+                    print_error( 'failremovingdraft', 'block_binerbo');
                 }
             }
         }
@@ -491,14 +491,14 @@ class email extends \block_email_list\email_base {
             foreach ($this->to as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                \blocks_email_list\label::create_parents($userid);
+                \blocks_binerbo\label::create_parents($userid);
 
                 $send->userid = $userid;
 
                 $send->type      = 'to';
 
                 if (! $DB->insert_record('email_send', $send)) {
-                    print_error('failinsertsendrecord', 'block_email_list');
+                    print_error('failinsertsendrecord', 'block_binerbo');
                     return false;
                 }
 
@@ -515,14 +515,14 @@ class email extends \block_email_list\email_base {
             foreach ($this->cc as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                \blocks_email_list\label::create_parents($userid);
+                \blocks_binerbo\label::create_parents($userid);
 
                 $send->userid = $userid;
 
                 $send->type      = 'cc';
 
                 if (! $DB->insert_record('email_send', $send)) {
-                    print_error('failinsertsendrecord', 'block_email_list');
+                    print_error('failinsertsendrecord', 'block_binerbo');
                     return false;
                 }
 
@@ -539,14 +539,14 @@ class email extends \block_email_list\email_base {
             foreach ($this->bcc as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                \blocks_email_list\label::create_parents($userid);
+                \blocks_binerbo\label::create_parents($userid);
 
                 $send->userid = $userid;
 
                 $send->type      = 'bcc';
 
                 if ( !$DB->insert_record('email_send', $send)) {
-                    print_error('failinsertsendrecord', 'block_email_list');
+                    print_error('failinsertsendrecord', 'block_binerbo');
                     return false;
                 }
 
@@ -597,14 +597,14 @@ class email extends \block_email_list\email_base {
                 foreach ($this->to as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    \blocks_email_list\label::create_parents($userid);
+                    \blocks_binerbo\label::create_parents($userid);
 
                     $send->userid = $userid;
 
                     $send->type      = 'to';
 
                     if ( !$DB->insert_record('email_send', $send)) {
-                        print_error('failinsertsendrecord', 'block_email_list');
+                        print_error('failinsertsendrecord', 'block_binerbo');
                         return false;
                     }
                 }
@@ -616,14 +616,14 @@ class email extends \block_email_list\email_base {
                 foreach ($this->cc as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    \blocks_email_list\label::create_parents($userid);
+                    \blocks_binerbo\label::create_parents($userid);
 
                     $send->userid = $userid;
 
                     $send->type      = 'cc';
 
                     if (! $DB->insert_record('email_send', $send)) {
-                        print_error('failinsertsendrecord', 'block_email_list');
+                        print_error('failinsertsendrecord', 'block_binerbo');
                         return false;
                     }
                 }
@@ -635,21 +635,21 @@ class email extends \block_email_list\email_base {
                 foreach ($this->bcc as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    \blocks_email_list\label::create_parents($userid);
+                    \blocks_binerbo\label::create_parents($userid);
 
                     $send->userid = $userid;
 
                     $send->type      = 'bcc';
 
                     if ( !$DB->insert_record('email_send', $send)) {
-                        print_error('failinsertsendrecord', 'block_email_list');
+                        print_error('failinsertsendrecord', 'block_binerbo');
                         return false;
                     }
                 }
             }
 
             if ( !$this->reference_mail_folder($this->userid, EMAIL_DRAFT) ) {
-                print_error('failinsertrecord', 'block_email_list');
+                print_error('failinsertrecord', 'block_binerbo');
             }
 
         } else {
@@ -680,7 +680,7 @@ class email extends \block_email_list\email_base {
                         $send->type      = 'to';
 
                         if ( !$DB->insert_record('email_send', $send)) {
-                            print_error('failinsertsendrecord', 'block_email_list');
+                            print_error('failinsertsendrecord', 'block_binerbo');
                             return false;
                         }
                     }
@@ -696,7 +696,7 @@ class email extends \block_email_list\email_base {
                         $send->type      = 'cc';
 
                         if ( !$DB->insert_record('email_send', $send)) {
-                            print_error('failinsertsendrecord', 'block_email_list');
+                            print_error('failinsertsendrecord', 'block_binerbo');
                             return false;
                         }
                     }
@@ -712,7 +712,7 @@ class email extends \block_email_list\email_base {
                         $send->type      = 'bcc';
 
                         if (! $DB->insert_record('email_send', $send)) {
-                            print_error('failinsertsendrecord', 'block_email_list');
+                            print_error('failinsertsendrecord', 'block_binerbo');
                             return false;
                         }
                     }
@@ -749,7 +749,7 @@ class email extends \block_email_list\email_base {
         $deletemails = false;
         $success = true;
 
-        $type = \block_email_list\label::is_type(
+        $type = \block_binerbo\label::is_type(
             get_record('email_folder', array('id' => $folderid)),
             EMAIL_TRASH
         );
@@ -767,7 +767,7 @@ class email extends \block_email_list\email_base {
             }
         } else {
             // Get remove folder user.
-            $removefolder = \block_email_list\label::get_root($userid, EMAIL_TRASH);
+            $removefolder = \block_binerbo\label::get_root($userid, EMAIL_TRASH);
 
             // Get actual folder.
             $actualfolder = email_get_reference2foldermail($this->id, $folderid);
@@ -789,12 +789,12 @@ class email extends \block_email_list\email_base {
         if ( $success ) {
             add_to_log($this->course, 'email', 'remove mail', '', 'Remove '.$this->subject, 0, $this->userid);
             if ( ! $silent ) {
-                notify( get_string('removeok', 'block_email_list'), 'notifysuccess' );
+                notify( get_string('removeok', 'block_binerbo'), 'notifysuccess' );
             }
             return true;
         } else {
             if ( ! $silent ) {
-                notify( get_string('removefail', 'block_email_list') );
+                notify( get_string('removefail', 'block_binerbo') );
             }
             return false;
         }
@@ -812,12 +812,12 @@ class email extends \block_email_list\email_base {
 
         // SECURITY. User can read this mail?
         if (! $this->can_readmail($user) ) {
-            print_error('dontreadmail', 'block_email_list', $CFG->wwwroot.'/blocks/email_list/email/index.php?'.$baseurl);
+            print_error('dontreadmail', 'block_binerbo', $CFG->wwwroot.'/blocks/binerbo/email/index.php?'.$baseurl);
         }
 
         // Now, mark mail as readed.
         if (! $this->mark2read($user->id, $COURSE->id, true) ) {
-            print_error('failmarkreaded', 'block_email_list');
+            print_error('failmarkreaded', 'block_binerbo');
         }
 
         echo $this->get_html($courseid, $folderid, $urlpreviousmail, $urlnextmail, $baseurl, $override);
@@ -854,7 +854,7 @@ class email extends \block_email_list\email_base {
         $html .= '<td style="border-left: 1px solid black;
                     border-right: 1px solid black; border-top:1px solid black" align="right" colspan="3">';
         $html .= '&nbsp;&nbsp;&nbsp;';
-        $html .= '<b> ' . get_string('from', 'block_email_list') . ':</b>&nbsp;';
+        $html .= '<b> ' . get_string('from', 'block_binerbo') . ':</b>&nbsp;';
         $html .= $this->get_fullname_writer($override);
 
         $html .= '</td>';
@@ -868,7 +868,7 @@ class email extends \block_email_list\email_base {
         $html .= '&nbsp;&nbsp;&nbsp;';
 
         if ( $userstosendto != '' ) {
-            $html .= '<b> '. get_string('for', 'block_email_list') .':</b>&nbsp;';
+            $html .= '<b> '. get_string('for', 'block_binerbo') .':</b>&nbsp;';
 
             $html .= $this->get_users_send('to');
         }
@@ -882,14 +882,14 @@ class email extends \block_email_list\email_base {
         }
 
         if ( $urlpreviousmail ) {
-            $html .= '<a href="view.php?'. $urlpreviousmail .'">' . get_string('previous', 'block_email_list') . '</a>';
+            $html .= '<a href="view.php?'. $urlpreviousmail .'">' . get_string('previous', 'block_binerbo') . '</a>';
         }
 
         if ( $urlnextmail ) {
             if ( $urlpreviousmail ) {
                 $html .= '&nbsp;|&nbsp;';
             }
-            $html .= '<a href="view.php?' . $urlnextmail .'">' . get_string('next', 'block_email_list') . '</a>';
+            $html .= '<a href="view.php?' . $urlnextmail .'">' . get_string('next', 'block_binerbo') . '</a>';
         }
 
         $html .= '&nbsp;&nbsp;';
@@ -902,7 +902,7 @@ class email extends \block_email_list\email_base {
                         <td  style="border-left: 1px solid black;
                                 border-right: 1px solid black;" align="right" colspan="3">
                                 &nbsp;&nbsp;&nbsp;
-                            <b> ' . get_string('cc', 'block_email_list') . ':</b>&nbsp;' . $userstosendcc . '
+                            <b> ' . get_string('cc', 'block_binerbo') . ':</b>&nbsp;' . $userstosendcc . '
                         </td>
                     </tr>';
         }
@@ -912,7 +912,7 @@ class email extends \block_email_list\email_base {
             $html .= '<tr>
                         <td  style="border-left: 1px solid black; border-right: 1px solid black;" align="right" colspan="3">
                             &nbsp;&nbsp;&nbsp;
-                            <b> ' . get_string('bcc', 'block_email_list') . ':</b>&nbsp;' . $userstosendbcc . '
+                            <b> ' . get_string('bcc', 'block_binerbo') . ':</b>&nbsp;' . $userstosendbcc . '
                         </td>
                     </tr>';
         }
@@ -922,7 +922,7 @@ class email extends \block_email_list\email_base {
         $html .= '<td style="border-left: thin solid black; border-right: 1px solid black" width="60%" align="right" colspan="3">';
         $html .= '&nbsp;&nbsp;&nbsp;';
 
-        $html .= '<b> '. get_string('date', 'block_email_list') . ':</b>&nbsp;';
+        $html .= '<b> '. get_string('date', 'block_binerbo') . ':</b>&nbsp;';
 
         $html .= userdate($this->timecreated);
 
@@ -952,27 +952,27 @@ class email extends \block_email_list\email_base {
         $html .= '<td align="right" colspan="3">';
 
         $html .= '<a href="sendmail.php?' . $baseurl . '&amp;action='
-                    . EMAIL_REPLY . '"><b>' . get_string('reply', 'block_email_list') . '</b></a>';
+                    . EMAIL_REPLY . '"><b>' . get_string('reply', 'block_binerbo') . '</b></a>';
         $html .= ' | ';
         $html .= '<a href="sendmail.php?' . $baseurl . '&amp;action='
-                    . EMAIL_REPLYALL . '"><b>' . get_string('replyall', 'block_email_list') . '</b></a>';
+                    . EMAIL_REPLYALL . '"><b>' . get_string('replyall', 'block_binerbo') . '</b></a>';
         $html .= ' | ';
         $html .= '<a href="sendmail.php?' . $baseurl . '&amp;action='
-                    . EMAIL_FORWARD .'"><b>' . get_string('forward', 'block_email_list') . '</b></a>';
+                    . EMAIL_FORWARD .'"><b>' . get_string('forward', 'block_binerbo') . '</b></a>';
         $html .= ' | ';
         $html .= '<a href="index.php?id=' . $courseid . '&amp;mailid=' . $this->id
                     .'&amp;folderid=' . $folderid . '&amp;action=removemail"><b>'
-                    . get_string('removemail', 'block_email_list') . '</b></a>';
+                    . get_string('removemail', 'block_binerbo') . '</b></a>';
         $html .= ' | ';
 
-        $icon = '<img src="' . $CFG->wwwroot . '/blocks/email_list/email/images/printer.png" height="16" width="16" alt="'
-                    . get_string('print', 'block_email_list') . '" />';
+        $icon = '<img src="' . $CFG->wwwroot . '/blocks/binerbo/email/images/printer.png" height="16" width="16" alt="'
+                    . get_string('print', 'block_binerbo') . '" />';
 
         $html .= email_print_to_popup_window(
                         'link',
-                        '/blocks/email_list/email/print.php?courseid=' . $courseid . '&amp;mailids=' . $this->id,
-                        '<b>' . get_string('print', 'block_email_list') . '</b>' . print_spacer(1, 3, false, true) . $icon,
-                        get_string('print', 'block_email_list'), true);
+                        '/blocks/binerbo/email/print.php?courseid=' . $courseid . '&amp;mailids=' . $this->id,
+                        '<b>' . get_string('print', 'block_binerbo') . '</b>' . print_spacer(1, 3, false, true) . $icon,
+                        get_string('print', 'block_binerbo'), true);
 
         $html .= '</td>';
 
@@ -1020,7 +1020,7 @@ class email extends \block_email_list\email_base {
                     // Get folder.
                     $folder = email_get_folder($options->folderid);
 
-                    if ( \block_email_list\label::is_type($folder, EMAIL_SENDBOX) ) {
+                    if ( \block_binerbo\label::is_type($folder, EMAIL_SENDBOX) ) {
                         // ALERT!!!! Modify where sql, because now I've show my inbox ==> email_send.userid = myuserid.
                         $wheresql = " WHERE m.userid = $userid
                                         AND s.sended = 1";
@@ -1029,7 +1029,7 @@ class email extends \block_email_list\email_base {
                             $wheresql = " WHERE m.course = $courseid
                                             AND s.sended = 1";
                         }
-                    } else if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
+                    } else if ( \block_binerbo\label::is_type($folder, EMAIL_DRAFT) ) {
                         // ALERT!!!! Modify where sql, because now I've show my inbox ==> email_send.userid = myuserid.
                         $wheresql = " WHERE m.userid = $userid
                                         AND s.sended = 0";
@@ -1047,7 +1047,7 @@ class email extends \block_email_list\email_base {
                 } else {
                     // If label == 0, I've get inbox.
                     // Get label.
-                    $label = \block_email_list\label::get_root($userid, EMAIL_INBOX);
+                    $label = \block_binerbo\label::get_root($userid, EMAIL_INBOX);
                     $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
                     $wheresql .= " AND fm.labelid = $label->id ";
                     $groupby = " GROUP BY m.id";
@@ -1055,7 +1055,7 @@ class email extends \block_email_list\email_base {
             } else {
                 // If label == 0, I've get inbox.
                 // Get folder.
-                $label = \block_email_list\label::get_root($userid, EMAIL_INBOX);
+                $label = \block_binerbo\label::get_root($userid, EMAIL_INBOX);
                 $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
                 $wheresql .= " AND fm.labelid = $label->id ";
                 $groupby = " GROUP BY m.id";
@@ -1063,7 +1063,7 @@ class email extends \block_email_list\email_base {
         } else {
             // If no options, I've get inbox, per default get this label.
             // Get label.
-            $label = \block_email_list\label::get_root($userid, EMAIL_INBOX);
+            $label = \block_binerbo\label::get_root($userid, EMAIL_INBOX);
             $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
             $wheresql .= " AND fm.labelid = $label->id ";
             $groupby = " GROUP BY m.id";

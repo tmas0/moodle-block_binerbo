@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="block/email_list/db" VERSION="20150507" COMMENT="XMLDB file for Moodle email list"
+<XMLDB PATH="block/binerbo/db" VERSION="20150507" COMMENT="XMLDB file for Moodle binerbo block"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
   <TABLES>
-    <TABLE NAME="email_preference" COMMENT="Global preferences for eMail">
+    <TABLE NAME="binerbo_preference" COMMENT="Global preferences for Binerbo">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -11,11 +11,11 @@
         <FIELD NAME="marriedlabels2courses" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_preference"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for binerbo_preference"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="email_mail" COMMENT="All mails are stored in this table">
+    <TABLE NAME="binerbo_mail" COMMENT="All mails are stored in this table">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -25,7 +25,7 @@
         <FIELD NAME="body" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_mail"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for binerbo_mail"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" PREVIOUS="primary"/>
         <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
@@ -34,7 +34,7 @@
         <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="email_send" COMMENT="Mail user send, type and it is readed">
+    <TABLE NAME="binerbo_sent" COMMENT="Mail user send, type and it is readed">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -46,10 +46,10 @@
         <FIELD NAME="answered" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_send"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for binerbo_sent"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
         <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
-        <KEY NAME="mailid" TYPE="foreign" FIELDS="mailid" REFTABLE="email_mail" REFFIELDS="id"/>
+        <KEY NAME="mailid" TYPE="foreign" FIELDS="mailid" REFTABLE="binerbo_mail" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="readed" UNIQUE="false" FIELDS="readed"/>
@@ -57,7 +57,7 @@
         <INDEX NAME="sended" UNIQUE="false" FIELDS="sended"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="email_label" COMMENT="All labels for store mails. isparenttype content only type of parents labels. There are inbox">
+    <TABLE NAME="binerbo_label" COMMENT="All labels for store mails. isparenttype content only type of parents labels. There are inbox">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -67,7 +67,7 @@
         <FIELD NAME="isparenttype" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_label"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for binerbo_label"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
         <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
@@ -75,41 +75,41 @@
         <INDEX NAME="isparenttype" UNIQUE="false" FIELDS="isparenttype"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="email_sublabel" COMMENT="SubLabels for one label for store mails">
+    <TABLE NAME="binerbo_sublabel" COMMENT="SubLabels for one label for store mails">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="labelparentid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="labelchildid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_sublabel"/>
-        <KEY NAME="parent" TYPE="foreign" FIELDS="labelparentid" REFTABLE="email_label" REFFIELDS="id"/>
-        <KEY NAME="child" TYPE="foreign" FIELDS="labelchildid" REFTABLE="email_label" REFFIELDS="id"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for binerbo_sublabel"/>
+        <KEY NAME="parent" TYPE="foreign" FIELDS="labelparentid" REFTABLE="binerbo_label" REFFIELDS="id"/>
+        <KEY NAME="child" TYPE="foreign" FIELDS="labelchildid" REFTABLE="binerbo_label" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="email_labelmail" COMMENT="Mails of one label">
+    <TABLE NAME="binerbo_labelmail" COMMENT="Mails of one label">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="mailid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="labelid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_labelmail"/>
-        <KEY NAME="mailid" TYPE="foreign" FIELDS="mailid" REFTABLE="email_mail" REFFIELDS="id"/>
-        <KEY NAME="labelid" TYPE="foreign" FIELDS="labelid" REFTABLE="email_label" REFFIELDS="id"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for binerbo_labelmail"/>
+        <KEY NAME="mailid" TYPE="foreign" FIELDS="mailid" REFTABLE="binerbo_mail" REFFIELDS="id"/>
+        <KEY NAME="labelid" TYPE="foreign" FIELDS="labelid" REFTABLE="binerbo_label" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
       	<INDEX NAME="labelid-mailid" UNIQUE="false" FIELDS="labelid, mailid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="email_filter" COMMENT="Filter mail for one label">
+    <TABLE NAME="binerbo_filter" COMMENT="Filter mail for one label">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="labelid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="rules" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for email_filter"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for binerbo_filter"/>
       </KEYS>
     </TABLE>
   </TABLES>

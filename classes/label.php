@@ -22,7 +22,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_email_list;
+namespace block_binerbo;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -89,19 +89,19 @@ class label {
             if ( ! is_null($label->isparenttype) ) {
                 // If is parent ... return language name.
                 if ( self::is_type($label, EMAIL_INBOX) ) {
-                    $label->name = get_string('inbox', 'block_email_list');
+                    $label->name = get_string('inbox', 'block_binerbo');
                 }
 
                 if ( self::is_type($label, EMAIL_SENDBOX) ) {
-                    $label->name = get_string('sendbox', 'block_email_list');
+                    $label->name = get_string('sendbox', 'block_binerbo');
                 }
 
                 if ( self::is_type($label, EMAIL_TRASH) ) {
-                    $label->name = get_string('trash', 'block_email_list');
+                    $label->name = get_string('trash', 'block_binerbo');
                 }
 
                 if ( self::is_type($label, EMAIL_DRAFT) ) {
-                    $label->name = get_string('draft', 'block_email_list');
+                    $label->name = get_string('draft', 'block_binerbo');
                 }
             }
         }
@@ -185,28 +185,28 @@ class label {
             if ( $label == EMAIL_INBOX ) {
                 $params = array('userid' => $userid, 'isparenttype' => EMAIL_INBOX);
                 $rootlabel = $DB->get_record('email_label', $params);
-                $rootlabel->name = get_string('inbox', 'block_email_list');
+                $rootlabel->name = get_string('inbox', 'block_binerbo');
                 return $rootlabel;
             }
 
             if ( $label == EMAIL_SENDBOX ) {
                 $params = array('userid' => $userid, 'isparenttype' => EMAIL_SENDBOX);
                 $rootlabel = $DB->get_record('email_label', $params);
-                $rootlabel->name = get_string('sendbox', 'block_email_list');
+                $rootlabel->name = get_string('sendbox', 'block_binerbo');
                 return $rootlabel;
             }
 
             if ( $label == EMAIL_TRASH ) {
                 $params = array('userid' => $userid, 'isparenttype' => EMAIL_TRASH);
                 $rootlabel = $DB->get_record('email_label', $params);
-                $rootlabel->name = get_string('trash', 'block_email_list');
+                $rootlabel->name = get_string('trash', 'block_binerbo');
                 return $rootlabel;
             }
 
             if ( $label == EMAIL_DRAFT ) {
                 $params = array('userid' => $userid, 'isparenttype' => EMAIL_DRAFT);
                 $rootlabel = $DB->get_record('email_label', $params);
-                $rootlabel->name = get_string('draft', 'block_email_list');
+                $rootlabel->name = get_string('draft', 'block_binerbo');
                 return $rootlabel;
             }
         }
@@ -230,7 +230,7 @@ class label {
 
         $label->timecreated = time();
         $label->userid  = $userid;
-        $label->name    = addslashes(get_string('inbox', 'block_email_list'));
+        $label->name    = addslashes(get_string('inbox', 'block_binerbo'));
         $label->isparenttype = EMAIL_INBOX; // Be careful if you change this field.
 
         // Labels is an object who contain id's of created labels.
@@ -244,7 +244,7 @@ class label {
         }
 
         // Insert draft if no exist.
-        $label->name = addslashes(get_string('draft', 'block_email_list'));
+        $label->name = addslashes(get_string('draft', 'block_binerbo'));
         $label->isparenttype = EMAIL_DRAFT; // Be careful if you change this field.
 
         $params = array('userid' => $userid, 'isparenttype' => EMAIL_DRAFT);
@@ -255,7 +255,7 @@ class label {
         }
 
         // Insert sendbox if no exits.
-        $label->name = addslashes(get_string('sendbox', 'block_email_list'));
+        $label->name = addslashes(get_string('sendbox', 'block_binerbo'));
         $label->isparenttype = EMAIL_SENDBOX; // Be careful if you change this field.
 
         $params = array('userid' => $userid, 'isparenttype' => EMAIL_SENDBOX);
@@ -266,7 +266,7 @@ class label {
         }
 
         // Insert trash if no exits.
-        $label->name = addslashes(get_string('trash', 'block_email_list'));
+        $label->name = addslashes(get_string('trash', 'block_binerbo'));
         $label->isparenttype = EMAIL_TRASH; // Be careful if you change this field.
 
         $params = array('userid' => $userid, 'isparenttype' => EMAIL_TRASH);

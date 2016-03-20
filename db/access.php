@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-    'block/email_list:myaddinstance' => array(
+    'block/binerbo:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
@@ -35,7 +35,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/my:manageblocks'
     ),
 
-    'block/email_list:addinstance' => array(
+    'block/binerbo:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
@@ -47,7 +47,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
 
-    'block/email_list:sendmessage' => array(
+    'block/binerbo:sendmessage' => array(
 
         'riskbitmask' => RISK_SPAM | RISK_XSS,
         'captype' => 'write',
@@ -60,7 +60,7 @@ $capabilities = array(
         )
     ),
 
-    'block/email_list:createlabel' => array(
+    'block/binerbo:createlabel' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -72,7 +72,7 @@ $capabilities = array(
         )
     ),
 
-    'block/email_list:editsettings' => array(
+    'block/binerbo:editsettings' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,

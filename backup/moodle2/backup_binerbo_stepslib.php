@@ -1,15 +1,15 @@
 <?php
 /*
  * 10-2013 adrian.castillo@uma.es CAM-1741
- * Proceso de backup-restauración de bloque email_list
+ * Proceso de backup-restauración de bloque binerbo
  */
-class backup_email_list_block_structure_step extends backup_block_structure_step {
+class backup_binerbo_block_structure_step extends backup_block_structure_step {
 
     protected function define_structure() {
         global $DB;
 
         // Define each element separated
-        $email_list = new backup_nested_element('email_list');
+        $binerbo = new backup_nested_element('binerbo');
 
 
         // To know if we are including userinfo
@@ -81,18 +81,18 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
 
             // Build the tree dependiendo de forma de ver $foldermail
             /* OPCION 1  Cada correo decimos en que carpetas se encuentra  */
-            $email_list->add_child($folders);
+            $binerbo->add_child($folders);
                 $folders->add_child($folder);
                     $folder->add_child($filters);
                         $filters->add_child($filter);
 
-            $email_list->add_child($preferences);
+            $binerbo->add_child($preferences);
                 $preferences->add_child($preference);
 
-            $email_list->add_child($subfolders);
+            $binerbo->add_child($subfolders);
                 $subfolders->add_child($subfolder);
 
-            $email_list->add_child($mails);
+            $binerbo->add_child($mails);
                 $mails->add_child($mail);
                     $mail->add_child($sends);
                         $sends->add_child($send);
@@ -100,19 +100,19 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
                     $mail->add_child($foldermails);
                         $foldermails->add_child($foldermail);
 
-            $email_list->add_child($files);
+            $binerbo->add_child($files);
                 $files->add_child($file);
 
             /* OPCION 2 Cada carpeta decimos que correos tiene
-            $email_list->add_child($preferences);
+            $binerbo->add_child($preferences);
                 $preferences->add_child($preference);
 
-            $email_list->add_child($mails);
+            $binerbo->add_child($mails);
                 $mails->add_child($mail);
                     $mail->add_child($sends);
                         $sends->add_child($send);
 
-            $email_list->add_child($folders);
+            $binerbo->add_child($folders);
                 $folders->add_child($folder);
                     $folder->add_child($filters);
                         $filters->add_child($filter);
@@ -120,7 +120,7 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
                     $folder->add_child($foldermails);
                         $foldermails->add_child($foldermail);
 
-            $email_list->add_child($subfolders);
+            $binerbo->add_child($subfolders);
                 $subfolders->add_child($subfolder);
             */
 
@@ -182,7 +182,7 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
           /*$sql  = ' select distinct  {files}.id, {files}.component, {files}.filearea, {files}.itemid, {files}.contextid,  {files}.userid  ';
             $sql .= ' from {files} ';
             $sql .= ' inner join {email_send} on ( {files}.itemid = {email_send}.mailid)  ';
-            $sql .= ' where  {files}.component=\'blocks_email_list\' ';
+            $sql .= ' where  {files}.component=\'blocks_binerbo\' ';
             $sql .= ' and {files}.filearea=\'attachment\' ';
             $sql .= ' and  {email_send}.course = ? ' ;*/
 
@@ -194,7 +194,7 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
             $sql .= ' inner join {email_foldermail} on ({email_foldermail}.mailid = {email_send}.mailid) ' ;
             $sql .= ' inner join {email_mail} on ({email_foldermail}.mailid = {email_mail}.id and {email_mail}.course = ?) ' ;
             $sql .= ' where trim({files}.filename)<>"." and trim({files}.filename)<>"/" ' ;
-            $sql .= ' and {files}.component="blocks_email_list"  ' ;
+            $sql .= ' and {files}.component="blocks_binerbo"  ' ;
             $sql .= ' and {files}.filearea="attachment"; ' ;
 
             $file->set_source_sql($sql, $params);
@@ -276,14 +276,14 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
 
             // Define file annotations
             //  LO IMPORTANTE EN ESTE PROCESO ES QUE SE GUARDAN LOS FICHEROS ESPECIFICANDO
-            //$file->annotate_files('blocks_email_list', 'attachment', 'itemid', 'contextid');
+            //$file->annotate_files('blocks_binerbo', 'attachment', 'itemid', 'contextid');
 
             // ...->annotate_files(component, filearea, intemid, contextid);
             // Se ha probado a mano y funciona !!
             /* Como al enviar los emails se guardan los ficheros con:
                     file_save_draft_area_files( $submitted_draftid ,
                                                 context_user::instance($emisor_o_receptor)->id,    // CONTEXTOS DE USUARIO context_user::instance($USER->id)->id,    // CONTEXTOS DE USUARIO $context->id,
-                                                'blocks_email_list',
+                                                'blocks_binerbo',
                                                 'attachment',
                                                 $email->id //Al crear correo mailid es cero !!!  $USER->id $mailid ?? Según aparece en http://docs.moodle.org/dev/File_API_internals#Implementation_of_basic_operations
                                                 );
@@ -291,7 +291,7 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
 
             /*$sql  = ' select distinct  {files}.id, {files}.component, {files}.filearea, {files}.itemid, {files}.contextid,  {files}.userid from {files} inner join {email_send} on ( {files}.itemid = {email_send}.mailid) ';
             $sql .= ' where  trim({files}.filename)<>"." and trim({files}.filename)<>"/" ';
-            $sql .= ' and {files}.component=\'blocks_email_list\' ';
+            $sql .= ' and {files}.component=\'blocks_binerbo\' ';
             $sql .= ' and {files}.filearea=\'attachment\' ';
             $sql .= ' and  {email_send}.course = :curso ' ; */
 
@@ -303,7 +303,7 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
             $sql .= ' inner join {email_foldermail} on ({email_foldermail}.mailid = {email_send}.mailid) ' ;
             $sql .= ' inner join {email_mail} on ({email_foldermail}.mailid = {email_mail}.id and {email_mail}.course = :curso ) ' ;
             $sql .= ' where trim({files}.filename)<>"." and trim({files}.filename)<>"/" ' ;
-            $sql .= ' and {files}.component="blocks_email_list"  ' ;
+            $sql .= ' and {files}.component="blocks_binerbo"  ' ;
             $sql .= ' and {files}.filearea="attachment"; ' ;
 
 
@@ -313,7 +313,7 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
 
             foreach ($registros as $registro) {
                 //echo '<br>id->'.$registro->itemid . ', contextid->'.$registro->contextid;
-                //backup_structure_dbops::annotate_files($this->get_backupid(), $registro->contextid, 'blocks_email_list', 'attachment', $registro->itemid);
+                //backup_structure_dbops::annotate_files($this->get_backupid(), $registro->contextid, 'blocks_binerbo', 'attachment', $registro->itemid);
                 backup_structure_dbops::insert_backup_ids_record($this->get_backupid(), 'file', $registro->id);
             }
 
@@ -323,7 +323,7 @@ class backup_email_list_block_structure_step extends backup_block_structure_step
         }
 
         // Return the root element (email_mail), wrapped into standard block structure
-        return $this->prepare_block_structure($email_list);
+        return $this->prepare_block_structure($binerbo);
 
     }
 }

@@ -31,35 +31,35 @@ if ($ADMIN->fulltree) {
     // General options.
 
     // Track by email.
-    $settings->add(new admin_setting_configselect('block_email_trackbymail', get_string('trackbymail', 'block_email_list'),
-                       get_string('configtrackbymail', 'block_email_list'), '1', $options));
+    $settings->add(new admin_setting_configselect('block_email_trackbymail', get_string('trackbymail', 'block_binerbo'),
+                       get_string('configtrackbymail', 'block_binerbo'), '1', $options));
 
     // Labels by course.
     $settings->add(new admin_setting_configselect('block_email_marriedlabels2courses',
-        get_string('marriedlabels2courses', 'block_email_list'),
-        get_string('configmarriedlabels2courses', 'block_email_list'),
+        get_string('marriedlabels2courses', 'block_binerbo'),
+        get_string('configmarriedlabels2courses', 'block_binerbo'),
         '1',
         $options)
     );
 
     // Add admins in possible users sent.
-    $settings->add(new admin_setting_configselect('block_email_add_admins', get_string('add_admins', 'block_email_list'),
-                       get_string('configaddadmins', 'block_email_list'), '0', $options));
+    $settings->add(new admin_setting_configselect('block_email_add_admins', get_string('add_admins', 'block_binerbo'),
+                       get_string('configaddadmins', 'block_binerbo'), '0', $options));
 
     // The eMail Colors.
 
     // Answered color.
     $name = 'block_email_answered_color';
-    $title = get_string('answeredcolor', 'block_email_list');
-    $description = get_string('answeredcolor_desc', 'block_email_list');
+    $title = get_string('answeredcolor', 'block_binerbo');
+    $description = get_string('answeredcolor_desc', 'block_binerbo');
     $default = '#333366';
     $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, null, false);
     $settings->add($setting);
 
     // Table color.
     $name = 'block_email_table_field_color';
-    $title = get_string('tablefieldcolor', 'block_email_list');
-    $description = get_string('tablefieldcolor_desc', 'block_email_list');
+    $title = get_string('tablefieldcolor', 'block_binerbo');
+    $description = get_string('tablefieldcolor_desc', 'block_binerbo');
     $default = '#333366';
     $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, null, false);
     $settings->add($setting);
@@ -80,8 +80,8 @@ if ($ADMIN->fulltree) {
 
     // Number of displayed courses.
     $settings->add(new admin_setting_configselect('block_email_max_number_courses',
-        get_string('maxnumbercourses', 'block_email_list'),
-        get_string('configmaxnumbercourses', 'block_email_list'),
+        get_string('maxnumbercourses', 'block_binerbo'),
+        get_string('configmaxnumbercourses', 'block_binerbo'),
         '0',
         $options)
     );

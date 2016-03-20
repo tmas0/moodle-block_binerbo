@@ -2,10 +2,10 @@
 
 /*
  * 10-2013 adrian.castillo@uma.es CAM-1741
- * Proceso de backup-restauración de bloque email_list
+ * Proceso de backup-restauración de bloque binerbo
  */
 
-class restore_email_list_block_structure_step extends restore_block_instance_structure_step {
+class restore_binerbo_block_structure_step extends restore_block_instance_structure_step {
 
     protected function define_structure() {
         $paths = array();
@@ -95,17 +95,17 @@ class restore_email_list_block_structure_step extends restore_block_instance_str
 
 
         //$paths[] = new restore_path_element('block', '/block', true);
-        $paths[] = new restore_path_element('email_list', '/block/email_list');
+        $paths[] = new restore_path_element('binerbo', '/block/binerbo');
 
         if ($restore_users) {
-            $paths[] = new restore_path_element('folder', '/block/email_list/folders/folder');
-            $paths[] = new restore_path_element('filter', '/block/email_list/folders/folder/filters/filter');
-            $paths[] = new restore_path_element('preference', '/block/email_list/preferences/preference');
-            $paths[] = new restore_path_element('subfolder', '/block/email_list/subfolders/subfolder');
-            $paths[] = new restore_path_element('mail', '/block/email_list/mails/mail');
-            $paths[] = new restore_path_element('send', '/block/email_list/mails/mail/sends/send');
-            $paths[] = new restore_path_element('foldermail', '/block/email_list/mails/mail/foldermails/foldermail');
-            $paths[] = new restore_path_element('file', '/block/email_list/files/file');
+            $paths[] = new restore_path_element('folder', '/block/binerbo/folders/folder');
+            $paths[] = new restore_path_element('filter', '/block/binerbo/folders/folder/filters/filter');
+            $paths[] = new restore_path_element('preference', '/block/binerbo/preferences/preference');
+            $paths[] = new restore_path_element('subfolder', '/block/binerbo/subfolders/subfolder');
+            $paths[] = new restore_path_element('mail', '/block/binerbo/mails/mail');
+            $paths[] = new restore_path_element('send', '/block/binerbo/mails/mail/sends/send');
+            $paths[] = new restore_path_element('foldermail', '/block/binerbo/mails/mail/foldermails/foldermail');
+            $paths[] = new restore_path_element('file', '/block/binerbo/files/file');
         }
 
         return $paths;
@@ -113,7 +113,7 @@ class restore_email_list_block_structure_step extends restore_block_instance_str
     }
 
 
-    protected function process_email_list($data) {
+    protected function process_binerbo($data) {
         global $DB;
 
         $data = (object)$data;
@@ -121,7 +121,7 @@ class restore_email_list_block_structure_step extends restore_block_instance_str
         $data->course = $this->get_courseid();
 
         // Insertamos el registro del bloque
-        $newitemid = $DB->insert_record('email_list', $data);
+        $newitemid = $DB->insert_record('binerbo', $data);
         
         // Después de insertar el registro llamamos a
         $this->apply_block_instance($newitemid);
@@ -356,7 +356,7 @@ class restore_email_list_block_structure_step extends restore_block_instance_str
         $data->userid = $this->get_mappingid('user',$data->userid);
         $data->contextid =  context_user::instance( $data->userid )->id;
 
-        // Pasamos todos los ficheros relacionados adjuntos del bloque email_list al nuevo formato de moodle
+        // Pasamos todos los ficheros relacionados adjuntos del bloque binerbo al nuevo formato de moodle
         $backuppath = $this->task->get_basepath().'/files/' . backup_file_manager::get_backup_content_file_location($data->contenthash);
 
         // The file is not found in the backup.
@@ -383,7 +383,7 @@ class restore_email_list_block_structure_step extends restore_block_instance_str
                 // Preparamos file record object
                 $file_record = array(
                     'contextid' => $data->contextid,  // CONTEXTOS DE USUARIO
-                    'component' => 'blocks_email_list',         // usually = table name
+                    'component' => 'blocks_binerbo',         // usually = table name
                     'filearea'  => 'attachment',                // usually = table name
                     'itemid'    => $data->itemid,               // usually = ID of row in table
                                                                 // any path beginning and ending in /

@@ -22,7 +22,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_email_list;
+namespace block_binerbo;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -106,7 +106,7 @@ class email_base {
             $this->subject = clean_text($subject);
         } else {
             // Display error.
-            print_error(get_string('nosubject', 'block_email_list'));
+            print_error(get_string('nosubject', 'block_binerbo'));
         }
     }
 
@@ -200,8 +200,8 @@ class email_base {
 
         if ( !$this->id = $DB->insert_record('email_mail', $mail) ) {
             print_error('failinsertrecord',
-                'block_email_list',
-                $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $this->course);
+                'block_binerbo',
+                $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $this->course);
         }
     }
 
@@ -215,8 +215,8 @@ class email_base {
 
         if ( $this->oldmailid <= 0 ) {
             print_error('failupdaterecord',
-                'block_email_list',
-                $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $this->course);
+                'block_binerbo',
+                $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $this->course);
         }
 
         $mail->id = $this->oldmailid;
@@ -228,8 +228,8 @@ class email_base {
 
         if ( !$DB->update_record('email_mail', $mail) ) {
             print_error('failupdaterecord',
-                'block_email_list',
-                $CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $this->course);
+                'block_binerbo',
+                $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $this->course);
         }
     }
 
@@ -290,7 +290,7 @@ class email_base {
         }
 
         if ( !$silent && !$success ) {
-            notify(get_string('failmarkanswered', 'block_email_list'));
+            notify(get_string('failmarkanswered', 'block_binerbo'));
         }
 
         return $success;
@@ -322,13 +322,13 @@ class email_base {
         if ( $success ) {
             if ( !$silent ) {
                 // Display success.
-                notify(get_string('toreadok', 'block_email_list'), 'notifysuccess');
+                notify(get_string('toreadok', 'block_binerbo'), 'notifysuccess');
             }
 
             return true;
         } else {
             if ( !$silent ) {
-                notify(get_string('failmarkreaded', 'block_email_list'));
+                notify(get_string('failmarkreaded', 'block_binerbo'));
             }
 
             return false;
@@ -361,13 +361,13 @@ class email_base {
         if ( $success ) {
             if ( !$silent ) {
                 // Display success.
-                notify(get_string('tounreadok', 'block_email_list'), 'notifysuccess');
+                notify(get_string('tounreadok', 'block_binerbo'), 'notifysuccess');
             }
 
             return true;
         } else {
             if ( !$silent ) {
-                notify(get_string('failmarkunreaded', 'block_email_list'));
+                notify(get_string('failmarkunreaded', 'block_binerbo'));
             }
 
             return false;
@@ -389,7 +389,7 @@ class email_base {
 
         $foldermail->mailid = $this->id;
 
-        $folder = \block_email_list\label::get_root($userid, $foldername);
+        $folder = \block_binerbo\label::get_root($userid, $foldername);
 
         $foldermail->folderid = $folder->id;
 
@@ -479,7 +479,7 @@ class email_base {
                 $message .= '<br />';
                 $message .= $um->get_errors();
                 print_simple_box($message, '', '', '', '', 'errorbox');
-                print_continue($CFG->wwwroot . '/blocks/email_list/email/index.php?id=' . $course->id);
+                print_continue($CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $course->id);
                 print_footer();
                 die;
             }

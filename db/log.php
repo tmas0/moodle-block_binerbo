@@ -25,5 +25,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $logs = array(
-    array('module' => 'email_list', 'action' => 'add', 'mtable' => 'email_mail', 'field' => 'subject'),
+    array('module' => 'binerbo', 'action' => 'add', 'mtable' => 'binerbo_mail', 'field' => 'subject'),
 );

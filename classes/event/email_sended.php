@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_email_list\event;
+namespace block_binerbo\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -48,7 +48,7 @@ class email_sended extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventsendok', 'block_email_list');
+        return get_string('eventsendok', 'block_binerbo');
     }
 
     /**
@@ -66,7 +66,7 @@ class email_sended extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url("/block/email_list/view.php",
+        return new \moodle_url("/block/binerbo/view.php",
                 array('id' => $this->contextinstanceid,
                       'mailid' => $this->objectid));
     }
@@ -78,7 +78,7 @@ class email_sended extends \core\event\base {
      */
     public function get_legacy_logdata() {
         return array($this->courseid, 'email_mail', 'send email',
-            "block/email_list/view.php?id={$this->contextinstanceid}",
+            "block/binerbo/view.php?id={$this->contextinstanceid}",
             $this->objectid, $this->contextinstanceid);
     }
 
@@ -90,7 +90,7 @@ class email_sended extends \core\event\base {
     protected function get_legacy_eventdata() {
         $attempt = $this->get_record_snapshot('email_mail', $this->objectid);
         $legacyeventdata = new \stdClass();
-        $legacyeventdata->component = 'block_email_list';
+        $legacyeventdata->component = 'block_binerbo';
         $legacyeventdata->attemptid = $this->objectid;
         $legacyeventdata->timestamp = $attempt->timecreated;
         $legacyeventdata->userid = $this->relateduserid;

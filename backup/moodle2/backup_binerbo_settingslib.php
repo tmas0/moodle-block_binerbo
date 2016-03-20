@@ -17,7 +17,7 @@
  * @param string $feature
  * @return mixed True if yes (some features may use other values)
  */
-function email_list_supports($feature) {
+function binerbo_supports($feature) {
     switch($feature) {
 //        case FEATURE_GROUPS:                  return true;
 //        case FEATURE_GROUPINGS:               return true;
