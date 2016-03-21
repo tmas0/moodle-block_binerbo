@@ -30,7 +30,7 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once($CFG->dirroot . '/blocks/binerbo/email/lib.php');   // The eMail library funcions.
+require_once($CFG->dirroot . '/blocks/binerbo/lib.php');   // The eMail library funcions.
 
 $mailid         = optional_param('id', 0, PARAM_INT);               // Email ID.
 $courseid       = optional_param('course', SITEID, PARAM_INT);      // Course ID.
@@ -94,7 +94,7 @@ $fieldsmail = new stdClass();
 $fieldsmail->subject = $subject;
 $fieldsmail->body = $body;
 
-if ( $CFG->email_enable_ajax ) {
+if ( $CFG->binerbo_enable_ajax ) {
     $CFG->ajaxtestedbrowsers = array();  // May be overridden later by ajaxformatfile.
 
     if (ajaxenabled($CFG->ajaxtestedbrowsers)) {     // Browser, user and site-based switches.
@@ -152,7 +152,7 @@ if ( !$folder = \block_binerbo\label::get($folderid) ) {
 $PAGE->set_heading(get_string('mailbox', 'block_binerbo') . ': ' . $folder->name);
 
 // Print "blocks" of this account.
-email_printblocks($USER->id, $courseid);
+binerbo_printblocks($USER->id, $courseid);
 
 // Print the page header.
 echo $OUTPUT->header();
@@ -171,7 +171,7 @@ if ( !isset( $mail->subject ) ) {
 // First create the form.
 $mailform = new block_binerbo_email_form(
         'sendmail.php',
-        array('oldmail' => $DB->get_record('email_mail', array('id' => $mailid)),
+        array('oldmail' => $DB->get_record('binerbo_mail', array('id' => $mailid)),
             'action' => $action
         ),
         'post',
@@ -294,7 +294,7 @@ if ( $mailform->is_cancelled() ) {
     // DRAFT integration.
     // Prepare mail according action.
     if ( $action == EMAIL_REPLY or $action == EMAIL_REPLYALL or $action == EMAIL_EDITDRAFT ) {
-        if ( !$mail = $DB->get_record('email_mail', array('id' => $mailid)) ) {
+        if ( !$mail = $DB->get_record('binerbo_mail', array('id' => $mailid)) ) {
             print_error ('Mail not found');
         }
     }
@@ -309,7 +309,7 @@ if ( $mailform->is_cancelled() ) {
 
     if ( $action == EMAIL_REPLY ) {
         // Predefinity user send.
-        $user = email_get_user($mailid);
+        $user = binerbo_get_user($mailid);
         $mail->nameto = fullname($user, $context);
     }
 
@@ -317,7 +317,7 @@ if ( $mailform->is_cancelled() ) {
 
         $selectedusers = array();
         // Predefinity user send.
-        $userwriter = email_get_user($mailid);
+        $userwriter = binerbo_get_user($mailid);
 
         // First, prepare writer.
         $selectedusers[] = $userwriter->id;
@@ -331,8 +331,8 @@ if ( $mailform->is_cancelled() ) {
         }
 
         // Get users sent mail, with option for reply all.
-        $selecteduserscc = array_merge(email_get_users_sent($mailid, true, $userwriter, 'to'),
-                                    email_get_users_sent($mailid, true, $userwriter, 'cc')
+        $selecteduserscc = array_merge(binerbo_get_users_sent($mailid, true, $userwriter, 'to'),
+                                    binerbo_get_users_sent($mailid, true, $userwriter, 'cc')
         );
 
         $mail->namecc = '';
@@ -345,7 +345,7 @@ if ( $mailform->is_cancelled() ) {
         $newmail = new stdClass();
 
         // Get mail.
-        if ( !$oldmail = $DB->get_record('email_mail', array('id' => $mailid)) ) {
+        if ( !$oldmail = $DB->get_record('binerbo_mail', array('id' => $mailid)) ) {
             error ('Can\'t found mail');
         }
 
@@ -356,36 +356,36 @@ if ( $mailform->is_cancelled() ) {
         $newmail->mailid = null;
 
         // Predefinity user send.
-        $user = email_get_user($mailid);
+        $user = binerbo_get_user($mailid);
 
     }
 
     if ( $action == EMAIL_EDITDRAFT ) {
         // Predefinity user send.
-        $userwriter = email_get_user($mailid);
+        $userwriter = binerbo_get_user($mailid);
 
         // Get users sent mail, with option for reply all.
-        $selectedusersto = email_get_users_sent($mailid, true, false, 'to');
+        $selectedusersto = binerbo_get_users_sent($mailid, true, false, 'to');
 
         $mail->nameto = '';
         foreach ($selectedusersto as $userid) {
-            $mail->nameto .= email_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
+            $mail->nameto .= binerbo_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
         }
 
         // Get users sent mail, with option for reply all.
-        $selecteduserscc = email_get_users_sent($mailid, true, false, 'cc');
+        $selecteduserscc = binerbo_get_users_sent($mailid, true, false, 'cc');
 
         $mail->namecc = '';
         foreach ($selecteduserscc as $userid) {
-            $mail->namecc .= email_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
+            $mail->namecc .= binerbo_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
         }
 
         // Get users sent mail, with option for reply all.
-        $selectedusersbcc = email_get_users_sent($mailid, true, false, 'bcc');
+        $selectedusersbcc = binerbo_get_users_sent($mailid, true, false, 'bcc');
 
         $mail->namebcc = '';
         foreach ($selectedusersbcc as $userid) {
-            $mail->namebcc .= email_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
+            $mail->namebcc .= binerbo_fullname($DB->get_record('user', array('id' => $userid)), $context) .', ';
         }
     }
 
@@ -406,7 +406,7 @@ if ( $mailform->is_cancelled() ) {
         ( isset($user) ) ? $userdef = $user : $userdef = $userwriter;
 
         // Insert default line for known sended mail, and date.
-        $body = email_make_default_line_replyforward($userdef, $mail->timecreated, $context);
+        $body = binerbo_make_default_line_replyforward($userdef, $mail->timecreated, $context);
         // Intert >.
         foreach ($lines as $line) {
             $body = $body. '>' .$line. '<br />'."\n";
@@ -420,7 +420,7 @@ if ( $mailform->is_cancelled() ) {
         $lines = explode('<br />', $newmail->body);
 
         // Insert default line for known sended mail, and date.
-        $body = email_make_default_line_replyforward($user, $newmail->timecreated, $context);
+        $body = binerbo_make_default_line_replyforward($user, $newmail->timecreated, $context);
         // Intert >.
         foreach ($lines as $line) {
             $body = $body. '>' . $line . '<br />'."\n";

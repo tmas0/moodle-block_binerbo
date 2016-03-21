@@ -28,12 +28,10 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  */
 
-global $CFG;
-
 require_once($CFG->dirroot.'/lib/formslib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
+require_once($CFG->dirroot.'/blocks/binerbo/lib.php');
 
-class folder_form extends moodleform {
+class block_binerbon_folder_form extends moodleform {
 
     // Define the form.
     public function definition () {
@@ -47,17 +45,17 @@ class folder_form extends moodleform {
         $folderid        = $this->_customdata['id'];
 
         // Print the required moodle fields first.
-        $mform->addElement('header', 'moodle', get_string('folder', 'block_email_list'));
+        $mform->addElement('header', 'moodle', get_string('folder', 'block_binerbo'));
 
-        $mform->addElement('text', 'name', get_string('namenewfolder', 'block_email_list'));
+        $mform->addElement('text', 'name', get_string('namenewfolder', 'block_binerbo'));
         $mform->setDefault('name', '');
-        $mform->addRule('name', get_string('nofolder', 'block_email_list'), 'required', null, 'client');
+        $mform->addRule('name', get_string('nofolder', 'block_binerbo'), 'required', null, 'client');
 
         // Get root folders.
-        $folders = email_get_my_folders($USER->id, $courseid, true, true);
+        $folders = binerbo_get_my_folders($USER->id, $courseid, true, true);
 
         // Get inbox, there default option on menu.
-        $inbox = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
+        $inbox = \block_binerbo\label::get_root($USER->id, EMAIL_INBOX);
 
         $menu = array();
 
@@ -66,19 +64,19 @@ class folder_form extends moodleform {
             $menu[$key] = $foldername;
         }
 
-        if ( $parent = email_get_parent_folder($folderid) ) {
+        if ( $parent = binerbo_get_parent_folder($folderid) ) {
             $parentid = $parent->id;
         } else {
             $parentid = 0;
         }
 
         // Select parent folder.
-        $mform->addElement('select', 'parentfolder', get_string('linkto', 'block_email_list'), $menu);
+        $mform->addElement('select', 'parentfolder', get_string('linkto', 'block_binerbo'), $menu);
         $mform->setDefault('parentfolder', $parentid);
 
         $mform->addElement('hidden', 'gost');
 
-        if ( $preference = $DB->get_record('email_preference', array('userid' => $USER->id)) ) {
+        if ( $preference = $DB->get_record('binerbo_preference', array('userid' => $USER->id)) ) {
             if ( $preference->marriedfolders2courses ) {
                 // Get my courses..
                 $mycourses = get_my_courses($USER->id);
@@ -124,10 +122,10 @@ class folder_form extends moodleform {
         $mform->removeElement('parentfolder');
 
         // Get root folders.
-        $folders = email_get_my_folders($USER->id, $mform->getElementValue('course'), true, true);
+        $folders = binerbo_get_my_folders($USER->id, $mform->getElementValue('course'), true, true);
 
         // Get inbox, there default option on menu.
-        $inbox = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
+        $inbox = \block_binerbo\label::get_root($USER->id, EMAIL_INBOX);
 
         $menu = array();
 
@@ -139,7 +137,7 @@ class folder_form extends moodleform {
         }
 
         // Select parent folder.
-        $select = &MoodleQuickForm::createElement('select', 'parentfolder', get_string('linkto', 'block_email_list'), $menu);
+        $select = &MoodleQuickForm::createElement('select', 'parentfolder', get_string('linkto', 'block_binerbo'), $menu);
         $mform->insertElementBefore($select, 'gost');
         $mform->setDefault('parentfolder', $parentfolder);
 

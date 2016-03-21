@@ -48,9 +48,9 @@ class block_binerbo_renderer extends plugin_renderer_base {
 
         // CONTRIB-690.
         if ( !empty( $_POST['perpage'] ) and is_numeric($_POST['perpage']) ) {
-            $SESSION->email_mailsperpage = $_POST['perpage'];
-        } else if ( !isset($SESSION->email_mailsperpage) or empty($SESSION->email_mailsperpage) ) {
-            $SESSION->email_mailsperpage = 10; // Default value.
+            $SESSION->binerbo_mailsperpage = $_POST['perpage'];
+        } else if ( !isset($SESSION->binerbo_mailsperpage) or empty($SESSION->binerbo_mailsperpage) ) {
+            $SESSION->binerbo_mailsperpage = 10; // Default value.
         }
 
         // Get actual course.
@@ -67,7 +67,7 @@ class block_binerbo_renderer extends plugin_renderer_base {
         $url = '';
         // Build url part options.
         if ($options) {
-            $url = email_build_url($options);
+            $url = binerbo_build_url($options);
         }
 
         // Print all mails in this HTML file.
@@ -164,7 +164,7 @@ class block_binerbo_renderer extends plugin_renderer_base {
             $mails = array();
         }
 
-        $mailsids = email_get_ids($mails);
+        $mailsids = binerbo_get_ids($mails);
 
         // Print all rows.
         foreach ($mails as $mail) {
@@ -179,33 +179,33 @@ class block_binerbo_renderer extends plugin_renderer_base {
 
                     $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
                     if ( !$email->is_readed($userid, $mail->course) ) {
-                        $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                        $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                     }
                 } else if ( \block_binerbo\label::is_type($folder, EMAIL_TRASH) ) {
                     $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                     if ( !$email->is_readed($userid, $mail->course) ) {
-                        $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                        $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                     }
                 } else if ( \block_binerbo\label::is_type($folder, EMAIL_DRAFT) ) {
 
                     $struser = $email->get_users_send(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                     if ( !$email->is_readed($userid, $mail->course) ) {
-                        $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                        $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                     }
                 } else {
                     $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                     if ( !$email->is_readed($userid, $mail->course) ) {
-                        $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                        $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                     }
                 }
             } else {
                 // Format user's.
                 $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
                 if ( !$email->is_readed($userid, $mail->course) ) {
-                    $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                    $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                 }
             }
 
@@ -249,7 +249,7 @@ class block_binerbo_renderer extends plugin_renderer_base {
             if ( $email->is_answered($userid, $course->id) ) {
                 // Color td.
                 unset($attribute);
-                $attribute = array('bgcolor' => $CFG->email_answered_color);
+                $attribute = array('bgcolor' => $CFG->binerbo_answered_color);
 
                 // Adding info img.
                 $extraimginfo = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/answered.gif" alt="" /> ';
@@ -287,7 +287,7 @@ class block_binerbo_renderer extends plugin_renderer_base {
 
         // Print select action, if have mails.
         if ( $mails ) {
-            email_print_select_options($options, $SESSION->email_mailsperpage);
+            binerbo_print_select_options($options, $SESSION->binerbo_mailsperpage);
         }
 
         // End form.
@@ -304,7 +304,7 @@ class block_binerbo_renderer extends plugin_renderer_base {
      * @return string. Preferences button if corresponding.
      * @todo Finish documenting this function.
      */
-    function email_get_preferences_button($courseid) {
+    function binerbo_get_preferences_button($courseid) {
         global $CFG, $OUTPUT, $PAGE;
 
         // Security.
@@ -312,7 +312,7 @@ class block_binerbo_renderer extends plugin_renderer_base {
             $courseid = SITEID;
         }
 
-        if ( empty($CFG->email_trackbymail) and empty($CFG->email_marriedfolders2courses) ) {
+        if ( empty($CFG->binerbo_trackbymail) and empty($CFG->binerbo_marriedfolders2courses) ) {
             return '';
         } else {
             $form = new html_form();

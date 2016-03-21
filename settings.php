@@ -31,11 +31,11 @@ if ($ADMIN->fulltree) {
     // General options.
 
     // Track by email.
-    $settings->add(new admin_setting_configselect('block_email_trackbymail', get_string('trackbymail', 'block_binerbo'),
+    $settings->add(new admin_setting_configselect('block_binerbo/trackbymail', get_string('trackbymail', 'block_binerbo'),
                        get_string('configtrackbymail', 'block_binerbo'), '1', $options));
 
     // Labels by course.
-    $settings->add(new admin_setting_configselect('block_email_marriedlabels2courses',
+    $settings->add(new admin_setting_configselect('block_binerbo/marriedlabels2courses',
         get_string('marriedlabels2courses', 'block_binerbo'),
         get_string('configmarriedlabels2courses', 'block_binerbo'),
         '1',
@@ -43,13 +43,13 @@ if ($ADMIN->fulltree) {
     );
 
     // Add admins in possible users sent.
-    $settings->add(new admin_setting_configselect('block_email_add_admins', get_string('add_admins', 'block_binerbo'),
+    $settings->add(new admin_setting_configselect('block_binerbo/add_admins', get_string('add_admins', 'block_binerbo'),
                        get_string('configaddadmins', 'block_binerbo'), '0', $options));
 
     // The eMail Colors.
 
     // Answered color.
-    $name = 'block_email_answered_color';
+    $name = 'block_binerbo/answered_color';
     $title = get_string('answeredcolor', 'block_binerbo');
     $description = get_string('answeredcolor_desc', 'block_binerbo');
     $default = '#333366';
@@ -57,7 +57,7 @@ if ($ADMIN->fulltree) {
     $settings->add($setting);
 
     // Table color.
-    $name = 'block_email_table_field_color';
+    $name = 'block_binerbo/table_field_color';
     $title = get_string('tablefieldcolor', 'block_binerbo');
     $description = get_string('tablefieldcolor_desc', 'block_binerbo');
     $default = '#333366';
@@ -79,7 +79,7 @@ if ($ADMIN->fulltree) {
     $options[50] = 50;
 
     // Number of displayed courses.
-    $settings->add(new admin_setting_configselect('block_email_max_number_courses',
+    $settings->add(new admin_setting_configselect('block_binerbo/max_number_courses',
         get_string('maxnumbercourses', 'block_binerbo'),
         get_string('configmaxnumbercourses', 'block_binerbo'),
         '0',

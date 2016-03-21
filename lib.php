@@ -121,44 +121,44 @@ define('EMAIL_TABLE_FIELD_COLOR', '#B7B7B7');
 // Default configs.
 
 // First, drop old configs .. if exist.
-if (isset($CFG->email_display_course_principal)) {
-    unset_config('email_display_course_principal');  // Default show principal course in blocks who containg list of courses.
+if (isset($CFG->binerbo_display_course_principal)) {
+    unset_config('binerbo_display_course_principal');  // Default show principal course in blocks who containg list of courses.
 }
 
-if (isset($CFG->email_number_courses_display_in_blocks_course)) {
-    unset_config('email_number_courses_display_in_blocks_course');  // Default show all courses.
+if (isset($CFG->binerbo_number_courses_display_in_blocks_course)) {
+    unset_config('binerbo_number_courses_display_in_blocks_course');  // Default show all courses.
 }
 
 // Second, define new configs.
-if (!isset($CFG->email_trackbymail)) {
-    set_config('email_trackbymail', EMAIL_TRACKBYMAIL);
+if (!isset($CFG->binerbo_trackbymail)) {
+    set_config('binerbo_trackbymail', EMAIL_TRACKBYMAIL);
 }
-if (!isset($CFG->email_marriedfolders2courses)) {
-    set_config('email_marriedfolders2courses', EMAIL_MARRIEDFOLDERS2COURSES);
+if (!isset($CFG->binerbo_marriedfolders2courses)) {
+    set_config('binerbo_marriedfolders2courses', EMAIL_MARRIEDFOLDERS2COURSES);
 }
-if (!isset($CFG->email_max_number_courses)) {
-    set_config('email_max_number_courses', EMAIL_MAX_NUMBER_COURSES);
+if (!isset($CFG->binerbo_max_number_courses)) {
+    set_config('binerbo_max_number_courses', EMAIL_MAX_NUMBER_COURSES);
 }
-if (!isset($CFG->email_answered_color)) {
-    set_config('email_answered_color', EMAIL_ANSWERED_COLOR);
+if (!isset($CFG->binerbo_answered_color)) {
+    set_config('binerbo_answered_color', EMAIL_ANSWERED_COLOR);
 }
-if (!isset($CFG->email_table_field_color)) {
-    set_config('email_table_field_color', EMAIL_TABLE_FIELD_COLOR);
+if (!isset($CFG->binerbo_table_field_color)) {
+    set_config('binerbo_table_field_color', EMAIL_TABLE_FIELD_COLOR);
 }
 
 // Default disable old screen for select participants to send mail.
-if (!isset($CFG->email_old_select_participants)) {
-    set_config('email_old_select_participants', 0);
+if (!isset($CFG->binerbo_old_select_participants)) {
+    set_config('binerbo_old_select_participants', 0);
 }
 
 // UIB needs define this param. This define if users show Admins on select users sent mail.
-if (!isset($CFG->email_add_admins)) {
-    set_config('email_add_admins', 1);
+if (!isset($CFG->binerbo_add_admins)) {
+    set_config('binerbo_add_admins', 1);
 }
 
 // Temporal enable/unable Ajax use for select users to send mail... now it's UNSTABLE!!! Only for developers.
-if (!isset($CFG->email_enable_ajax)) {
-    set_config('email_enable_ajax', 0);
+if (!isset($CFG->binerbo_enable_ajax)) {
+    set_config('binerbo_enable_ajax', 0);
 }
 
 /**
@@ -170,7 +170,7 @@ if (!isset($CFG->email_enable_ajax)) {
  * @return boolean
  * @todo Finish documenting this function
  **/
-function email_cron() {
+function binerbo_cron() {
     return true;
 }
 
@@ -182,7 +182,7 @@ function email_cron() {
  * @return boolean Fail or success
  * @todo Finish documenting this function
  */
-function email_choose_course($courseid) {
+function binerbo_choose_course($courseid) {
 
     global $USER;
 
@@ -220,7 +220,7 @@ function email_choose_course($courseid) {
  * @return string File name
  * @todo Finish documenting this function
  */
-function email_strip_attachment($path) {
+function binerbo_strip_attachment($path) {
 
     $part = explode('/', $path);
 
@@ -240,18 +240,18 @@ function email_strip_attachment($path) {
  * @todo Finish documenting this function
  */
 
-function email_copy_attachments($dirsrc, $mailiddst, $internalmailpath=null, $attachment=null) {
+function binerbo_copy_attachments($dirsrc, $mailiddst, $internalmailpath=null, $attachment=null) {
     global $CFG;
 
     // Get directory for save this attachments.
     $dirsrc = $CFG->dataroot .'/'.$dirsrc;
-    $dirdst = email_file_area($mailiddst) .'/'.$attachment;
+    $dirdst = binerbo_file_area($mailiddst) .'/'.$attachment;
 
     if (! $internalmailpath) {
         // Copy this attachments.
         if (! copy($dirsrc, $dirdst) ) {
             debugging( "src:$dirsrc, dst: $dirdst ");
-            print_error('failcopingattachments', 'block_email_list');
+            print_error('failcopingattachments', 'block_binerbo');
         }
     } else {
         if ( file_exists($internalmailpath.'/'.$attachment) ) {
@@ -274,11 +274,11 @@ function email_copy_attachments($dirsrc, $mailiddst, $internalmailpath=null, $at
  * @return boolean Success/Fail
  * @todo Finish documenting this function
  **/
-function email_delete_attachments($mailid) {
+function binerbo_delete_attachments($mailid) {
 
     $result = true;
 
-    if ( $basedir = email_file_area($mailid) ) {
+    if ( $basedir = binerbo_file_area($mailid) ) {
 
         // Delete all files of mail.
         if ( $files = get_directory_list($basedir) ) {
@@ -305,16 +305,16 @@ function email_delete_attachments($mailid) {
  * @return string Name
  * @todo Finish documenting this function
  */
-function email_get_root_folder_name($type) {
+function binerbo_get_root_folder_name($type) {
 
     if ($type == EMAIL_INBOX) {
-        $name = get_string('inbox', 'block_email_list');
+        $name = get_string('inbox', 'block_binerbo');
     } else if ($type == EMAIL_SENDBOX) {
-        $name = get_string('sendbox', 'block_email_list');
+        $name = get_string('sendbox', 'block_binerbo');
     } else if ($type == EMAIL_TRASH) {
-        $name = get_string('trash', 'block_email_list');
+        $name = get_string('trash', 'block_binerbo');
     } else if ($type == EMAIL_DRAFT) {
-        $name = get_string('draft', 'block_email_list');
+        $name = get_string('draft', 'block_binerbo');
     } else {
         // Type is not defined.
         $name = '';
@@ -334,7 +334,7 @@ function email_get_root_folder_name($type) {
  * @param boolean $admin Admin folders
  * @todo Finish documenting this function
  */
-function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false, $admin=false) {
+function binerbo_print_subfolders($subfolders, $userid, $courseid, $foredit=false, $admin=false) {
 
     global $CFG;
 
@@ -342,7 +342,7 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
     $unreaded = '';
 
     // String for alt of img.
-    $strremove = get_string('removefolder', 'block_email_list');
+    $strremove = get_string('removefolder', 'block_binerbo');
 
     echo '<ul>';
 
@@ -352,7 +352,7 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
         unset($numbermails);
         unset($unreaded);
         // Get number of unreaded mails.
-        $numbermails = email_count_unreaded_mails($userid, $courseid, $subfolder->id);
+        $numbermails = binerbo_count_unreaded_mails($userid, $courseid, $subfolder->id);
         if ( $numbermails > 0 ) {
             $unreaded = '('.$numbermails.')';
         } else {
@@ -365,33 +365,33 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
         if ( $foredit ) {
 
             echo '<a href="' . $CFG->wwwroot .
-                '/blocks/email_list/email/folder.php?course=' . $courseid .
+                '/blocks/binerbo/email/folder.php?course=' . $courseid .
                 '&amp;id=' . $subfolder->id .
                 '&amp;action=' . md5('edit') . '">' . $subfolder->name . '</a>';
 
             echo '&#160;&#160;<a href="' . $CFG->wwwroot .
-                '/blocks/email_list/email/folder.php?course=' . $courseid .
+                '/blocks/binerbo/email/folder.php?course=' . $courseid .
                 '&amp;id=' . $subfolder->id .
                 '&amp;action=' . md5('edit') .
                 '"><img src="' . $CFG->pixpath . '/t/edit.gif" alt="' . $strremove . '" /></a>';
 
             echo '&#160;&#160;<a href="' . $CFG->wwwroot .
-                '/blocks/email_list/email/folder.php?course=' . $courseid .
+                '/blocks/binerbo/email/folder.php?course=' . $courseid .
                 '&amp;id=' . $subfolder->id .
                 '&amp;action=' . md5('remove') . '"><img src="' .
                 $CFG->pixpath . '/t/delete.gif" alt="' . $strremove . '" /></a>';
 
         } else {
-            echo '<a href="' . $CFG->wwwroot . '/blocks/email_list/email/index.php?id= ' .$courseid .
+            echo '<a href="' . $CFG->wwwroot . '/blocks/binerbo/email/index.php?id= ' .$courseid .
                     '&amp;folderid=' . $subfolder->id . '">' . $subfolder->name . $unreaded . '</a>';
         }
 
         // Now, print all subfolders it.
-        $subfoldersrecursive = \block_email_list\label::get_sublabels($subfolder->id, null, $admin);
+        $subfoldersrecursive = \block_binerbo\label::get_sublabels($subfolder->id, null, $admin);
 
         // Print recursive all this subfolders.
         if ( $subfoldersrecursive ) {
-            email_print_subfolders($subfoldersrecursive, $userid, $courseid, $foredit, $admin);
+            binerbo_print_subfolders($subfoldersrecursive, $userid, $courseid, $foredit, $admin);
         }
 
         echo '</li>';
@@ -410,11 +410,11 @@ function email_print_subfolders($subfolders, $userid, $courseid, $foredit=false,
  * @param int $courseid Course ID
  * @todo Finish documenting this function
  */
-function email_print_tree_myfolders($userid, $courseid) {
+function binerbo_print_tree_myfolders($userid, $courseid) {
     global $CFG, $PAGE, $OUTPUT;
 
-    $strfolders = get_string('folders', 'block_email_list');
-    $stredit    = get_string('editfolders', 'block_email_list');
+    $strfolders = get_string('folders', 'block_binerbo');
+    $stredit    = get_string('editfolders', 'block_binerbo');
     $strcourse  = get_string('course');
     $strfolderopened = s(get_string('folderopened'));
     $strfolderclosed = s(get_string('folderclosed'));
@@ -428,7 +428,7 @@ function email_print_tree_myfolders($userid, $courseid) {
     $spancounter = 1;
 
     // Get my folders.
-    if ( $folders = email_get_root_folders($userid) ) {
+    if ( $folders = binerbo_get_root_folders($userid) ) {
 
         $numbermails = 0;
         $unreaded = '';
@@ -444,27 +444,27 @@ function email_print_tree_myfolders($userid, $courseid) {
             unset($numbermails);
             unset($unreaded);
             // Get number of unreaded mails.
-            if ( $numbermails = email_count_unreaded_mails($userid, $courseid, $folder->id) ) {
+            if ( $numbermails = binerbo_count_unreaded_mails($userid, $courseid, $folder->id) ) {
                 $unreaded = ' ('.$numbermails.')';
             } else {
                 $unreaded = '';
             }
 
-            if ( \block_email_list\label::is_type($folder, EMAIL_TRASH) ) {
-                $clean .= html_writer::link( new moodle_url('/blocks/email_list/email/folder.php',
+            if ( \block_binerbo\label::is_type($folder, EMAIL_TRASH) ) {
+                $clean .= html_writer::link( new moodle_url('/blocks/binerbo/email/folder.php',
                     array('course' => $courseid,
                         'folderid' => $folder->id,
                         'action' => 'cleantrash')),
-                    get_string('cleantrash', 'block_email_list')
+                    get_string('cleantrash', 'block_binerbo')
                 );
             }
 
             // Now, print all subfolders it.
-            $subfolders = \block_email_list\label::get_sublabels($folder->id, $courseid);
+            $subfolders = \block_binerbo\label::get_sublabels($folder->id, $courseid);
 
             // LI.
             $content .= html_writer::start_tag('li', array('class' => 'r'. $row));
-            $url = new moodle_url('/blocks/email_list/email/index.php',
+            $url = new moodle_url('/blocks/binerbo/email/index.php',
                     array('id' => $courseid, 'folderid' => $folder->id)
             );
 
@@ -477,7 +477,7 @@ function email_print_tree_myfolders($userid, $courseid) {
 
             // If subfolders.
             if ( $subfolders ) {
-                email_print_subfolders( $subfolders, $userid, $courseid );
+                binerbo_print_subfolders( $subfolders, $userid, $courseid );
             }
             $content .= html_writer::end_tag('li');
             $row = $row ? 0 : 1;
@@ -492,15 +492,15 @@ function email_print_tree_myfolders($userid, $courseid) {
             array('class' => 'footer'));
 
         // For admin folders.
-        $content .= '<div class="footer"><a href="' . $CFG->wwwroot . '/blocks/email_list/email/folder.php?course=' . $courseid .
+        $content .= '<div class="footer"><a href="' . $CFG->wwwroot . '/blocks/binerbo/email/folder.php?course=' . $courseid .
                 '&amp;action=' . md5('admin') . '"><b>' . $stredit . '</b></a></div>';
 
         // Create new label.
-        if ( has_capability('block/email_list:createlabel', $context)) {
+        if ( has_capability('block/binerbo:createlabel', $context)) {
             $newlabel = html_writer::link(
-                new moodle_url('/blocks/email_list/email/folder.php',
+                new moodle_url('/blocks/binerbo/email/folder.php',
                     array('course' => $courseid)),
-                get_string('newfolderform', 'block_email_list')
+                get_string('newfolderform', 'block_binerbo')
             );
             $content .= html_writer::tag('div', $newlabel, array('class' => 'text-center'));
         }
@@ -526,20 +526,20 @@ function email_print_tree_myfolders($userid, $courseid) {
  * @return null
  * @todo Finish documenting this function
  **/
-function email_printblocks($userid, $courseid, $printsearchblock=true) {
+function binerbo_printblocks($userid, $courseid, $printsearchblock=true) {
     global $CFG, $USER, $PAGE, $OUTPUT;
 
     $strcourse  = get_string('course');
-    $strcourses = get_string('mailboxs', 'block_email_list');
+    $strcourses = get_string('mailboxs', 'block_binerbo');
     $strsearch  = get_string('search');
-    $strmail    = get_string('name', 'block_email_list');
+    $strmail    = get_string('name', 'block_binerbo');
 
     $defaultregion = $PAGE->blocks->get_default_region();
 
     $compose = $OUTPUT->single_button(
-            new moodle_url('/blocks/email_list/message.php',
+            new moodle_url('/blocks/binerbo/message.php',
                 array('course' => $courseid)),
-            get_string('newmail', 'block_email_list')
+            get_string('newmail', 'block_binerbo')
         );
     $compose = html_writer::tag('div', $compose, array('class' => 'text-center bg-danger'));
 
@@ -552,7 +552,7 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
 
     if ( $printsearchblock ) {
         // Print search block.
-        $form = email_get_search_form($courseid);
+        $form = binerbo_get_search_form($courseid);
 
         // Create the block content.
         $bc = new block_contents();
@@ -563,20 +563,20 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
     }
 
     // Print my folders.
-    email_print_tree_myfolders( $userid, $courseid );
+    binerbo_print_tree_myfolders( $userid, $courseid );
 
     // Get my course.
     $mycourses = enrol_get_my_courses();
 
     // Get courses.
-    $list = get_string('arenotenrolledanycourse', 'block_email_list');
+    $list = get_string('arenotenrolledanycourse', 'block_binerbo');
     $icons = '';
     foreach ($mycourses as $mycourse) {
 
         $context = get_context_instance(CONTEXT_COURSE, $mycourse->id);
 
         // Get the number of unread mails.
-        $numberunreadmails = email_count_unreaded_mails($USER->id, $mycourse->id);
+        $numberunreadmails = binerbo_count_unreaded_mails($USER->id, $mycourse->id);
         $unreadmails = '';
 
         // Only show if has unreaded mails.
@@ -584,11 +584,11 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
             $unreadmails = '<b>('.$numberunreadmails.')</b>';
             // Define default path of icon for course.
             $icon .= '<img src="' . $CFG->wwwroot .
-                '/blocks/email_list/email/images/openicon.gif" height="16" width="16" alt="' . $strcourse . '" />';
+                '/blocks/binerbo/email/images/openicon.gif" height="16" width="16" alt="' . $strcourse . '" />';
         } else {
             // Define default path of icon for course.
             $icon .= '<img src="' . $CFG->wwwroot .
-                '/blocks/email_list/email/icon.gif" height="16" width="16" alt="' . $strcourse . '" />';
+                '/blocks/binerbo/email/icon.gif" height="16" width="16" alt="' . $strcourse . '" />';
         }
 
         $linkcss = $mycourse->visible ? '' : ' class="dimmed" ';
@@ -597,7 +597,7 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
                 or !has_capability('moodle/legacy:student', $context, $USER->id, false)
                 or ( has_capability('moodle/legacy:student', $context, $USER->id, false) and $mycourse->visible) ) {
             $list .= '<a href="' . $CFG->wwwroot .
-                        '/blocks/email_list/email/index.php?id=' . $mycourse->id .
+                        '/blocks/binerbo/email/index.php?id=' . $mycourse->id .
                         '" ' . $linkcss . '>' . $mycourse->fullname . ' ' . $unreadmails . '</a>';
             $list .= $icon;
         }
@@ -618,22 +618,22 @@ function email_printblocks($userid, $courseid, $printsearchblock=true) {
  * @return Object Contain root parent folder
  * @todo Finish documenting this function
  */
-function email_get_parentfolder($folderid) {
+function binerbo_get_parentfolder($folderid) {
     global $DB;
 
     // Get parent for this child.
-    $parent = $DB->get_record('email_subfolder', array('folderchildid' => $folderid));
+    $parent = $DB->get_record('binerbo_subfolder', array('folderchildid' => $folderid));
 
     // If has parent.
     if ( $parent ) {
 
-        $folder = email_get_folder($parent->folderparentid);
+        $folder = binerbo_get_folder($parent->folderparentid);
 
         // While not find parent root, searching.
         while ( is_null($folder->isparenttype) ) {
             // Searching.
-            $parent = $DB->get_record('email_subfolder', array('folderchildid' => $folder->id));
-            $folder = email_get_folder($parent->folderparentid);
+            $parent = $DB->get_record('binerbo_subfolder', array('folderchildid' => $folder->id));
+            $folder = binerbo_get_folder($parent->folderparentid);
         }
 
         return $folder;
@@ -651,17 +651,17 @@ function email_get_parentfolder($folderid) {
  * @return string HTML search form
  * @todo Finish documenting this function
  */
-function email_get_search_form($courseid) {
+function binerbo_get_search_form($courseid) {
     global $CFG;
 
     $inputhidden = '<input type="hidden" name="courseid" value="' . $courseid . '" />';
 
-    $form = '<form method="post" name="searchform" action="' . $CFG->wwwroot . '/blocks/email_list/email/search.php">
+    $form = '<form method="post" name="searchform" action="' . $CFG->wwwroot . '/blocks/binerbo/email/search.php">
                     <table>
                         <tr>
                             <td>
                                 <input type="text" value="' .
-                                get_string('searchtext', 'block_email_list') . '" name="words" />
+                                get_string('searchtext', 'block_binerbo') . '" name="words" />
                             </td>
                         </tr>
                         <tr>
@@ -672,7 +672,7 @@ function email_get_search_form($courseid) {
                         </tr>
                         <tr valign="top">
                             <td align="center">
-                                <a href="'.$CFG->wwwroot.'/blocks/email_list/email/search.php?courseid=' .
+                                <a href="'.$CFG->wwwroot.'/blocks/binerbo/email/search.php?courseid=' .
                                 $courseid . '&amp;action=1">' . get_string('advancedsearch', 'search') . '</a>
                             </td>
                         </tr>
@@ -689,17 +689,17 @@ function email_get_search_form($courseid) {
  * @param boolean $nosenders No users choose (error log)
  * @todo Finish documenting this function
  */
-function email_print_users_to_send($users, $nosenders = false, $options = null) {
+function binerbo_print_users_to_send($users, $nosenders = false, $options = null) {
     global $CFG, $DB;
 
     $url = '';
     if ( $options ) {
-        $url = email_build_url($options);
+        $url = binerbo_build_url($options);
     }
 
     echo '<tr valign="middle">
         <td class="legendmail">
-            <b>' . get_string('for', 'block_email_list') . '
+            <b>' . get_string('for', 'block_binerbo') . '
                 :
             </b>
         </td>
@@ -727,12 +727,12 @@ function email_print_users_to_send($users, $nosenders = false, $options = null) 
 
     echo '</td><td class="extrabutton">';
 
-    link_to_popup_window('/blocks/email_list/email/participants.php?' .$url,
+    link_to_popup_window('/blocks/binerbo/email/participants.php?' .$url,
         'participants',
-        get_string('participants', 'block_email_list') . ' ...',
+        get_string('participants', 'block_binerbo') . ' ...',
         470,
         520,
-        get_string('participants', 'block_email_list')
+        get_string('participants', 'block_binerbo')
     );
 
     echo '</td></tr>';
@@ -758,11 +758,11 @@ function email_print_users_to_send($users, $nosenders = false, $options = null) 
  * @return Array Users to sending mail.
  * @todo Finish documenting this function
  */
-function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
+function binerbo_choose_users_to_send($courseid, $roleid, $currentgroup) {
     global $CFG, $USER, $DB;
 
     if ( !$course = $DB->get_record('course', array('id' => $courseid)) ) {
-        print_error('invalidcourseid', 'block_email_list');
+        print_error('invalidcourseid', 'block_binerbo');
     }
 
     // Prepare users to choose us.
@@ -791,7 +791,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
             $canviewroles    = get_roles_with_capability('moodle/course:view', CAP_ALLOW, $context);
             $doanythingroles = get_roles_with_capability('moodle/site:doanything', CAP_ALLOW, $sitecontext);
 
-            if ( ! $CFG->email_add_admins ) {
+            if ( ! $CFG->binerbo_add_admins ) {
                 $adminsroles = get_roles_with_capability('moodle/legacy:admin', CAP_ALLOW, $sitecontext);
             }
 
@@ -807,7 +807,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
                     continue;
                 }
 
-                if ( !$CFG->email_add_admins ) {
+                if ( !$CFG->binerbo_add_admins ) {
                     if (isset($adminsroles[$role->id])) {   // Avoid this role (ie admin).
                         $avoidroles[] = $role->id;
                         unset($roles[$role->id]);
@@ -893,7 +893,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
                 $where .= ' AND gm.groupid IN (' . implode(',', $currentgroup) . ') ';
             } else {
                 if ($currentgroup == 0) {
-                    if ( !has_capability('block/email_list:viewallgroups', $context) && $COURSE->groupmode == 1 ) {
+                    if ( !has_capability('block/binerbo:viewallgroups', $context) && $COURSE->groupmode == 1 ) {
                         $groupids = groups_get_groups_for_user($USER->id, $COURSE->id);
                         $where .= 'AND gm.groupid IN ('.implode(',', $groupids).')';
                     }
@@ -920,7 +920,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
             echo '<div class="rolesform">';
             echo get_string('currentrole', 'role') . ': ';
             $rolenames = array(0 => get_string('all')) + $rolenames;
-            popup_form("$CFG->wwwroot/blocks/email_list/email/
+            popup_form("$CFG->wwwroot/blocks/binerbo/email/
                 participants.php?id=$courseid&amp;
                 group=$currentgroup&amp;
                 contextid=$context->id&amp;roleid=", $rolenames,
@@ -930,32 +930,32 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
 
         // Prints group selector for users with a viewallgroups capability if course groupmode is separate.
         echo '<br />';
-        groups_print_course_menu($course, $CFG->wwwroot.'/blocks/email_list/email/participants.php?id=' . $course->id);
+        groups_print_course_menu($course, $CFG->wwwroot.'/blocks/binerbo/email/participants.php?id=' . $course->id);
         echo '<br /><br />';
     }
 
     // Prepare tags.
-    $straddusersto  = get_string('addusersto', 'block_email_list');
-    $stradduserscc = get_string('cc', 'block_email_list');
-    $straddusersbcc = get_string('bcc', 'block_email_list');
+    $straddusersto  = get_string('addusersto', 'block_binerbo');
+    $stradduserscc = get_string('cc', 'block_binerbo');
+    $straddusersbcc = get_string('bcc', 'block_binerbo');
     $stradd = get_string('ok');
-    $strto = get_string('to', 'block_email_list');
-    $strcc = get_string('cc', 'block_email_list');
-    $strbcc = get_string('bcc', 'block_email_list');
-    $strselectedusersremove = get_string('selectedusersremove', 'block_email_list');
-    $straction = get_string('selectaction', 'block_email_list');
+    $strto = get_string('to', 'block_binerbo');
+    $strcc = get_string('cc', 'block_binerbo');
+    $strbcc = get_string('bcc', 'block_binerbo');
+    $strselectedusersremove = get_string('selectedusersremove', 'block_binerbo');
+    $straction = get_string('selectaction', 'block_binerbo');
     $strcancel = get_string('cancel');
 
     // Create an object for define parametrer.
     $options = new stdClass();
     $options->id = $courseid;
     // Prepare url.
-    $toform = email_build_url($options, true);
+    $toform = binerbo_build_url($options, true);
 
-    $url = $CFG->wwwroot . '/blocks/email_list/message.php';
+    $url = $CFG->wwwroot . '/blocks/binerbo/message.php';
 
     if ( $options ) {
-        $urlhtml = email_build_url($options);
+        $urlhtml = binerbo_build_url($options);
     }
 
     include_once('participants.html');
@@ -969,7 +969,7 @@ function email_choose_users_to_send($courseid, $roleid, $currentgroup) {
  * @return boolean True or false if barn contains needle
  * @todo Finish documenting this function
  */
-function email_contains($needle, $barn) {
+function binerbo_contains($needle, $barn) {
 
     // If not empty.
     if ( !empty($barn) ) {
@@ -992,12 +992,12 @@ function email_contains($needle, $barn) {
  * @return string Default line
  * @todo Finish documenting this function
  */
-function email_make_default_line_replyforward($user, $date, $override = false) {
+function binerbo_make_default_line_replyforward($user, $date, $override = false) {
 
-    $line = get_string('on', 'block_email_list') .
+    $line = get_string('on', 'block_binerbo') .
                 ' ' . userdate($date) .
                 ', ' . fullname($user, $override) .
-                ' ' . get_string('wrote', 'block_email_list') .
+                ' ' . get_string('wrote', 'block_binerbo') .
                 ': <br />'."\n";
 
     return $line;
@@ -1013,14 +1013,14 @@ function email_make_default_line_replyforward($user, $date, $override = false) {
  * @return array Folders contains mail
  * @todo Finish documenting this function
  */
-function email_get_foldermail($mailid, $userid) {
+function binerbo_get_foldermail($mailid, $userid) {
 
     global $CFG, $DB;
 
     // Prepare select.
     $sql = "SELECT f.id, f.name, fm.id as foldermail
-                   FROM {email_folder} f
-                   INNER JOIN {email_foldermail} fm ON f.id = fm.folderid
+                   FROM {binerbo_folder} f
+                   INNER JOIN {binerbo_foldermail} fm ON f.id = fm.folderid
                    WHERE fm.mailid = $mailid
                    AND f.userid = $userid
                    ORDER BY f.timecreated";
@@ -1037,10 +1037,10 @@ function email_get_foldermail($mailid, $userid) {
  * @return object Contain reference
  * @todo Finish documenting this function
  */
-function email_get_reference2foldermail($mailid, $folderid) {
+function binerbo_get_reference2foldermail($mailid, $folderid) {
     global $DB;
 
-    return $DB->get_record('email_foldermail', array('mailid' => $mailid, 'folderid' => $folderid));
+    return $DB->get_record('binerbo_foldermail', array('mailid' => $mailid, 'folderid' => $folderid));
 
 }
 
@@ -1053,16 +1053,16 @@ function email_get_reference2foldermail($mailid, $folderid) {
  * @return boolean Success/Fail
  * @todo Finish documenting this function
  */
-function email_move2folder($mailid, $foldermailid, $folderidnew) {
+function binerbo_move2folder($mailid, $foldermailid, $folderidnew) {
     global $DB;
 
-    if ( $DB->record_exists('email_folder', 'id', $folderidnew) ) {
+    if ( $DB->record_exists('binerbo_folder', 'id', $folderidnew) ) {
 
         // Folder have exist in this new folder?.
-        if ( !$DB->get_record('email_foldermail', array('mailid' => $mailid, 'folderid' => $folderidnew)) ) {
+        if ( !$DB->get_record('binerbo_foldermail', array('mailid' => $mailid, 'folderid' => $folderidnew)) ) {
 
             // Change folder reference to mail.
-            $set = $DB->set_field('email_foldermail',
+            $set = $DB->set_field('binerbo_foldermail',
                 array('folderid' => $folderidnew,
                     'id' => $foldermailid,
                     'mailid' => $mailid)
@@ -1071,7 +1071,7 @@ function email_move2folder($mailid, $foldermailid, $folderidnew) {
                 return false;
             }
         } else {
-            if ( !$DB->delete_records('email_foldermail', array('id' => $foldermailid)) ) {
+            if ( !$DB->delete_records('binerbo_foldermail', array('id' => $foldermailid)) ) {
                 return false;
             }
         }
@@ -1088,7 +1088,7 @@ function email_move2folder($mailid, $foldermailid, $folderidnew) {
  * @return boolean Success/Fail
  * @todo Finish documenting this function
  */
-function email_newfolderform() {
+function binerbo_newfolderform() {
     include_once('folder.php');
 
     return true;
@@ -1102,7 +1102,7 @@ function email_newfolderform() {
  * @return boolean Success/Fail
  * @todo Finish documenting this function
  */
-function email_newfolder($folder, $parentfolder) {
+function binerbo_newfolder($folder, $parentfolder) {
     global $DB;
 
     // Add actual time.
@@ -1114,7 +1114,7 @@ function email_newfolder($folder, $parentfolder) {
     }
 
     // Insert record.
-    if ( !$folder->id = $DB->insert_record('email_folder', $folder) ) {
+    if ( !$folder->id = $DB->insert_record('binerbo_folder', $folder) ) {
         return false;
     }
 
@@ -1124,7 +1124,7 @@ function email_newfolder($folder, $parentfolder) {
     $subfolder->folderchildid  = $folder->id;
 
     // Insert record reference.
-    if ( !$DB->insert_record('email_subfolder', $subfolder) ) {
+    if ( !$DB->insert_record('binerbo_subfolder', $subfolder) ) {
         return false;
     }
 
@@ -1141,10 +1141,10 @@ function email_newfolder($folder, $parentfolder) {
  * @return object Object contain all folders
  * @todo Finish documenting this function
  */
-function email_get_folders($userid, $sort = 'id') {
+function binerbo_get_folders($userid, $sort = 'id') {
     global $DB;
 
-    return $DB->get_records('email_folder', array('userid' => $userid), $sort);
+    return $DB->get_records('binerbo_folder', array('userid' => $userid), $sort);
 }
 
 /**
@@ -1156,76 +1156,76 @@ function email_get_folders($userid, $sort = 'id') {
  * @return boolean Success/Fail
  * @todo Finish documenting this function
  */
-function email_removefolder($folderid, $options) {
+function binerbo_removefolder($folderid, $options) {
     global $CFG, $DB;
 
     // Check if this folder have subfolders.
-    if ( $DB->get_record('email_subfolder', array('folderparentid' => $folderid)) ) {
+    if ( $DB->get_record('binerbo_subfolder', array('folderparentid' => $folderid)) ) {
         // This folder is parent of other/s folders. Don't remove this.
         // Notify.
         redirect($CFG->wwwroot .
-            '/blocks/email_list/email/view.php?id=' . $options->id .
+            '/blocks/binerbo/email/view.php?id=' . $options->id .
             '&amp;action=viewmails',
-            '<div class="notifyproblem">' . get_string('havesubfolders', 'block_email_list') . '</div>'
+            '<div class="notifyproblem">' . get_string('havesubfolders', 'block_binerbo') . '</div>'
         );
     }
 
     // Get folder.
-    if ($folders = $DB->get_records('email_folder', array('id' => $folderid)) ) {
+    if ($folders = $DB->get_records('binerbo_folder', array('id' => $folderid)) ) {
 
         // For all folders.
         foreach ($folders as $folder) {
 
             // Before removing references to foldermail, move this mails to root folder parent.
-            if ($foldermails = $DB->get_records('email_foldermail', array('folderid' => $folder->id)) ) {
+            if ($foldermails = $DB->get_records('binerbo_foldermail', array('folderid' => $folder->id)) ) {
 
                 // Move mails.
                 foreach ($foldermails as $foldermail) {
                     // Get folder.
-                    if ( $folder = email_get_folder($foldermail->folderid) ) {
+                    if ( $folder = binerbo_get_folder($foldermail->folderid) ) {
                         // Get root folder parent.
-                        if ( $parent = email_get_parentfolder($foldermail->folderid) ) {
+                        if ( $parent = binerbo_get_parentfolder($foldermail->folderid) ) {
                             // Assign mails it.
-                            email_move2folder($foldermail->mailid, $foldermail->id, $parent->id);
+                            binerbo_move2folder($foldermail->mailid, $foldermail->id, $parent->id);
                         } else {
-                            print_error('failgetparentfolder', 'block_email_list');
+                            print_error('failgetparentfolder', 'block_binerbo');
                         }
                     } else {
-                        print_error('failreferencemailfolder', 'block_email_list');
+                        print_error('failreferencemailfolder', 'block_binerbo');
                     }
                 }
             }
 
             // Delete all subfolders of this.
-            if ( !$DB->delete_records('email_subfolder', 'folderparentid', $folder->id) ) {
+            if ( !$DB->delete_records('binerbo_subfolder', 'folderparentid', $folder->id) ) {
                 return false;
             }
 
             // Delete all subfolders of this.
-            if ( !$DB->delete_records('email_subfolder', 'folderchildid', $folder->id) ) {
+            if ( !$DB->delete_records('binerbo_subfolder', 'folderchildid', $folder->id) ) {
                 return false;
             }
 
             // Delete all filters of this.
-            if ( !$DB->delete_records('email_filter', 'folderid', $folder->id) ) {
+            if ( !$DB->delete_records('binerbo_filter', 'folderid', $folder->id) ) {
                 return false;
             }
 
             // Delete all foldermail references.
-            if ( !$DB->delete_records('email_foldermail', 'folderid', $folder->id) ) {
+            if ( !$DB->delete_records('binerbo_foldermail', 'folderid', $folder->id) ) {
                 return false;
             }
         }
 
         // Delete all folders.
-        if ( !$DB->delete_records('email_folder', 'id', $folderid) ) {
+        if ( !$DB->delete_records('binerbo_folder', 'id', $folderid) ) {
             return false;
         }
     }
 
     add_to_log($folderid, "email", "remove subfolder", "$folderid");
 
-    notify(get_string('removefolderok', 'block_email_list'));
+    notify(get_string('removefolderok', 'block_binerbo'));
 
     return true;
 }
@@ -1235,16 +1235,16 @@ function email_removefolder($folderid, $options) {
  *
  * @todo Finish documenting this function
  */
-function email_print_administration_folders($options) {
+function binerbo_print_administration_folders($options) {
     global $CFG, $USER, $DB;
 
     echo '<form method="post" name="folderform" action="' .
-            $CFG->wwwroot . '/blocks/email_list/email/folder.php?id=' .
+            $CFG->wwwroot . '/blocks/binerbo/email/folder.php?id=' .
             $options->id . '&amp;action=none"><table align="center"><tr><td>';
 
-    print_heading(get_string('editfolder', 'block_email_list'));
+    print_heading(get_string('editfolder', 'block_binerbo'));
 
-    if ( $folders = email_get_root_folders($USER->id, false) ) {
+    if ( $folders = binerbo_get_root_folders($USER->id, false) ) {
 
         $course = $DB->get_record('course', array('id' => $options->course));
 
@@ -1256,15 +1256,15 @@ function email_print_administration_folders($options) {
         // Get courses.
         foreach ($folders as $folder) {
             // Trash folder is not showing.
-            if ( !\block_email_list\label::is_type($folder, EMAIL_TRASH) ) {
+            if ( !\block_binerbo\label::is_type($folder, EMAIL_TRASH) ) {
                 echo '<li>'.$folder->name.'</li>';
 
                 // Now, print all subfolders it.
-                $subfolders = \block_email_list\label::get_sublabels($folder->id, null, true);
+                $subfolders = \block_binerbo\label::get_sublabels($folder->id, null, true);
 
                 // If subfolders.
                 if ( $subfolders ) {
-                    email_print_subfolders($subfolders, $USER->id, $options->course, true, true);
+                    binerbo_print_subfolders($subfolders, $USER->id, $options->course, true, true);
                     $hassubfolders = true;
                 }
             }
@@ -1283,22 +1283,22 @@ function email_print_administration_folders($options) {
  * @return object/boolean Return subfolder or false if it isn't subfolder
  * @todo Finish documenting this function
  */
-function email_is_subfolder($folderid) {
+function binerbo_is_subfolder($folderid) {
     global $DB;
 
-    return $DB->get_record('email_subfolder', array('folderchildid' => $folderid));
+    return $DB->get_record('binerbo_subfolder', array('folderchildid' => $folderid));
 }
 
-function email_createfilter($folderid) {
+function binerbo_createfilter($folderid) {
     notice();
     return true;
 }
 
-function email_modityfilter($filterid) {
+function binerbo_modityfilter($filterid) {
     return true;
 }
 
-function email_removefilter($filterid) {
+function binerbo_removefilter($filterid) {
     return true;
 }
 
@@ -1314,19 +1314,19 @@ function email_removefilter($filterid) {
  * @return boolean Success/Fail
  * @todo Finish documenting this function
  */
-function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=null, $search=false, $mailssearch=null) {
+function binerbo_showmails($userid, $order = '', $page=0, $perpage=10, $options=null, $search=false, $mailssearch=null) {
     global $CFG, $COURSE, $SESSION, $DB, $OUTPUT;
 
     // CONTRIB-690.
     if ( !empty( $_POST['perpage'] ) and is_numeric($_POST['perpage']) ) {
-        $SESSION->email_mailsperpage = $_POST['perpage'];
-    } else if ( !isset($SESSION->email_mailsperpage) or empty($SESSION->email_mailsperpage) ) {
-        $SESSION->email_mailsperpage = 10; // Default value.
+        $SESSION->binerbo_mailsperpage = $_POST['perpage'];
+    } else if ( !isset($SESSION->binerbo_mailsperpage) or empty($SESSION->binerbo_mailsperpage) ) {
+        $SESSION->binerbo_mailsperpage = 10; // Default value.
     }
 
     // Get actual course.
     if ( !$course = $DB->get_record('course', array('id' => $COURSE->id)) ) {
-        print_error('invalidcourseid', 'block_email_list');
+        print_error('invalidcourseid', 'block_binerbo');
     }
 
     if ($course->id == SITEID) {
@@ -1338,18 +1338,18 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
     $url = '';
     // Build url part options.
     if ($options) {
-        $url = email_build_url($options);
+        $url = binerbo_build_url($options);
     }
 
     // Print all mails in this HTML file.
 
     // Should use this variable so that we don't break stuff every time a variable is added or changed.
-    $baseurl = $CFG->wwwroot . '/blocks/email_list/email/index.php?' . $url .
+    $baseurl = $CFG->wwwroot . '/blocks/binerbo/email/index.php?' . $url .
         '&amp;page=' . $page . '&amp;perpage=' . $perpage;
 
     // Print init form from send data.
     echo '<form id="sendmail" action="' . $CFG->wwwroot .
-        '/blocks/email_list/email/index.php?id=' . $course->id .
+        '/blocks/binerbo/email/index.php?id=' . $course->id .
         '&amp;folderid=' . $options->folderid . '" method="post" name="sendmail">';
 
     if ( $course->id == SITEID ) {
@@ -1362,41 +1362,41 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
     if ( isset( $options->folderid) ) {
         if ( $options->folderid != 0 ) {
             // Get folder.
-            $folder = \block_email_list\label::get($options->folderid);
+            $folder = \block_binerbo\label::get($options->folderid);
         } else {
             // Solve problem with select an x mails per page for maintein in this folder.
             if ( isset($options->folderoldid) && $options->folderoldid != 0 ) {
                 $options->folderid = $options->folderoldid;
-                $folder = \block_email_list\label::get($options->folderid);
+                $folder = \block_binerbo\label::get($options->folderid);
             }
         }
     }
 
     // If actual folder is inbox type, ... change tag showing.
     if ( $folder ) {
-        if ( ( \block_email_list\label::is_type($folder, EMAIL_INBOX) ) ) {
-            $strto = get_string('from', 'block_email_list');
+        if ( ( \block_binerbo\label::is_type($folder, EMAIL_INBOX) ) ) {
+            $strto = get_string('from', 'block_binerbo');
         } else {
-            $strto = get_string('to', 'block_email_list');
+            $strto = get_string('to', 'block_binerbo');
         }
     } else {
-        $strto = get_string('from', 'block_email_list');
+        $strto = get_string('from', 'block_binerbo');
     }
 
     if ( $course->id == SITEID ) {
         $tableheaders = array('',
                             '',
                             get_string('course'),
-                            get_string('subject', 'block_email_list'),
+                            get_string('subject', 'block_binerbo'),
                             $strto,
-                            get_string('date', 'block_email_list')
+                            get_string('date', 'block_binerbo')
         );
     } else {
         $tableheaders = array('',
                              '',
-                             get_string('subject', 'block_email_list'),
+                             get_string('subject', 'block_binerbo'),
                              $strto,
-                             get_string('date', 'block_email_list')
+                             get_string('date', 'block_binerbo')
         );
     }
 
@@ -1410,7 +1410,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
     // When no search.
     if ( !$search ) {
         // Get mails.
-        $mails = \block_email_list\email::get_user_mails($userid, $course->id, null, '', '', $options);
+        $mails = \block_binerbo\email::get_user_mails($userid, $course->id, null, '', '', $options);
     } else {
         $mails = $mailssearch;
     }
@@ -1422,7 +1422,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
     // Now, re-getting emails, apply pagesize (limit).
     if ( !$search) {
         // Get mails.
-        $mails = \block_email_list\email::get_user_mails($userid,
+        $mails = \block_binerbo\email::get_user_mails($userid,
             $course->id,
             null,
             null,
@@ -1435,48 +1435,48 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
         $mails = array();
     }
 
-    $mailsids = email_get_ids($mails);
+    $mailsids = binerbo_get_ids($mails);
 
     // Print all rows.
     foreach ($mails as $mail) {
         $attribute = array();
-        $email = new \block_email_list\email();
+        $email = new \block_binerbo\email();
         $email->set_email($mail);
 
         if ( $folder ) {
-            if ( \block_email_list\label::is_type($folder, EMAIL_SENDBOX) ) {
+            if ( \block_binerbo\label::is_type($folder, EMAIL_SENDBOX) ) {
                 $struser = $email->get_users_send(has_capability('moodle/site:viewfullnames', $coursecontext));
-            } else if ( \block_email_list\label::is_type($folder, EMAIL_INBOX) ) {
+            } else if ( \block_binerbo\label::is_type($folder, EMAIL_INBOX) ) {
 
                 $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
                 if ( !$email->is_readed($userid, $mail->course) ) {
-                    $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                    $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                 }
-            } else if ( \block_email_list\label::is_type($folder, EMAIL_TRASH) ) {
+            } else if ( \block_binerbo\label::is_type($folder, EMAIL_TRASH) ) {
                 $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                 if ( !$email->is_readed($userid, $mail->course) ) {
-                    $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                    $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                 }
-            } else if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
+            } else if ( \block_binerbo\label::is_type($folder, EMAIL_DRAFT) ) {
 
                 $struser = $email->get_users_send(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                 if ( !$email->is_readed($userid, $mail->course) ) {
-                    $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                    $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                 }
             } else {
                 $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
 
                 if ( !$email->is_readed($userid, $mail->course) ) {
-                    $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                    $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
                 }
             }
         } else {
             // Format user's.
             $struser = $email->get_fullname_writer(has_capability('moodle/site:viewfullnames', $coursecontext));
             if ( !$email->is_readed($userid, $mail->course) ) {
-                $attribute = array( 'bgcolor' => $CFG->email_table_field_color);
+                $attribute = array( 'bgcolor' => $CFG->binerbo_table_field_color);
             }
         }
 
@@ -1484,21 +1484,21 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
             $options->folderid = 0;
         }
 
-        if ( \block_email_list\label::is_type($folder, EMAIL_DRAFT) ) {
+        if ( \block_binerbo\label::is_type($folder, EMAIL_DRAFT) ) {
             $urltosent = '<a href="' . $CFG->wwwroot .
-                '/blocks/email_list/message.php?id=' . $mail->id .
+                '/blocks/binerbo/message.php?id=' . $mail->id .
                 '&amp;action=' . EMAIL_EDITDRAFT . '&amp;course=' . $course->id .
                 '">' . $mail->subject . '</a>';
         } else {
             if ( $course->id == SITEID ) {
                 $urltosent = '<a href="' . $CFG->wwwroot .
-                    '/blocks/email_list/email/view.php?id=' . $mail->id .
+                    '/blocks/binerbo/email/view.php?id=' . $mail->id .
                     '&amp;action=' . EMAIL_VIEWMAIL . '&amp;course=' . $mail->course .
                     '&amp;folderid=' . $options->folderid . '&amp;mails=' . $mailsids . '">' .
                     $mail->subject . '</a>';
             } else {
                 $urltosent = '<a href="' . $CFG->wwwroot .
-                    '/blocks/email_list/email/view.php?id=' . $mail->id .
+                    '/blocks/binerbo/email/view.php?id=' . $mail->id .
                     '&amp;action=' . EMAIL_VIEWMAIL . '&amp;course=' .$course->id .
                     '&amp;folderid=' . $options->folderid . '&amp;mails=' . $mailsids . '">' .
                     $mail->subject . '</a>';
@@ -1507,12 +1507,12 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
 
         $attachment = '';
         if ( $email->has_attachments() ) {
-            $attachment = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/clip.gif" alt="attachment" /> ';
+            $attachment = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/clip.gif" alt="attachment" /> ';
         }
 
-        $newemailicon = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/icon.gif" alt="this email was read" /> ';
+        $newemailicon = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/icon.gif" alt="this email was read" /> ';
         if ( $email->is_readed($userid, $mail->course) ) {
-            $newemailicon = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/openicon.gif" alt="new email" /> ';
+            $newemailicon = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/openicon.gif" alt="new email" /> ';
         }
 
         // Display diferent color if mail is reply or reply all.
@@ -1520,15 +1520,15 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
         if ( $email->is_answered($userid, $course->id) ) {
             // Color td.
             unset($attribute);
-            $attribute = array('bgcolor' => $CFG->email_answered_color);
+            $attribute = array('bgcolor' => $CFG->binerbo_answered_color);
 
             // Adding info img.
-            $extraimginfo = '<img src="'.$CFG->wwwroot.'/blocks/email_list/email/images/answered.gif" alt="" /> ';
+            $extraimginfo = '<img src="'.$CFG->wwwroot.'/blocks/binerbo/email/images/answered.gif" alt="" /> ';
 
         }
 
         if ( !$coursemail = $DB->get_record('course', array('id' => $mail->course)) ) {
-            print_error('invalidcourseid', 'block_email_list');
+            print_error('invalidcourseid', 'block_binerbo');
         }
 
         if ( $course->id == SITEID ) {
@@ -1558,7 +1558,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
 
     // Print select action, if have mails.
     if ( $mails ) {
-        email_print_select_options($options, $SESSION->email_mailsperpage);
+        binerbo_print_select_options($options, $SESSION->binerbo_mailsperpage);
     }
 
     // End form.
@@ -1577,7 +1577,7 @@ function email_showmails($userid, $order = '', $page=0, $perpage=10, $options=nu
  * @return boolean Success/Fail
  * @todo Finish documenting this function
  */
-function email_print_tabs_options($courseid, $folderid, $action=null) {
+function binerbo_print_tabs_options($courseid, $folderid, $action=null) {
     global $CFG, $OUTPUT;
 
     if ($courseid == SITEID) {
@@ -1590,19 +1590,19 @@ function email_print_tabs_options($courseid, $folderid, $action=null) {
     $tabrow = array();
 
     // Tab for writting new email.
-    if ( has_capability('block/email_list:sendmessage', $context)) {
+    if ( has_capability('block/binerbo:sendmessage', $context)) {
         $tabrow[] = new tabobject('newmail',
-            new moodle_url('/blocks/email_list/message.php', 
+            new moodle_url('/blocks/binerbo/message.php', 
                 array('course' => $courseid, 'folderid' => $folderid)),
-            get_string('newmail', 'block_email_list')
+            get_string('newmail', 'block_binerbo')
         );
     }
 
-    if ( has_capability('block/email_list:createlabel', $context)) {
+    if ( has_capability('block/binerbo:createlabel', $context)) {
         $tabrow[] = new tabobject('newfolderform',
-            new moodle_url('/blocks/email_list/email/folder.php',
+            new moodle_url('/blocks/binerbo/email/folder.php',
                 array('course' => $courseid, 'folderid' => $folderid)),
-            get_string('newfolderform', 'block_email_list')
+            get_string('newfolderform', 'block_binerbo')
         );
     }
 
@@ -1644,14 +1644,14 @@ function email_print_tabs_options($courseid, $folderid, $action=null) {
  * @return object Contain all write mails
  * @todo Finish documenting this function
  */
-function email_get_my_writemails($userid, $order = null) {
+function binerbo_get_my_writemails($userid, $order = null) {
     global $DB;
 
     // Get my write mails.
     if ($order) {
-        $mails = $DB->get_records('email_mail', array('userid' => $userid), $order);
+        $mails = $DB->get_records('binerbo_mail', array('userid' => $userid), $order);
     } else {
-        $mails = $DB->get_records('email_mail', array('userid' => $userid));
+        $mails = $DB->get_records('binerbo_mail', array('userid' => $userid));
     }
 
     return $mails;
@@ -1664,7 +1664,7 @@ function email_get_my_writemails($userid, $order = null) {
  * @return object Contain parent folder
  * @todo Finish documenting this function
  */
-function email_get_parent_folder($folder) {
+function binerbo_get_parent_folder($folder) {
     global $DB;
 
     if ( !$folder ) {
@@ -1672,16 +1672,16 @@ function email_get_parent_folder($folder) {
     }
 
     if ( is_int($folder) ) {
-        if ( !$subfolder = $DB->get_record('email_subfolder', array('folderchildid' => $folder)) ) {
+        if ( !$subfolder = $DB->get_record('binerbo_subfolder', array('folderchildid' => $folder)) ) {
             return false;
         }
     } else {
-        if ( !$subfolder = $DB->get_record('email_subfolder', array('folderchildid' => $folder->id)) ) {
+        if ( !$subfolder = $DB->get_record('binerbo_subfolder', array('folderchildid' => $folder->id)) ) {
             return false;
         }
     }
 
-    return $DB->get_record('email_folder', array('id' => $subfolder->folderparentid));
+    return $DB->get_record('binerbo_folder', array('id' => $subfolder->folderparentid));
 
 }
 
@@ -1689,15 +1689,15 @@ function email_get_parent_folder($folder) {
  * This function return my folders. it's recursive function.
  *
  */
-function email_my_folders($folderid, $courseid, $myfolders, $space) {
+function binerbo_my_folders($folderid, $courseid, $myfolders, $space) {
 
     $space .= '&#160;&#160;&#160;';
 
-    $folders = \block_email_list\label::get_sublabels($folderid, $courseid);
+    $folders = \block_binerbo\label::get_sublabels($folderid, $courseid);
     if ( $folders ) {
         foreach ($folders as $folder) {
             $myfolders[$folder->id] = $space.$folder->name;
-            $myfolders = email_my_folders($folder->id, $courseid, $myfolders, $space);
+            $myfolders = binerbo_my_folders($folder->id, $courseid, $myfolders, $space);
         }
     }
     return $myfolders;
@@ -1715,17 +1715,17 @@ function email_my_folders($folderid, $courseid, $myfolders, $space) {
  * @return array Contain my folders
  * @todo Finish documenting this function
  */
-function email_get_my_folders($userid, $courseid, $excludetrash, $excludedraft, $excludesendbox=false, $excludeinbox=false) {
+function binerbo_get_my_folders($userid, $courseid, $excludetrash, $excludedraft, $excludesendbox=false, $excludeinbox=false) {
     // Save my folders in this variable.
     $myfolders = array();
 
     // Get especific root folders.
-    $folders = email_get_root_folders($userid, !$excludedraft, !$excludetrash, !$excludesendbox, !$excludeinbox);
+    $folders = binerbo_get_root_folders($userid, !$excludedraft, !$excludetrash, !$excludesendbox, !$excludeinbox);
 
     // For every root folder.
     foreach ($folders as $folder) {
         $myfolders[$folder->id] = $folder->name;
-        $myfolders = email_my_folders($folder->id, $courseid, $myfolders, '&#160;&#160;&#160;');
+        $myfolders = binerbo_my_folders($folder->id, $courseid, $myfolders, '&#160;&#160;&#160;');
     }
 
     return $myfolders;
@@ -1742,28 +1742,28 @@ function email_get_my_folders($userid, $courseid, $excludetrash, $excludedraft, 
  * @return array Contain all parents folders
  * @todo Finish documenting this function
  */
-function email_get_root_folders($userid, $draft=true, $trash=true, $sendbox=true, $inbox=true) {
-    \block_email_list\label::create_parents($userid);
+function binerbo_get_root_folders($userid, $draft=true, $trash=true, $sendbox=true, $inbox=true) {
+    \block_binerbo\label::create_parents($userid);
 
     $folders = array();
 
     // Include inbox folder.
     if ( $inbox ) {
-        $folders[] = \block_email_list\label::get_root($userid, EMAIL_INBOX);
+        $folders[] = \block_binerbo\label::get_root($userid, EMAIL_INBOX);
     }
 
     // Include return draft folder.
     if ( $draft ) {
-        $folders[] = \block_email_list\label::get_root($userid, EMAIL_DRAFT);
+        $folders[] = \block_binerbo\label::get_root($userid, EMAIL_DRAFT);
     }
 
     // Include sendbox folder.
     if ( $sendbox ) {
-        $folders[] = \block_email_list\label::get_root($userid, EMAIL_SENDBOX);
+        $folders[] = \block_binerbo\label::get_root($userid, EMAIL_SENDBOX);
     }
 
     if ( $trash ) {
-        $folders[] = \block_email_list\label::get_root($userid, EMAIL_TRASH);
+        $folders[] = \block_binerbo\label::get_root($userid, EMAIL_TRASH);
     }
 
     return $folders;
@@ -1779,11 +1779,11 @@ function email_get_root_folders($userid, $draft=true, $trash=true, $sendbox=true
  * @return object Contain all users object send mails
  * @todo Finish documenting this function
  */
-function email_get_users_sent($mailid, $forreplyall=false, $writer=null, $type='') {
+function binerbo_get_users_sent($mailid, $forreplyall=false, $writer=null, $type='') {
     global $DB;
 
     // Get mails with send to my.
-    if (! $sends = $DB->get_records('email_send', array('mailid' => $mailid)) ) {
+    if (! $sends = $DB->get_records('binerbo_sent', array('mailid' => $mailid)) ) {
         return false;
     }
 
@@ -1872,7 +1872,7 @@ function email_get_users_sent($mailid, $forreplyall=false, $writer=null, $type='
  * @return string format fullname user's.
  * @todo Finish documenting this function
  */
-function email_format_users($users, $forreplyall=false) {
+function binerbo_format_users($users, $forreplyall=false) {
     if ($users) {
         $usersend = '';
 
@@ -1894,7 +1894,7 @@ function email_format_users($users, $forreplyall=false) {
     } else {
         if ( !$forreplyall ) {
             // If no users sent's, inform this act.
-            $usersend = get_string('neverusers', 'block_email_list');
+            $usersend = get_string('neverusers', 'block_binerbo');
         } else {
             $usersend = '';
         }
@@ -1912,10 +1912,10 @@ function email_format_users($users, $forreplyall=false) {
  * @return boolean Success/Fail
  * @todo Finish documenting this function
  */
-function email_print_select_options($options, $perpage) {
+function binerbo_print_select_options($options, $perpage) {
     global $CFG, $USER;
 
-    $baseurl = $CFG->wwwroot . '/blocks/email_list/email/index.php?' . email_build_url($options);
+    $baseurl = $CFG->wwwroot . '/blocks/binerbo/email/index.php?' . binerbo_build_url($options);
 
     echo '<br />';
 
@@ -1923,20 +1923,20 @@ function email_print_select_options($options, $perpage) {
 
     if ( $options->id != SITEID ) {
         echo '<div class="emailfloat emailleft">';
-        if ( ! \block_email_list\label::is_type(email_get_folder($options->folderid), EMAIL_SENDBOX) ) {
+        if ( ! \block_binerbo\label::is_type(binerbo_get_folder($options->folderid), EMAIL_SENDBOX) ) {
             echo '<select name="action" onchange="this.form.submit()">
-                            <option value="" selected="selected">' . get_string('markas', 'block_email_list') .':</option>
-                            <option value="toread">' . get_string('toread', 'block_email_list') . '</option>
-                        <option value="tounread">' . get_string('tounread', 'block_email_list') . '</option>
+                            <option value="" selected="selected">' . get_string('markas', 'block_binerbo') .':</option>
+                            <option value="toread">' . get_string('toread', 'block_binerbo') . '</option>
+                        <option value="tounread">' . get_string('tounread', 'block_binerbo') . '</option>
                     </select>';
 
             print_spacer(1, 20, false);
         }
         echo '</div>';
         echo '<div class="emailleft">';
-        email_print_movefolder_button($options);
+        binerbo_print_movefolder_button($options);
         // Idaho State University & MoodleRooms contrib - Thanks!.
-        email_print_preview_button($options->id);
+        binerbo_print_preview_button($options->id);
         echo '</div>';
         echo '<div id="move2folder"></div>';
         echo '</div>';
@@ -1946,15 +1946,15 @@ function email_print_select_options($options, $perpage) {
     $url = '';
     // Build url part options.
     if ($options) {
-        $url = email_build_url($options);
+        $url = binerbo_build_url($options);
     }
 
     echo '</form>';
     echo '<form id="mailsperpage" name="mailsperpage" action="' .
-            $CFG->wwwroot . '/blocks/email_list/email/index.php?' . $url . '" method="post">';
+            $CFG->wwwroot . '/blocks/binerbo/email/index.php?' . $url . '" method="post">';
 
     // Choose number mails perpage.
-    echo '<div id="sizepage" class="emailright">' . get_string('mailsperpage', 'block_email_list') .': ';
+    echo '<div id="sizepage" class="emailright">' . get_string('mailsperpage', 'block_binerbo') .': ';
 
     // Define default separator.
     $spaces = '&#160;&#160;&#160;';
@@ -1983,7 +1983,7 @@ function email_print_select_options($options, $perpage) {
  * @uses $USER
  * @param object $options
  */
-function email_print_movefolder_button($options) {
+function binerbo_print_movefolder_button($options) {
 
     global $CFG, $USER;
 
@@ -2000,27 +2000,27 @@ function email_print_movefolder_button($options) {
     // 3.- Trash folder: Can move any folder.
     if ( isset($options->folderid) ) {
         // Get folder.
-        $folderbe = email_get_folder($options->folderid);
+        $folderbe = binerbo_get_folder($options->folderid);
     } else if ( isset($options->folderoldid) ) {
         // Get folder.
-        $folderbe = email_get_folder($options->folderoldid);
+        $folderbe = binerbo_get_folder($options->folderoldid);
     } else {
         // Inbox folder.
-        $folderbe = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
+        $folderbe = \block_binerbo\label::get_root($USER->id, EMAIL_INBOX);
     }
 
-    if ( \block_email_list\label::is_type($folderbe, EMAIL_SENDBOX ) ) {
+    if ( \block_binerbo\label::is_type($folderbe, EMAIL_SENDBOX ) ) {
         // Get my sendbox folders.
-        $folders = email_get_my_folders( $USER->id, $courseid, false, true, false, true );
-    } else if ( \block_email_list\label::is_type($folderbe, EMAIL_DRAFT )) {
+        $folders = binerbo_get_my_folders( $USER->id, $courseid, false, true, false, true );
+    } else if ( \block_binerbo\label::is_type($folderbe, EMAIL_DRAFT )) {
         // Get my sendbox folders.
-        $folders = email_get_my_folders( $USER->id, $courseid, false, true, true, true );
-    } else if ( \block_email_list\label::is_type($folderbe, EMAIL_TRASH ) ) {
+        $folders = binerbo_get_my_folders( $USER->id, $courseid, false, true, true, true );
+    } else if ( \block_binerbo\label::is_type($folderbe, EMAIL_TRASH ) ) {
         // Get my folders.
-        $folders = email_get_my_folders( $USER->id, $courseid, false, false, false, false );
+        $folders = binerbo_get_my_folders( $USER->id, $courseid, false, false, false, false );
     } else {
         // Get my folders.
-        $folders = email_get_my_folders( $USER->id, $courseid, false, true, true, false );
+        $folders = binerbo_get_my_folders( $USER->id, $courseid, false, true, true, false );
     }
 
     if ( $folders ) {
@@ -2033,7 +2033,7 @@ function email_print_movefolder_button($options) {
     }
 
     echo '<select name="folderid" onchange="addAction(this)">
-                    <option value="" selected="selected">' . get_string('movetofolder', 'block_email_list') . ':</option>' .
+                    <option value="" selected="selected">' . get_string('movetofolder', 'block_binerbo') . ':</option>' .
                         $choose . '
             </select>';
 
@@ -2042,7 +2042,7 @@ function email_print_movefolder_button($options) {
 
     // Change, now folderoldid is actual folderid.
     if ( !$options->folderid ) {
-        if ( $inbox = \block_email_list\label::get_root($USER->id, EMAIL_INBOX) ) {
+        if ( $inbox = \block_binerbo\label::get_root($USER->id, EMAIL_INBOX) ) {
             echo '<input type="hidden" name="folderoldid" value="'.$inbox->id.'" />';
         }
     } else {
@@ -2084,25 +2084,25 @@ function email_print_movefolder_button($options) {
  * @return int Number of unread mails.
  * @todo Finish documenting this function
  */
-function email_count_unreaded_mails($userid, $courseid, $labelid=null) {
+function binerbo_count_unreaded_mails($userid, $courseid, $labelid=null) {
     global $CFG, $DB;
 
     if ( !$labelid or $labelid <= 0 ) {
         // Get draft folder.
-        if ( $label = \block_email_list\label::get_root($userid, EMAIL_INBOX) ) {
+        if ( $label = \block_binerbo\label::get_root($userid, EMAIL_INBOX) ) {
             $labelsid = $label->id;
 
             // Get all subfolders.
-            if ( $sublabels = \block_email_list\label::get_all_sublabels($label->id) ) {
+            if ( $sublabels = \block_binerbo\label::get_all_sublabels($label->id) ) {
                 foreach ($sublabels as $sublabel) {
                     $labelsid .= ', '.$sublabel->id;
                 }
             }
 
             $sql = "SELECT count(*)
-                                    FROM {email_mail} m
-                           LEFT JOIN {email_send} s ON m.id = s.mailid
-                           LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                                    FROM {binerbo_mail} m
+                           LEFT JOIN {binerbo_sent} s ON m.id = s.mailid
+                           LEFT JOIN {binerbo_labelmail} fm ON m.id = fm.mailid ";
 
             // WHERE principal clause for filter by user and course.
             $wheresql = " WHERE s.userid = $userid
@@ -2118,16 +2118,16 @@ function email_count_unreaded_mails($userid, $courseid, $labelid=null) {
     } else {
 
         // Get label.
-        if ( !$label = \block_email_list\label::get($labelid) ) {
+        if ( !$label = \block_binerbo\label::get($labelid) ) {
             return 0;
         }
 
-        if ( \block_email_list\label::is_type($label, EMAIL_INBOX) ) {
+        if ( \block_binerbo\label::is_type($label, EMAIL_INBOX) ) {
             // For apply order, I've writting an sql clause.
             $sql = "SELECT count(*)
-                                    FROM {email_mail} m
-                           LEFT JOIN {email_send} s ON m.id = s.mailid
-                           LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                                    FROM {binerbo_mail} m
+                           LEFT JOIN {binerbo_sent} s ON m.id = s.mailid
+                           LEFT JOIN {binerbo_labelmail} fm ON m.id = fm.mailid ";
 
             // WHERE principal clause for filter by user and course.
             $wheresql = " WHERE s.userid = $userid
@@ -2138,11 +2138,11 @@ function email_count_unreaded_mails($userid, $courseid, $labelid=null) {
 
             return $DB->count_records_sql( $sql.$wheresql );
 
-        } else if ( \block_email_list\label::is_type($label, EMAIL_DRAFT) ) {
+        } else if ( \block_binerbo\label::is_type($label, EMAIL_DRAFT) ) {
             // For apply order, I've writting an sql clause.
             $sql = "SELECT count(*)
-                            FROM {email_mail} m
-                            LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                            FROM {binerbo_mail} m
+                            LEFT JOIN {binerbo_labelmail} fm ON m.id = fm.mailid ";
 
             // WHERE principal clause for filter user and course.
             $wheresql = " WHERE m.userid = $userid
@@ -2167,7 +2167,7 @@ function email_count_unreaded_mails($userid, $courseid, $labelid=null) {
  * @return string URL or Hidden input's
  * @todo Finish documenting this function
  */
-function email_build_url($options, $form=false, $arrayinput=false, $nameinput=null) {
+function binerbo_build_url($options, $form=false, $arrayinput=false, $nameinput=null) {
     $url = '';
 
     // Build url part options.
@@ -2208,7 +2208,7 @@ function email_build_url($options, $form=false, $arrayinput=false, $nameinput=nu
  * @return string String of ids
  * @todo Finish documenting this function
  */
-function email_get_ids($ids) {
+function binerbo_get_ids($ids) {
     $identities = array();
 
     if ( $ids ) {
@@ -2232,7 +2232,7 @@ function email_get_ids($ids) {
  * @return int Next or Previous mail
  * @todo Finish documenting this function
  */
-function email_get_nextprevmail($mailid, $mails, $nextorprevious) {
+function binerbo_get_nextprevmail($mailid, $mails, $nextorprevious) {
     // To array.
     // Character alfanumeric, becase optional_param clean anothers tags.
     $mailsids = explode('a', $mails);
@@ -2265,12 +2265,12 @@ function email_get_nextprevmail($mailid, $mails, $nextorprevious) {
  * @return object User record
  * @todo Finish documenting this function
  */
-function email_get_user($mailid) {
+function binerbo_get_user($mailid) {
     global $DB;
 
     // Get mail record.
-    if ( !$mail = $DB->get_record('email_mail', array('id' => $mailid)) ) {
-        error('failgetmail', 'block_email_list');
+    if ( !$mail = $DB->get_record('binerbo_mail', array('id' => $mailid)) ) {
+        error('failgetmail', 'block_binerbo');
     }
 
     // Return user record.
@@ -2283,15 +2283,15 @@ function email_get_user($mailid) {
  * @param int $userid User Id.
  * @return boolean True or false if have aviability
  */
-function email_have_asociated_folders($userid) {
+function binerbo_have_asociated_folders($userid) {
     global $CFG, $USER, $DB;
 
     if ( empty($userid) ) {
         $userid = $USER->id;
     }
 
-    if ( $CFG->email_marriedfolders2courses ) {
-        if ( $preferences = $DB->get_record('email_preference', array('userid' => $userid)) ) {
+    if ( $CFG->binerbo_marriedfolders2courses ) {
+        if ( $preferences = $DB->get_record('binerbo_preference', array('userid' => $userid)) ) {
             if ($preferences->marriedfolders2courses) {
                 return true;
             }
@@ -2307,7 +2307,7 @@ function email_have_asociated_folders($userid) {
  * @param object $user User
  * @return string Full name
  */
-function email_fullname($user, $override=false) {
+function binerbo_fullname($user, $override=false) {
     // Drop all semicolon apears. (Js errors when select contacts).
     return str_replace(',', '', fullname($user, $override));
 }
@@ -2321,15 +2321,15 @@ function email_fullname($user, $override=false) {
  *
  * @return void
  **/
-function email_print_preview_button($courseid) {
+function binerbo_print_preview_button($courseid) {
     // Action is handled weird, put in a dummy hidden element.
     // And then change its name to action when our button has.
     // Been clicked.
     echo '<span id="print_preview" class="print_preview">';
-    email_print_to_popup_window('button',
-        '/blocks/email_list/email/print.php?courseid=' . $courseid . '&amp;mailids=',
-        get_string('printemails', 'block_email_list'),
-        get_string('printemails', 'block_email_list')
+    binerbo_print_to_popup_window('button',
+        '/blocks/binerbo/email/print.php?courseid=' . $courseid . '&amp;mailids=',
+        get_string('printemails', 'block_binerbo'),
+        get_string('printemails', 'block_binerbo')
     );
     echo '</span>';
 }
@@ -2338,7 +2338,7 @@ function email_print_preview_button($courseid) {
  * Need redefine element_to_popup_window because before get email ids for print. Modify all.
  *
  */
-function email_print_to_popup_window($type=null, $url=null, $linkname=null, $title=null, $return=false) {
+function binerbo_print_to_popup_window($type=null, $url=null, $linkname=null, $title=null, $return=false) {
 
     if (is_null($url)) {
         debugging('You must give the url to display in the popup. URL is missing - can\'t create popup window.', DEBUG_DEVELOPER);
@@ -2369,7 +2369,7 @@ function email_print_to_popup_window($type=null, $url=null, $linkname=null, $tit
             $element = '<input type="button" name="'. $name .'" title="'. $title .'" value="'. $linkname .'" '.
                        "onclick=\" $jscode if(ids !='' ) {
                        return openpopup('$url'+ids, '$name', '$options', $fullscreen); } else { alert('".
-                       addslashes(get_string('nochoosemail', 'block_email_list'))."'); } \" />\n";
+                       addslashes(get_string('nochoosemail', 'block_binerbo'))."'); } \" />\n";
             break;
         case 'link' :
             // Some log url entries contain _SERVER[HTTP_REFERRER] in which case wwwroot is already there.
@@ -2379,10 +2379,10 @@ function email_print_to_popup_window($type=null, $url=null, $linkname=null, $tit
             $element = '<a title="'. s(strip_tags($title)) .'" href="'. $CFG->wwwroot . $url .'" '.
                        "onclick=\"this.target='$name'; $jscode if (ids !=''){
                        return openpopup('$url'+ids, '$name', '$options', $fullscreen);
-                       } else { alert('". addslashes(get_string('nochoosemail', 'block_email_list'))."'); } \">$linkname</a>";
+                       } else { alert('". addslashes(get_string('nochoosemail', 'block_binerbo'))."'); } \">$linkname</a>";
             break;
         default :
-            print_error('undefinedelement', 'block_email_list');
+            print_error('undefinedelement', 'block_binerbo');
             break;
     }
 
@@ -2398,14 +2398,14 @@ function email_print_to_popup_window($type=null, $url=null, $linkname=null, $tit
  *
  * @uses $SESSION
  */
-function email_manage_mailsperpage() {
+function binerbo_manage_mailsperpage() {
     global $SESSION;
 
     if ( ! empty( $_POST['perpage'] ) and is_int($_POST['perpage']) ) {
-        $SESSION->email_mailsperpage = $_POST['perpage'];
+        $SESSION->binerbo_mailsperpage = $_POST['perpage'];
         echo 'Change for: '.$_POST['perpage'];
     } else {
-        $SESSION->email_mailsperpage = 10; // Default value.
+        $SESSION->binerbo_mailsperpage = 10; // Default value.
     }
 }
 

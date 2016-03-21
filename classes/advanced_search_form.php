@@ -30,9 +30,9 @@
 global $CFG;
 
 require_once($CFG->dirroot.'/lib/formslib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
+require_once($CFG->dirroot.'/blocks/binerbo/email/lib.php');
 
-class advanced_search_form extends moodleform {
+class block_binerbo_advanced_search_form extends moodleform {
     // Define the form.
     public function definition () {
         global $CFG, $USER, $COURSE;
@@ -40,21 +40,21 @@ class advanced_search_form extends moodleform {
         $mform =& $this->_form;
 
         // Print the required moodle fields first.
-        $mform->addElement('header', 'matches', get_string('messagematches', 'block_email_list'));
+        $mform->addElement('header', 'matches', get_string('messagematches', 'block_binerbo'));
 
         // And/or.
         $radiobuttons = array();
         $radiobuttons[] = &MoodleQuickForm::createElement(
             'radio',
             'connector',
-            get_string('matchanyquery', 'block_email_list'),
-            get_string('matchanyquery', 'block_email_list'),
+            get_string('matchanyquery', 'block_binerbo'),
+            get_string('matchanyquery', 'block_binerbo'),
             'OR');
         $radiobuttons[] = &MoodleQuickForm::createElement(
             'radio',
             'connector',
-            get_string('matchaallquery', 'block_email_list'),
-            get_string('matchallquery', 'block_email_list'),
+            get_string('matchaallquery', 'block_binerbo'),
+            get_string('matchallquery', 'block_binerbo'),
             'AND');
         $mform->addGroup($radiobuttons, 'messagematches', '', '  ', false);
         $mform->setDefault('connector', 'AND');
@@ -62,23 +62,23 @@ class advanced_search_form extends moodleform {
         // Words.
         $mform->addElement('header', 'words', get_string('search', 'search'));
 
-        $mform->addElement('text', 'to', get_string('to', 'block_email_list'), 'maxlength="254" size="60"');
+        $mform->addElement('text', 'to', get_string('to', 'block_binerbo'), 'maxlength="254" size="60"');
         $mform->setType('to', PARAM_TEXT);
 
-        $mform->addElement('text', 'from', get_string('from', 'block_email_list'), 'maxlength="254" size="60"');
+        $mform->addElement('text', 'from', get_string('from', 'block_binerbo'), 'maxlength="254" size="60"');
         $mform->setType('from', PARAM_TEXT);
 
-        $mform->addElement('text', 'subject', get_string('subject', 'block_email_list'), 'maxlength="254" size="60"');
+        $mform->addElement('text', 'subject', get_string('subject', 'block_binerbo'), 'maxlength="254" size="60"');
         $mform->setType('subject', PARAM_TEXT);
 
-        $mform->addElement('text', 'body', get_string('body', 'block_email_list'), 'maxlength="254" size="60"');
+        $mform->addElement('text', 'body', get_string('body', 'block_binerbo'), 'maxlength="254" size="60"');
         $mform->setType('body', PARAM_TEXT);
 
         // Folders.
-        $mform->addElement('header', 'folder', get_string('messagefolders', 'block_email_list'));
+        $mform->addElement('header', 'folder', get_string('messagefolders', 'block_binerbo'));
 
         // Get my root folders.
-        $folders = email_get_root_folders($USER->id, false);
+        $folders = binerbo_get_root_folders($USER->id, false);
 
         if ( !empty($folders) ) {
 
@@ -89,7 +89,7 @@ class advanced_search_form extends moodleform {
                 $choose[] = &MoodleQuickForm::createElement('checkbox', $folder->id, $folder->name, $folder->name);
 
                 // Now, get all subfolders it.
-                $subfolders = email_get_subfolders($folder->id);
+                $subfolders = binerbo_get_subfolders($folder->id);
 
                 // If subfolders.
                 if ( $subfolders ) {
@@ -99,9 +99,9 @@ class advanced_search_form extends moodleform {
                 }
             }
 
-            $mform->addGroup($choose, 'folders', get_string('folders', 'block_email_list'), ' <br /> ');
+            $mform->addGroup($choose, 'folders', get_string('folders', 'block_binerbo'), ' <br /> ');
             $mform->setDefault('folders['.$folders[0]->id.']', true);
-            $mform->addRule('folders', get_string('nosearchfolders', 'block_email_list'), 'required', null, 'server');
+            $mform->addRule('folders', get_string('nosearchfolders', 'block_binerbo'), 'required', null, 'server');
         }
 
         $mform->addElement('hidden', 'courseid', $COURSE->id);

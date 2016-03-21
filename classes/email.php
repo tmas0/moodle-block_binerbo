@@ -89,7 +89,7 @@ class email extends \block_binerbo\email_base {
                 }
                 $this->course = $email->course;
             } else if (is_int($email) ) {
-                if ( $mail = $DB->get_record('email_mail', array('id' => $email)) ) {
+                if ( $mail = $DB->get_record('binerbo_mail', array('id' => $email)) ) {
                     $this->id = $mail->id;
                     $this->subject = $mail->subject;
                     $this->body = $mail->body;
@@ -157,12 +157,12 @@ class email extends \block_binerbo\email_base {
         // Get send's.
         if ( isset($this->id) ) {
             if ( $type === 'to' or $type === 'cc' or $type === 'bcc' ) {
-                $sendbox = $DB->get_records('email_send', array('mailid' => $this->id, 'type' => $type));
+                $sendbox = $DB->get_records('binerbo_sent', array('mailid' => $this->id, 'type' => $type));
                 if ( !$sendbox ) {
                     return false;
                 }
             } else {
-                $sendbox = $DB->get_records('email_send', array('mailid' => $this->id));
+                $sendbox = $DB->get_records('binerbo_sent', array('mailid' => $this->id));
                 if ( !$sendbox ) {
                     return false;
                 }
@@ -202,7 +202,7 @@ class email extends \block_binerbo\email_base {
             return true;
         }
 
-        $senders = $DB->get_records('email_send', array('mailid' => $this->id));
+        $senders = $DB->get_records('binerbo_sent', array('mailid' => $this->id));
 
         if ( $senders ) {
             foreach ($senders as $sender) {
@@ -228,7 +228,7 @@ class email extends \block_binerbo\email_base {
         global $DB;
 
         // Get mail.
-        $send = $DB->get_record('email_send', array('mailid' => $this->id,
+        $send = $DB->get_record('binerbo_sent', array('mailid' => $this->id,
             'userid' => $userid,
             'course' => $courseid)
         );
@@ -252,7 +252,7 @@ class email extends \block_binerbo\email_base {
         global $DB;
 
         $params = array('mailid' => $this->id, 'userid' => $userid, 'course' => $courseid);
-        $send = $DB->get_record('email_send', $params);
+        $send = $DB->get_record('binerbo_sent', $params);
         if ( !$send ) {
             return false; // User Id is the writer (only apears in email_mail).
         }
@@ -455,7 +455,7 @@ class email extends \block_binerbo\email_base {
         // If mail has saved in draft, delete this reference.
         if ( $folderdraft = \block_binerbo\label::get_root($this->userid, EMAIL_DRAFT) ) {
             if ($foldermail = email_get_reference2foldermail($this->id, $folderdraft->id) ) {
-                if (! $DB->delete_records('email_foldermail', 'id', $foldermail->id)) {
+                if (! $DB->delete_records('binerbo_foldermail', 'id', $foldermail->id)) {
                     print_error( 'failremovingdraft', 'block_binerbo');
                 }
             }
@@ -471,7 +471,7 @@ class email extends \block_binerbo\email_base {
         // If mail already exist ... (in draft).
         if ( $this->id ) {
             // Drop all records, and insert all again.
-            if (! $DB->delete_records('email_send', 'mailid', $this->id)) {
+            if (! $DB->delete_records('binerbo_sent', 'mailid', $this->id)) {
                 return false;
             }
         }
@@ -497,7 +497,7 @@ class email extends \block_binerbo\email_base {
 
                 $send->type      = 'to';
 
-                if (! $DB->insert_record('email_send', $send)) {
+                if (! $DB->insert_record('binerbo_sent', $send)) {
                     print_error('failinsertsendrecord', 'block_binerbo');
                     return false;
                 }
@@ -521,7 +521,7 @@ class email extends \block_binerbo\email_base {
 
                 $send->type      = 'cc';
 
-                if (! $DB->insert_record('email_send', $send)) {
+                if (! $DB->insert_record('binerbo_sent', $send)) {
                     print_error('failinsertsendrecord', 'block_binerbo');
                     return false;
                 }
@@ -545,7 +545,7 @@ class email extends \block_binerbo\email_base {
 
                 $send->type      = 'bcc';
 
-                if ( !$DB->insert_record('email_send', $send)) {
+                if ( !$DB->insert_record('binerbo_sent', $send)) {
                     print_error('failinsertsendrecord', 'block_binerbo');
                     return false;
                 }
@@ -603,7 +603,7 @@ class email extends \block_binerbo\email_base {
 
                     $send->type      = 'to';
 
-                    if ( !$DB->insert_record('email_send', $send)) {
+                    if ( !$DB->insert_record('binerbo_sent', $send)) {
                         print_error('failinsertsendrecord', 'block_binerbo');
                         return false;
                     }
@@ -622,7 +622,7 @@ class email extends \block_binerbo\email_base {
 
                     $send->type      = 'cc';
 
-                    if (! $DB->insert_record('email_send', $send)) {
+                    if (! $DB->insert_record('binerbo_sent', $send)) {
                         print_error('failinsertsendrecord', 'block_binerbo');
                         return false;
                     }
@@ -641,7 +641,7 @@ class email extends \block_binerbo\email_base {
 
                     $send->type      = 'bcc';
 
-                    if ( !$DB->insert_record('email_send', $send)) {
+                    if ( !$DB->insert_record('binerbo_sent', $send)) {
                         print_error('failinsertsendrecord', 'block_binerbo');
                         return false;
                     }
@@ -658,7 +658,7 @@ class email extends \block_binerbo\email_base {
             $this->update_mail_record();
 
             // Drop all records, and insert all again.
-            if ( $DB->delete_records('email_send', 'mailid', $mailid)) {
+            if ( $DB->delete_records('binerbo_sent', 'mailid', $mailid)) {
 
                 // Prepare send mail.
                 $send = new stdClass();
@@ -679,7 +679,7 @@ class email extends \block_binerbo\email_base {
 
                         $send->type      = 'to';
 
-                        if ( !$DB->insert_record('email_send', $send)) {
+                        if ( !$DB->insert_record('binerbo_sent', $send)) {
                             print_error('failinsertsendrecord', 'block_binerbo');
                             return false;
                         }
@@ -695,7 +695,7 @@ class email extends \block_binerbo\email_base {
 
                         $send->type      = 'cc';
 
-                        if ( !$DB->insert_record('email_send', $send)) {
+                        if ( !$DB->insert_record('binerbo_sent', $send)) {
                             print_error('failinsertsendrecord', 'block_binerbo');
                             return false;
                         }
@@ -711,7 +711,7 @@ class email extends \block_binerbo\email_base {
 
                         $send->type      = 'bcc';
 
-                        if (! $DB->insert_record('email_send', $send)) {
+                        if (! $DB->insert_record('binerbo_sent', $send)) {
                             print_error('failinsertsendrecord', 'block_binerbo');
                             return false;
                         }
@@ -750,7 +750,7 @@ class email extends \block_binerbo\email_base {
         $success = true;
 
         $type = \block_binerbo\label::is_type(
-            get_record('email_folder', array('id' => $folderid)),
+            get_record('binerbo_folder', array('id' => $folderid)),
             EMAIL_TRASH
         );
         if ( $type ) {
@@ -762,7 +762,7 @@ class email extends \block_binerbo\email_base {
         // If delete definity mails ...
         if ( $deletemails ) {
             // Delete reference mail.
-            if (! $DB->delete_records('email_send', 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
+            if (! $DB->delete_records('binerbo_sent', 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
                     return false;
             }
         } else {
@@ -778,7 +778,7 @@ class email extends \block_binerbo\email_base {
                     $success = false;
                 } else {
                     // Mark the message as read.
-                    $DB->set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid);
+                    $DB->set_field('binerbo_sent', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid);
                 }
             } else {
                 $success = false;
@@ -1000,8 +1000,8 @@ class email extends \block_binerbo\email_base {
 
         // For apply order, I've writting an sql clause.
         $sql = "SELECT m.id, m.userid as writer, m.course, m.subject, m.timecreated, m.body
-                                FROM {email_mail} m
-                       LEFT JOIN {email_send} s ON m.id = s.mailid ";
+                                FROM {binerbo_mail} m
+                       LEFT JOIN {binerbo_sent} s ON m.id = s.mailid ";
 
         // WHERE principal clause for filter userid.
         $wheresql = " WHERE s.userid = $userid
@@ -1040,7 +1040,7 @@ class email extends \block_binerbo\email_base {
                         }
                     }
 
-                    $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                    $sql .= " LEFT JOIN {binerbo_labelmail} fm ON m.id = fm.mailid ";
                     $wheresql .= " AND fm.labelid = $options->labelid ";
                     $groupby = " GROUP BY m.id";
 
@@ -1048,7 +1048,7 @@ class email extends \block_binerbo\email_base {
                     // If label == 0, I've get inbox.
                     // Get label.
                     $label = \block_binerbo\label::get_root($userid, EMAIL_INBOX);
-                    $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                    $sql .= " LEFT JOIN {binerbo_labelmail} fm ON m.id = fm.mailid ";
                     $wheresql .= " AND fm.labelid = $label->id ";
                     $groupby = " GROUP BY m.id";
                 }
@@ -1056,7 +1056,7 @@ class email extends \block_binerbo\email_base {
                 // If label == 0, I've get inbox.
                 // Get folder.
                 $label = \block_binerbo\label::get_root($userid, EMAIL_INBOX);
-                $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+                $sql .= " LEFT JOIN {binerbo_labelmail} fm ON m.id = fm.mailid ";
                 $wheresql .= " AND fm.labelid = $label->id ";
                 $groupby = " GROUP BY m.id";
             }
@@ -1064,7 +1064,7 @@ class email extends \block_binerbo\email_base {
             // If no options, I've get inbox, per default get this label.
             // Get label.
             $label = \block_binerbo\label::get_root($userid, EMAIL_INBOX);
-            $sql .= " LEFT JOIN {email_labelmail} fm ON m.id = fm.mailid ";
+            $sql .= " LEFT JOIN {binerbo_labelmail} fm ON m.id = fm.mailid ";
             $wheresql .= " AND fm.labelid = $label->id ";
             $groupby = " GROUP BY m.id";
         }

@@ -32,14 +32,14 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2015 Toni Mas
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class email_sended extends \core\event\base {
+class binerbo_sended extends \core\event\base {
     /**
      * Init method
      */
     protected function init() {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'email_mail';
+        $this->data['objecttable'] = 'binerbo_mail';
     }
 
     /**
@@ -77,7 +77,7 @@ class email_sended extends \core\event\base {
      * @return array|null
      */
     public function get_legacy_logdata() {
-        return array($this->courseid, 'email_mail', 'send email',
+        return array($this->courseid, 'binerbo_mail', 'send email',
             "block/binerbo/view.php?id={$this->contextinstanceid}",
             $this->objectid, $this->contextinstanceid);
     }
@@ -88,7 +88,7 @@ class email_sended extends \core\event\base {
      * @return stdClass
      */
     protected function get_legacy_eventdata() {
-        $attempt = $this->get_record_snapshot('email_mail', $this->objectid);
+        $attempt = $this->get_record_snapshot('binerbo_mail', $this->objectid);
         $legacyeventdata = new \stdClass();
         $legacyeventdata->component = 'block_binerbo';
         $legacyeventdata->attemptid = $this->objectid;

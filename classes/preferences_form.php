@@ -28,12 +28,10 @@
  *          AFFERO GENERAL PUBLIC LICENSE is also included in the file called "COPYING".
  */
 
-global $CFG;
-
 require_once($CFG->dirroot.'/lib/formslib.php');
-require_once($CFG->dirroot.'/blocks/email_list/email/lib.php');
+require_once($CFG->dirroot.'/blocks/binerbo/lib.php');
 
-class preferences_form extends moodleform {
+class block_binerbo_preferences_form extends moodleform {
 
     // Define the form.
     public function definition () {
@@ -42,21 +40,22 @@ class preferences_form extends moodleform {
         $mform =& $this->_form;
 
         // Print the required moodle fields first.
-        $mform->addElement('header', 'moodle', get_string('preferences', 'block_email_list'));
+        $mform->addElement('header', 'moodle', get_string('preferences', 'block_binerbo'));
 
         // Options.
         $options = array(0 => get_string('no'), 1 => get_string('yes'));
 
-        if ( $CFG->email_trackbymail ) {
-            $mform->addElement('select', 'trackbymail', get_string('sendmail', 'block_email_list'), $options);
+        $config = get_config('block_binerbo');
+        if ( $config->trackbymail ) {
+            $mform->addElement('select', 'trackbymail', get_string('sendmail', 'block_binerbo'), $options);
             $mform->setDefault('trackbymail', 0);
         }
 
-        if ( $CFG->email_marriedfolders2courses ) {
+        if ( $config->marriedfolders2courses ) {
             // Married folder at courses.
             $mform->addElement('select',
                 'marriedfolders2courses',
-                get_string('marriedfolders2courses', 'block_email_list'),
+                get_string('marriedfolders2courses', 'block_binerbo'),
                 $options
             );
             $mform->setDefault('marriedfolders2courses', 0);

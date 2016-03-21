@@ -31,7 +31,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/lib/formslib.php');
-require_once($CFG->dirroot.'/blocks/binerbo/email/lib.php');
+require_once($CFG->dirroot.'/blocks/binerbo/lib.php');
 
 class block_binerbo_email_form extends moodleform {
 

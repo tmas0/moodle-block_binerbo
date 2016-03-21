@@ -22,7 +22,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once(dirname(__FILE__) . '/lib.php');   // The eMail library funcions.
 
 // For apply ajax and javascript functions.
@@ -44,6 +44,18 @@ $folderoldid    = optional_param('folderoldid', 0, PARAM_INT);  // Folder Id Old
 // Get course.
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
+$PAGE->set_url('/blocks/binerbo/dashboard.php',
+    array('id' => $courseid,
+        'folderid' => $folderid,
+        'filterid' => $filterid,
+        'mailid' => $mailid,
+        'action' => $action,
+        'page' => $page,
+        'perpage' => $perpage,
+        'folderoldid' => $folderoldid
+    )
+);
+
 require_login($course, false); // No autologin guest.
 
 $context = context_course::instance($course->id);
@@ -58,34 +70,33 @@ $params = array(
     'userid' => $USER->id,
     'courseid' => $course->id
 );
-$event = \block_email_list\event\email_viewed::create($params);
+$event = \block_binerbo\event\binerbo_viewed::create($params);
 $event->trigger();
 
 // Set default page parameters.
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_context($context);
 
-$stremail = get_string('name', 'block_email_list');
+$stremail = get_string('name', 'block_binerbo');
 
-$PAGE->set_url('/blocks/email_list/index.php', array('id' => $courseid));
 $PAGE->set_title($course->shortname.': '.$stremail);
 
 // Get actual folder, for show.
-if ( !$folder = \block_email_list\label::get($folderoldid)) {
-    if ( !$folder = \block_email_list\label::get($folderid) ) {
+if ( !$folder = \block_binerbo\label::get($folderoldid)) {
+    if ( !$folder = \block_binerbo\label::get($folderid) ) {
         // Default, is inbox.
-        $folder = \block_email_list\label::get_root($USER->id, EMAIL_INBOX);
+        $folder = \block_binerbo\label::get_root($USER->id, EMAIL_INBOX);
     }
 }
 
 // Print middle table.
-$PAGE->set_heading(get_string('mailbox', 'block_email_list'). ': '. $folder->name);
+$PAGE->set_heading(get_string('mailbox', 'block_binerbo'). ': '. $folder->name);
 
 // Get renderer.
-$renderer = $PAGE->get_renderer('block_email_list');
+$renderer = $PAGE->get_renderer('block_binerbo');
 
 // Print "blocks" of this account.
-email_printblocks($USER->id, $courseid);
+binerbo_printblocks($USER->id, $courseid);
 
 // Print the page header.
 echo $renderer->header();
@@ -122,9 +133,9 @@ if ( ! empty( $action ) and $mailid > 0 ) {
                 $success &= $email->remove($USER->id, $courseid, $folder->id, true);
             }
             if ($success) {
-                notify( get_string('removeok', 'block_email_list'), 'notifysuccess' );
+                notify( get_string('removeok', 'block_binerbo'), 'notifysuccess' );
             } else {
-                notify(get_string('removefail', 'block_email_list'));
+                notify(get_string('removefail', 'block_binerbo'));
             }
             break;
 
@@ -137,9 +148,9 @@ if ( ! empty( $action ) and $mailid > 0 ) {
                 $success &= $email->mark2read($USER->id, $courseid, true);
             }
             if ($success) {
-                notify(get_string('toreadok', 'block_email_list'), 'notifysuccess');
+                notify(get_string('toreadok', 'block_binerbo'), 'notifysuccess');
             } else {
-                notify(get_string('failmarkreaded', 'block_email_list'));
+                notify(get_string('failmarkreaded', 'block_binerbo'));
             }
             break;
 
@@ -151,9 +162,9 @@ if ( ! empty( $action ) and $mailid > 0 ) {
                 $success &= $email->mark2unread($USER->id, $courseid, true);
             }
             if ($success) {
-                notify(get_string('tounreadok', 'block_email_list'), 'notifysuccess');
+                notify(get_string('tounreadok', 'block_binerbo'), 'notifysuccess');
             } else {
-                notify(get_string('failmarkunreaded', 'block_email_list'));
+                notify(get_string('failmarkunreaded', 'block_binerbo'));
             }
             break;
 
@@ -164,18 +175,18 @@ if ( ! empty( $action ) and $mailid > 0 ) {
             if ( is_array($mailid) ) {
                 foreach ($mailid as $mail) {
                     // Get foldermail reference.
-                    $foldermail = email_get_reference2foldermail($mail, $folderoldid);
+                    $foldermail = binerbo_get_reference2foldermail($mail, $folderoldid);
 
                     // Move this mail into folder.
-                    if (! email_move2folder($mail, $foldermail->id, $folderid) ) {
+                    if (! binerbo_move2folder($mail, $foldermail->id, $folderid) ) {
                         $success = false;
                     }
                 }
                 // Show.
                 if ( !$success ) {
-                    notify( get_string('movefail', 'block_email_list') );
+                    notify( get_string('movefail', 'block_binerbo') );
                 } else {
-                    notify( get_string('moveok', 'block_email_list') );
+                    notify( get_string('moveok', 'block_binerbo') );
                 }
             }
             // Show folders.

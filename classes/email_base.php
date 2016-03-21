@@ -198,7 +198,7 @@ class email_base {
         $mail->body = $this->body;
         $mail->timecreated = $this->timecreated;
 
-        if ( !$this->id = $DB->insert_record('email_mail', $mail) ) {
+        if ( !$this->id = $DB->insert_record('binerbo_mail', $mail) ) {
             print_error('failinsertrecord',
                 'block_binerbo',
                 $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $this->course);
@@ -216,7 +216,7 @@ class email_base {
         if ( $this->oldmailid <= 0 ) {
             print_error('failupdaterecord',
                 'block_binerbo',
-                $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $this->course);
+                $CFG->wwwroot . '/blocks/binerbo/dashboard.php?id=' . $this->course);
         }
 
         $mail->id = $this->oldmailid;
@@ -226,10 +226,10 @@ class email_base {
         $mail->body = $this->body;
         $mail->timecreated = time();
 
-        if ( !$DB->update_record('email_mail', $mail) ) {
+        if ( !$DB->update_record('binerbo_mail', $mail) ) {
             print_error('failupdaterecord',
                 'block_binerbo',
-                $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $this->course);
+                $CFG->wwwroot . '/blocks/binerbo/dashboard.php?id=' . $this->course);
         }
     }
 
@@ -277,12 +277,12 @@ class email_base {
 
         if ( $mailid > 0 ) {
             // Mark answered.
-            if ( !$DB->set_field('email_send', 'answered', 1, 'mailid', $mailid, 'userid', $userid, 'course', $courseid)) {
+            if ( !$DB->set_field('binerbo_sent', 'answered', 1, 'mailid', $mailid, 'userid', $userid, 'course', $courseid)) {
                 $success = false;
             }
         } else if ($this->id > 0 ) {
             // Mark answered.
-            if ( !$DB->set_field('email_send', 'answered', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
+            if ( !$DB->set_field('binerbo_sent', 'answered', 1, 'mailid', $this->id, 'userid', $userid, 'course', $courseid)) {
                 $success = false;
             }
         } else {
@@ -312,7 +312,7 @@ class email_base {
 
         // Mark as read if eMail Id exist.
         if ( $this->id > 0 ) {
-            if ( !$DB->set_field('email_send', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
+            if ( !$DB->set_field('binerbo_sent', 'readed', 1, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
                 $success = false;
             }
         } else {
@@ -350,7 +350,7 @@ class email_base {
 
         // Mark as unread if eMail Id exist.
         if ( $this->id > 0 ) {
-            if ( !$DB->set_field('email_send', 'readed', 0, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
+            if ( !$DB->set_field('binerbo_sent', 'readed', 0, 'mailid', $this->id, 'userid', $userid, 'course', $course)) {
                 $success = false;
             }
         } else {
@@ -394,7 +394,7 @@ class email_base {
         $foldermail->folderid = $folder->id;
 
         // Insert into inbox user.
-        if ( !$DB->insert_record('email_foldermail', $foldermail) ) {
+        if ( !$DB->insert_record('binerbo_foldermail', $foldermail) ) {
             return false;
         }
 
@@ -479,7 +479,7 @@ class email_base {
                 $message .= '<br />';
                 $message .= $um->get_errors();
                 print_simple_box($message, '', '', '', '', 'errorbox');
-                print_continue($CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $course->id);
+                print_continue($CFG->wwwroot . '/blocks/binerbo/dashboard.php?id=' . $course->id);
                 print_footer();
                 die;
             }
@@ -513,7 +513,7 @@ class email_base {
         global $DB;
 
         // Get mail.
-        if ( !$mail = $DB->get_record('email_mail', array('id' => $this->id)) ) {
+        if ( !$mail = $DB->get_record('binerbo_mail', array('id' => $this->id)) ) {
             return false;
         }
 

@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot .'/blocks/binerbo/email/lib.php');
+require_once($CFG->dirroot .'/blocks/binerbo/lib.php');
 
 /**
  * This block shows information about user email's
@@ -78,8 +78,7 @@ class block_binerbo extends block_list {
         // Get context.
         $context = context_block::instance($this->instance->id);
 
-        $emailicon = '<img src="' . $CFG->wwwroot . '/blocks/binerbo/email/images/sobre.png" height="11" width="15" alt="' .
-            get_string("course") . '" />';
+        $emailicon = $OUTPUT->pix_icon('i/email', get_string('course'));
         $composeicon = $OUTPUT->pix_icon('i/edit', '');
 
         // Only show all course in principal course, others, show it.
@@ -87,23 +86,23 @@ class block_binerbo extends block_list {
             // Get the courses of the user.
             $mycourses = enrol_get_my_courses();
             $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
-                '/blocks/binerbo/email/">' . get_string('view_all', 'block_binerbo') . ' ' . $emailicon . '</a>';
+                '/blocks/binerbo/dashboard.php">' . get_string('view_all', 'block_binerbo') . ' ' . $emailicon . '</a>';
         } else {
 
             if ( !empty($CFG->mymoodleredirect) and $COURSE->id == 1 ) {
                 // Get the courses of the user.
                 $mycourses = enrol_get_my_courses();
                 $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
-                    '/blocks/binerbo/email/">' . get_string('view_all', 'block_binerbo') . ' ' . $emailicon . '</a>';
+                    '/blocks/binerbo/dashboard.php">' . get_string('view_all', 'block_binerbo') . ' ' . $emailicon . '</a>';
             } else {
                 // Get this course.
                 $course = $DB->get_record('course', array('id' => $this->page->course->id));
                 $mycourses[] = $course;
                 $this->content->footer = '<br /><a href="' . $CFG->wwwroot .
-                    '/blocks/binerbo/email/index.php?id=' . $course->id . '">' .
+                    '/blocks/binerbo/dashboard.php?id=' . $course->id . '">' .
                     get_string('view_inbox', 'block_binerbo') . ' ' . $emailicon.'</a>';
                 $this->content->footer .= '<br /><a href="' . $CFG->wwwroot .
-                    '/blocks/binerbo/email/sendmail.php?course=' . $course->id .
+                    '/blocks/binerbo/message.php?course=' . $course->id .
                     '&folderid=0&filterid=0&folderoldid=0&action=newmail">' .
                     get_string('compose', 'block_binerbo') . ' ' . $composeicon . '</a>';
             }
@@ -126,14 +125,14 @@ class block_binerbo extends block_list {
                 continue;
             }
             // Get the number of unread mails.
-            $numberunreadmails = email_count_unreaded_mails($USER->id, $mycourse->id);
+            $numberunreadmails = binerbo_count_unreaded_mails($USER->id, $mycourse->id);
 
             // Only show if has unreaded mails.
             if ( $numberunreadmails > 0 ) {
 
                 $unreadmails = '<b>('.$numberunreadmails.')</b>';
                 $this->content->items[] = '<a href="' . $CFG->wwwroot .
-                    '/blocks/binerbo/email/index.php?id=' . $mycourse->id . '">' . $mycourse->fullname .
+                    '/blocks/binerbo/dashboard.php?id=' . $mycourse->id . '">' . $mycourse->fullname .
                     ' ' . $unreadmails .'</a>';
                 $this->content->icons[] = $icon;
             }
@@ -196,8 +195,8 @@ class block_binerbo extends block_list {
 
                 // Get users who have unread mails.
                 $from = "{user} u,
-                         {email_send} s,
-                         {email_mail} m";
+                         {binerbo_sent} s,
+                         {binerbo_mail} m";
 
                 $where = " WHERE u.id = s.userid
                                 AND s.mailid = m.id
@@ -220,7 +219,7 @@ class block_binerbo extends block_list {
                         // 1.3.- User denied trackbymail -> Don't send mail.
 
                         // User can definied this preferences?
-                        if ( $preferences = $DB->get_record('email_preference', array('userid' => $user->id)) ) {
+                        if ( $preferences = $DB->get_record('binerbo_preference', array('userid' => $user->id)) ) {
                             if ( $preferences->trackbymail == 0 ) {
                                 continue;
                             }
@@ -228,7 +227,7 @@ class block_binerbo extends block_list {
 
                         // Get this unread mails.
                         $sql = "SELECT *
-                                    FROM {email_send}
+                                    FROM {binerbo_sent}
                                     WHERE readed = 0
                                         AND sended = 1
                                         AND userid = $user->id
@@ -263,20 +262,20 @@ class block_binerbo extends block_list {
                                 }
 
                                 if ( isset($mail->mailid) ) {
-                                    $message = $DB->get_record('email_mail', array('id' => $mail->mailid));
+                                    $message = $DB->get_record('binerbo_mail', array('id' => $mail->mailid));
                                     $mailcourse = $DB->get_record('course', array('id' => $mail->course));
 
                                     $body .= "---------------------------------------------------------------------\n";
                                     $body .= get_string('course') . ": $mailcourse->fullname \n";
                                     $body .= get_string('subject', 'block_binerbo') . ": $message->subject \n";
-                                    $body .= get_string('from', 'block_binerbo') . ": " . fullname(email_get_user($message->id));
+                                    $body .= get_string('from', 'block_binerbo') . ": " . fullname(binerbo_get_user($message->id));
                                     $body .= " - ".userdate($message->timecreated) . "\n";
                                     $body .= "---------------------------------------------------------------------\n\n";
 
                                     $bodyhtml .= '<tr  class="r0">';
                                     $bodyhtml .= '<td class="cell c0">' . $mailcourse->fullname . '</td>';
                                     $bodyhtml .= '<td class="cell c0">' . $message->subject . '</td>';
-                                    $bodyhtml .= '<td class="cell c0">' . fullname(email_get_user($message->id)) . '</td>';
+                                    $bodyhtml .= '<td class="cell c0">' . fullname(binerbo_get_user($message->id)) . '</td>';
                                     $bodyhtml .= '<td class="cell c0">' . userdate($message->timecreated) . '</td>';
                                     $bodyhtml .= '</tr>';
                                 }
@@ -287,7 +286,7 @@ class block_binerbo extends block_list {
 
                             $body .= "\n\n\n\n";
 
-                            email_to_user($user, get_string('emailalert', 'block_binerbo'),
+                            binerbo_to_user($user, get_string('emailalert', 'block_binerbo'),
                                             get_string('emailalert', 'block_binerbo') .
                                             ': ' . get_string('newmails', 'block_binerbo'), $body, $bodyhtml);
                         }

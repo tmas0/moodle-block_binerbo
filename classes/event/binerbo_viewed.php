@@ -33,14 +33,14 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2015 Toni Mas
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class email_viewed extends \core\event\base {
+class binerbo_viewed extends \core\event\base {
     /**
      * Init method
      */
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'email_mail';
+        $this->data['objecttable'] = 'binerbo_mail';
     }
 
     /**
@@ -67,7 +67,7 @@ class email_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url("/block/binerbo/index.php",
+        return new \moodle_url("/block/binerbo/dashboard.php",
                 array('id' => $this->contextinstanceid,
                       'mailid' => $this->objectid));
     }
@@ -78,8 +78,8 @@ class email_viewed extends \core\event\base {
      * @return array|null
      */
     public function get_legacy_logdata() {
-        return array($this->courseid, 'email_mail', 'send email',
-            "block/binerbo/index.php?id={$this->contextinstanceid}",
+        return array($this->courseid, 'binerbo_mail', 'sent email',
+            "block/binerbo/dashboard.php?id={$this->contextinstanceid}",
             $this->objectid, $this->contextinstanceid);
     }
 
@@ -89,7 +89,7 @@ class email_viewed extends \core\event\base {
      * @return stdClass
      */
     protected function get_legacy_eventdata() {
-        $attempt = $this->get_record_snapshot('email_mail', $this->objectid);
+        $attempt = $this->get_record_snapshot('binerbo_mail', $this->objectid);
         $legacyeventdata = new \stdClass();
         $legacyeventdata->component = 'block_binerbo';
         $legacyeventdata->attemptid = $this->objectid;

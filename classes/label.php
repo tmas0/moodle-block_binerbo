@@ -54,7 +54,7 @@ class label {
         }
 
         // Insert record.
-        if ( !$label->id = $DB->insert_record('email_label', $label) ) {
+        if ( !$label->id = $DB->insert_record('binerbo_label', $label) ) {
             return false;
         }
 
@@ -64,7 +64,7 @@ class label {
         $sublabel->labelchildid  = $label->id;
 
         // Insert record reference.
-        if (! $DB->insert_record('email_sublabel', $sublabel)) {
+        if (! $DB->insert_record('binerbo_sublabel', $sublabel)) {
             return false;
         }
 
@@ -82,7 +82,7 @@ class label {
     public static function get($labelid) {
         global $DB;
 
-        $label = $DB->get_record('email_label', array('id' => $labelid));
+        $label = $DB->get_record('binerbo_label', array('id' => $labelid));
 
         if ( isset($label->isparenttype) ) {
             // Only change in parent labels.
@@ -149,16 +149,16 @@ class label {
         }
 
         if ( is_int($label) ) {
-            if ( !$sublabel = $DB->get_record('email_sublabel', array('labelchildid' => $label)) ) {
+            if ( !$sublabel = $DB->get_record('binerbo_sublabel', array('labelchildid' => $label)) ) {
                 return false;
             }
         } else {
-            if ( !$sublabel = $DB->get_record('email_sublabel', array('labelchildid' => $label->id)) ) {
+            if ( !$sublabel = $DB->get_record('binerbo_sublabel', array('labelchildid' => $label->id)) ) {
                 return false;
             }
         }
 
-        return $DB->get_record('email_label', array('id' => $sublabel->labelparentid));
+        return $DB->get_record('binerbo_label', array('id' => $sublabel->labelparentid));
     }
 
     /**
@@ -184,28 +184,28 @@ class label {
         if ( $userid > 0 and !empty($userid) ) {
             if ( $label == EMAIL_INBOX ) {
                 $params = array('userid' => $userid, 'isparenttype' => EMAIL_INBOX);
-                $rootlabel = $DB->get_record('email_label', $params);
+                $rootlabel = $DB->get_record('binerbo_label', $params);
                 $rootlabel->name = get_string('inbox', 'block_binerbo');
                 return $rootlabel;
             }
 
             if ( $label == EMAIL_SENDBOX ) {
                 $params = array('userid' => $userid, 'isparenttype' => EMAIL_SENDBOX);
-                $rootlabel = $DB->get_record('email_label', $params);
+                $rootlabel = $DB->get_record('binerbo_label', $params);
                 $rootlabel->name = get_string('sendbox', 'block_binerbo');
                 return $rootlabel;
             }
 
             if ( $label == EMAIL_TRASH ) {
                 $params = array('userid' => $userid, 'isparenttype' => EMAIL_TRASH);
-                $rootlabel = $DB->get_record('email_label', $params);
+                $rootlabel = $DB->get_record('binerbo_label', $params);
                 $rootlabel->name = get_string('trash', 'block_binerbo');
                 return $rootlabel;
             }
 
             if ( $label == EMAIL_DRAFT ) {
                 $params = array('userid' => $userid, 'isparenttype' => EMAIL_DRAFT);
-                $rootlabel = $DB->get_record('email_label', $params);
+                $rootlabel = $DB->get_record('binerbo_label', $params);
                 $rootlabel->name = get_string('draft', 'block_binerbo');
                 return $rootlabel;
             }
@@ -237,8 +237,8 @@ class label {
 
         // Insert inbox if no exist.
         $params = array('userid' => $userid, 'isparenttype' => EMAIL_INBOX);
-        if ( $DB->count_records('email_label', $params) == 0 ) {
-            if ( !$labels->inboxid = $DB->insert_record('email_label', $label)) {
+        if ( $DB->count_records('binerbo_label', $params) == 0 ) {
+            if ( !$labels->inboxid = $DB->insert_record('binerbo_label', $label)) {
                 return false;
             }
         }
@@ -248,8 +248,8 @@ class label {
         $label->isparenttype = EMAIL_DRAFT; // Be careful if you change this field.
 
         $params = array('userid' => $userid, 'isparenttype' => EMAIL_DRAFT);
-        if ( $DB->count_records('email_label', $params) == 0 ) {
-            if ( !$labels->trashid = $DB->insert_record('email_label', $label) ) {
+        if ( $DB->count_records('binerbo_label', $params) == 0 ) {
+            if ( !$labels->trashid = $DB->insert_record('binerbo_label', $label) ) {
                 return false;
             }
         }
@@ -259,8 +259,8 @@ class label {
         $label->isparenttype = EMAIL_SENDBOX; // Be careful if you change this field.
 
         $params = array('userid' => $userid, 'isparenttype' => EMAIL_SENDBOX);
-        if ( $DB->count_records('email_label', $params) == 0 ) {
-            if ( !$labels->sendboxid = $DB->insert_record('email_label', $label) ) {
+        if ( $DB->count_records('binerbo_label', $params) == 0 ) {
+            if ( !$labels->sendboxid = $DB->insert_record('binerbo_label', $label) ) {
                 return false;
             }
         }
@@ -270,8 +270,8 @@ class label {
         $label->isparenttype = EMAIL_TRASH; // Be careful if you change this field.
 
         $params = array('userid' => $userid, 'isparenttype' => EMAIL_TRASH);
-        if ( $DB->count_records('email_label', $params) == 0) {
-            if ( !$labels->trashid = $DB->insert_record('email_label', $label) ) {
+        if ( $DB->count_records('binerbo_label', $params) == 0) {
+            if ( !$labels->trashid = $DB->insert_record('binerbo_label', $label) ) {
                 return false;
             }
         }
@@ -293,7 +293,7 @@ class label {
         global $USER, $DB;
 
         // Get childs for this parent.
-        $childs = $DB->get_records('email_sublabel', array('labelparentid' => $labelid));
+        $childs = $DB->get_records('binerbo_sublabel', array('labelparentid' => $labelid));
 
         $sublabels = array();
 
@@ -303,17 +303,17 @@ class label {
             // Save child label in array.
             foreach ($childs as $child) {
 
-                if ( is_null($courseid) or !email_have_asociated_labels($USER->id) ) {
-                    $sublabels[] = $DB->get_record('email_label', array('id' => $child->labelchildid));
+                if ( is_null($courseid) or !binerbo_have_asociated_labels($USER->id) ) {
+                    $sublabels[] = $DB->get_record('binerbo_label', array('id' => $child->labelchildid));
                 } else {
-                    $label = $DB->get_record('email_label',
+                    $label = $DB->get_record('binerbo_label',
                         array('id' => $child->labelchildid, 'course' => $courseid)
                     );
                     if ( $label ) {
                         $sublabels[] = $label;
                     }
 
-                    $label = $DB->get_record('email_label', array('id' => $child->labelchildid, 'course' => '0'));
+                    $label = $DB->get_record('binerbo_label', array('id' => $child->labelchildid, 'course' => '0'));
                     if ( $label ) {
                         $sublabels[] = $label; // Add general label's.
                     }
@@ -339,7 +339,7 @@ class label {
         global $DB;
 
         // Get childs for this parent.
-        $childs = $DB->get_records('email_sublabel', array('labelparentid' => $labelid));
+        $childs = $DB->get_records('binerbo_sublabel', array('labelparentid' => $labelid));
 
         $sublabels = array();
 
@@ -348,8 +348,8 @@ class label {
 
             // Save child label in array.
             foreach ($childs as $child) {
-                $sublabels[] = $DB->get_record('email_label', array('id' => $child->labelchildid));
-                $morechilds = $DB->get_records('email_sublabel',
+                $sublabels[] = $DB->get_record('binerbo_label', array('id' => $child->labelchildid));
+                $morechilds = $DB->get_records('binerbo_sublabel',
                     array('labelparentid' => $child->labelchildid)
                 );
                 if ( $morechilds ) {
