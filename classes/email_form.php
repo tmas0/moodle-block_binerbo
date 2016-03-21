@@ -31,9 +31,48 @@
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/lib/formslib.php');
+require_once($CFG->dirroot . '/repository/lib.php');
 require_once($CFG->dirroot.'/blocks/binerbo/lib.php');
 
 class block_binerbo_email_form extends moodleform {
+
+    /**
+     * Returns the options array to use in filemanager for email attachments
+     *
+     * @param stdClass $email
+     * @return array
+     */
+    public static function attachment_options() {
+        global $COURSE, $PAGE, $CFG;
+        $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes, $COURSE->maxbytes);
+        return array(
+            'subdirs' => 0,
+            'maxbytes' => $maxbytes,
+            'maxfiles' => $COURSE->maxattachments,
+            'accepted_types' => '*',
+            'return_types' => FILE_INTERNAL
+        );
+    }
+
+    /**
+     * Returns the options array to use in email text editor
+     *
+     * @param context_module $context
+     * @param int $mailid Email id, use null when adding new email
+     * @return array
+     */
+    public static function editor_options($context, $mailid) {
+        global $COURSE, $PAGE, $CFG;
+        // TODO: add max files and max size support
+        $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes, $COURSE->maxbytes);
+        return array(
+            'maxfiles' => EDITOR_UNLIMITED_FILES,
+            'maxbytes' => $maxbytes,
+            'trusttext'=> true,
+            'return_types'=> FILE_INTERNAL | FILE_EXTERNAL,
+            'subdirs' => file_area_contains_subdirs($context, 'block_binerbo', 'post', $mailid)
+        );
+    }
 
     // Define the form.
     public function definition () {
@@ -42,6 +81,7 @@ class block_binerbo_email_form extends moodleform {
         // Get customdata.
         $oldmail = $this->_customdata['oldmail'];
         $action = $this->_customdata['action'];
+        $context = $this->_customdata['context'];
 
         $mform =& $this->_form;
 
@@ -146,23 +186,21 @@ class block_binerbo_email_form extends moodleform {
         $mform->addElement('text',
             'subject',
             get_string('subject', 'block_binerbo'),
-            'class="emailsubject" maxlength="254" size="60"'
+            'size="48"'
         );
-        $mform->setDefault('subject', '');
+        $mform->setType('subject', PARAM_TEXT);
         $mform->addRule('subject', get_string('nosubject', 'block_binerbo'), 'required', null, 'client');
-        $mform->setType('subject', PARAM_MULTILANG);
+        $mform->addRule('subject', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $mform->addElement('htmleditor',
+        $mform->addElement('editor',
             'body',
             get_string('body', 'block_binerbo'),
-            array('rows' => '25',
-                'cols' => '65'
-            )
+            null,
+            self::editor_options($context, (empty($oldmail) ? null : $oldmail))
         );
-        $mform->setDefault('body', '');
         $mform->setType('body', PARAM_RAW);
 
-        $mform->addElement('filemanager', 'FILE', get_string('attachment', 'block_binerbo'));
+        $mform->addElement('filemanager', 'FILE', get_string('attachment', 'block_binerbo'), null, self::attachment_options());
 
         // Add old attachments.
         if ( isset($oldmail->id) ) {

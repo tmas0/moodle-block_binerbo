@@ -172,7 +172,8 @@ if ( !isset( $mail->subject ) ) {
 $mailform = new block_binerbo_email_form(
         'sendmail.php',
         array('oldmail' => $DB->get_record('binerbo_mail', array('id' => $mailid)),
-            'action' => $action
+            'action' => $action,
+            'context' => $context
         ),
         'post',
         '',
