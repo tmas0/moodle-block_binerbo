@@ -48,7 +48,7 @@ class block_binerbo_email_form extends moodleform {
         return array(
             'subdirs' => 0,
             'maxbytes' => $maxbytes,
-            'maxfiles' => $COURSE->maxattachments,
+            'maxfiles' => 5,
             'accepted_types' => '*',
             'return_types' => FILE_INTERNAL
         );
@@ -88,42 +88,9 @@ class block_binerbo_email_form extends moodleform {
         // Print the required moodle fields first.
         $mform->addElement('header', 'moodle', get_string('mail', 'block_binerbo'));
 
-        $mform->addElement('button',
-            'urlcc',
-            get_string('participants', 'block_binerbo') . '...',
-            array( 'onclick' => "this.target='participants';
-                                    return openpopup('/blocks/binerbo/email/participants.php?id=$COURSE->id',
-                    'participants','menubar=0,location=0,scrollbars=1,resizable,width=760,height=700', 0);"
-                )
-        );
-
         // Mail to.
-        if ( $CFG->email_enable_ajax ) {
-            // Added to allow for YUI autocomplete styling.
-            $mform->addElement('html', '<div class="yui-skin-sam">');
-            $mform->addElement('textarea',
-                'nameto',
-                get_string('for', 'block_binerbo'),
-                array('rows' => '2',
-                    'cols' => '65',
-                    'class' => 'textareacontacts',
-                    'multiple' => 'multiple')
-            );
-
-            // Stores the YUI autocomplete results.
-            $mform->addElement('static', 'qResultsTo', '', '<div id="qResultsTo"></div>');
-            $mform->addElement('html', '</div>');
-        } else {
-            $mform->addElement('textarea',
-                'nameto',
-                get_string('for', 'block_binerbo'),
-                array('rows' => '2',
-                    'cols' => '65',
-                    'class' => 'textareacontacts',
-                    'disabled' => 'true'
-                )
-            );
-        }
+        $mform->addElement('html', '<div class="sent-to">');
+        $mform->addElement('html', '</div>');
 
         // Mail cc.
         if ( $CFG->email_enable_ajax ) {
@@ -199,6 +166,7 @@ class block_binerbo_email_form extends moodleform {
             self::editor_options($context, (empty($oldmail) ? null : $oldmail))
         );
         $mform->setType('body', PARAM_RAW);
+        $mform->setDefault('body', '');
 
         $mform->addElement('filemanager', 'FILE', get_string('attachment', 'block_binerbo'), null, self::attachment_options());
 
@@ -263,9 +231,9 @@ class block_binerbo_email_form extends moodleform {
 
         // Add 3 buttons (Send, Draft, Cancel).
         $buttonarray = array();
-        $buttonarray[] = &$mform->createElement('submit', 'send', get_string('send', 'block_binerbo'));
-        $buttonarray[] = &$mform->createElement('submit', 'draft', get_string('savedraft', 'block_binerbo'));
-        $buttonarray[] = &$mform->createElement('cancel');
+        $buttonarray[] = $mform->createElement('submit', 'send', get_string('send', 'block_binerbo'));
+        $buttonarray[] = $mform->createElement('submit', 'draft', get_string('savedraft', 'block_binerbo'));
+        $buttonarray[] = $mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
     }

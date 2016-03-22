@@ -41,7 +41,6 @@ $filterid       = optional_param('filterid', 0, PARAM_INT);         // Filter ID
 
 $olderrors      = optional_param('error', 0, PARAM_INT);
 $subject        = optional_param('subject', '', PARAM_ALPHANUM);    // Subject of mail.
-$body           = optional_param('body', '', PARAM_ALPHANUM);       // Body of mail.
 
 $mails          = optional_param('mails', '', PARAM_ALPHANUM);          // Next and previous mails.
 $selectedusers  = optional_param('selectedusers', '', PARAM_ALPHANUM);  // User who send mail.
@@ -49,13 +48,27 @@ $selectedusers  = optional_param('selectedusers', '', PARAM_ALPHANUM);  // User 
 // Get course.
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
+// Block visible.
+$block = $DB->get_record('block', array('name' => 'binerbo', 'visible' => 1), '*', MUST_EXIST);
+
+$PAGE->set_url('/blocks/binerbo/message.php',
+    array(
+        'id' => $mailid,
+        'course' => $courseid,
+        'action' => $action,
+        'folderid' => $folderid,
+        'folderoldid' => $folderoldid,
+        'filterid'  => $filterid,
+        'error' => $olderrors,
+        'subject' => $subject,
+        'mails' => $mails,
+        'selectedusers' => $selectedusers
+    )
+);
+
 require_login($course->id, false);
 
-if ($course->id == SITEID) {
-    $context = context_system::instance();   // SYSTEM context.
-} else {
-    $context = context_course::instance($course->id);   // Course context.
-}
+$context = context_course::instance($course->id);   // Course context.
 
 // CONTRIB-626. Add capability for send messages. Thanks Jeff.
 if ( !has_capability('block/binerbo:sendmessage', $context) ) {
@@ -67,18 +80,9 @@ if ( !has_capability('block/binerbo:sendmessage', $context) ) {
 
 $stremail  = get_string('name', 'block_binerbo');
 
-// Get renderer.
-$renderer = $PAGE->get_renderer('block_binerbo');
-
 // Set default page parameters.
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_context($context);
-$PAGE->set_url('/blocks/binerbo/message.php',
-    array(
-        'id' => $mailid,
-        'course' => $course->id
-    )
-);
 $PAGE->set_title($course->shortname . ': ' . $stremail);
 
 // Options for new mail and new folder.
@@ -92,52 +96,10 @@ $options->folderoldid = $folderoldid;
 // Fields of error mail (only use when created new email and it's insert fail).
 $fieldsmail = new stdClass();
 $fieldsmail->subject = $subject;
-$fieldsmail->body = $body;
 
-if ( $CFG->binerbo_enable_ajax ) {
-    $CFG->ajaxtestedbrowsers = array();  // May be overridden later by ajaxformatfile.
-
-    if (ajaxenabled($CFG->ajaxtestedbrowsers)) {     // Browser, user and site-based switches.
-
-        require_js(array('yui_yahoo',
-                         'yui_dom',
-                         'yui_event',
-                         'yui_dragdrop',
-                         'yui_connection',
-                         'yui_autocomplete',
-                         'yui_datasource'));
-
-        if (debugging('', DEBUG_DEVELOPER)) {
-            require_js(array('yui_logger'));
-
-            $bodytags = 'onload = "javascript:
-            show_logger = function() {
-                var logreader = new YAHOO.widget.LogReader();
-                logreader.newestOnTop = false;
-                logreader.setTitle(\'Moodle Debug: YUI Log Console\');
-            };
-            show_logger();
-            "';
-        }
-
-        // Define site (JavaScript) values.
-        $output = "<script type=\"text/javascript\">\n";
-        $output .= "    function site() {\n";
-        $output .= "        this.id = null;\n";
-        $output .= "        this.strings = [];\n";
-        $output .= "    }\n";
-        $output .= "    var mysite = new site();\n";
-        $output .= "    mysite.id = ".$courseid.";\n";
-        $output .= "    mysite.strings['wwwroot'] ='".$CFG->wwwroot."';\n";
-        $output .= "</script>";
-
-        // Write site definition.
-        echo $output;
-
-        echo '<script type="text/javascript" ';
-        echo "src=\"{$CFG->wwwroot}/blocks/binerbo/email/participants/emailautocomplete.js\"></script>\n";
-    }
-}
+$PAGE->requires->jquery();
+$PAGE->requires->js(new moodle_url('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js'));
+$PAGE->requires->css(new moodle_url('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css'));
 
 // Print the main part of the page.
 
@@ -154,8 +116,8 @@ $PAGE->set_heading(get_string('mailbox', 'block_binerbo') . ': ' . $folder->name
 // Print "blocks" of this account.
 binerbo_printblocks($USER->id, $courseid);
 
-// Print the page header.
-echo $OUTPUT->header();
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_binerbo');
 
 $mail = new stdClass();
 
@@ -170,7 +132,7 @@ if ( !isset( $mail->subject ) ) {
 
 // First create the form.
 $mailform = new block_binerbo_email_form(
-        'sendmail.php',
+        'message.php',
         array('oldmail' => $DB->get_record('binerbo_mail', array('id' => $mailid)),
             'action' => $action,
             'context' => $context
@@ -182,10 +144,14 @@ $mailform = new block_binerbo_email_form(
 
 if ( $mailform->is_cancelled() ) {
     // Only redirect.
-    redirect($CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $courseid, '', '0');
+    $redirect = new moodle_url('/blocks/binerbo/dashboard.php', array('id' => $courseid));
+    redirect($redirect, '', '0');
 } else if ( $form = $mailform->get_data() ) {
+    // Print the page header.
+    echo $renderer->header();
+
     if ( empty($form->to) and empty($form->cc) and empty($form->bcc) ) {
-        notify(get_string('nosenders', 'block_binerbo'));
+        echo $OUTPUT->notification(get_string('nosenders', 'block_binerbo'));
         $mailform->set_data($form);
         $mailform->display();
     } else if ( !empty($form->send) or !empty($form->draft)) {
@@ -197,9 +163,11 @@ if ( $mailform->is_cancelled() ) {
         $email->set_course($courseid);
 
         // Generic URL for send mails errors.
-        $baseurl = $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $courseid .
-            '&amp;mailid=' . $form->id . '&amp;subject=\'' . $form->subject .
-            '\'&amp;body=\'' . $form->body . '\'';
+        $baseurl = new moodle_url('/blocks/binerbo/dashboard.php',
+            array('id' => $courseid,
+                'mailid' => $form->id
+            )
+        );
 
         // Add subject.
         $email->set_subject($form->subject);
@@ -291,6 +259,8 @@ if ( $mailform->is_cancelled() ) {
     }
 
 } else {
+    // Print the page header.
+    echo $renderer->header();
 
     // DRAFT integration.
     // Prepare mail according action.

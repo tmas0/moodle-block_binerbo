@@ -44,6 +44,9 @@ $folderoldid    = optional_param('folderoldid', 0, PARAM_INT);  // Folder Id Old
 // Get course.
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
+// Block visible.
+$block = $DB->get_record('block', array('name' => 'binerbo', 'visible' => 1), '*', MUST_EXIST);
+
 $PAGE->set_url('/blocks/binerbo/dashboard.php',
     array('id' => $courseid,
         'folderid' => $folderid,
