@@ -76,7 +76,7 @@ class block_binerbo_email_form extends moodleform {
 
     // Define the form.
     public function definition () {
-        global $CFG, $COURSE;
+        global $CFG, $COURSE, $PAGE;
 
         // Get customdata.
         $oldmail = $this->_customdata['oldmail'];
@@ -89,66 +89,14 @@ class block_binerbo_email_form extends moodleform {
         $mform->addElement('header', 'moodle', get_string('mail', 'block_binerbo'));
 
         // Mail to.
-        $mform->addElement('html', '<div class="sent-to">');
-        $mform->addElement('html', '</div>');
-
-        // Mail cc.
-        if ( $CFG->email_enable_ajax ) {
-            // Added to allow for YUI autocomplete styling.
-            $mform->addElement('html', '<div class="yui-skin-sam">');
-            $mform->addElement('textarea',
-                'namecc',
-                get_string('cc', 'block_binerbo'),
-                array('rows' => '1',
-                    'cols' => '65',
-                    'class' => 'textareacontacts',
-                    'multiple' => 'multiple'
-                )
-            );
-
-            // Stores the YUI autocomplete results.
-            $mform->addElement('static', 'qResultsCC', '', '<div id="qResultsCC"></div>');
-            $mform->addElement('html', '</div>');
-        } else {
-            $mform->addElement('textarea',
-                'namecc',
-                get_string('cc', 'block_binerbo'),
-                array('rows' => '1',
-                    'cols' => '65',
-                    'class' => 'textareacontacts',
-                    'disabled' => 'true'
-                )
-            );
+        $users = get_enrolled_users($context, '', 0, 'u.id, u.firstname, u.lastname');
+        $options = array();
+        foreach ($users as $user) {
+            $options[$user->id] = $user->firstname . ' ' . $user->lastname;
         }
-
-        // Mail bcc.
-        if ( $CFG->email_enable_ajax ) {
-            // Added to allow for YUI autocomplete styling.
-            $mform->addElement('html', '<div class="yui-skin-sam">');
-            $mform->addElement('textarea',
-                'namebcc',
-                get_string('bcc', 'block_binerbo'),
-                array('rows' => '1',
-                    'cols' => '65',
-                    'class' => 'textareacontacts',
-                    'multiple' => 'multiple'
-                )
-            );
-
-            // Stores the YUI autocomplete results.
-            $mform->addElement('static', 'qResultsBCC', '', '<div id="qResultsBCC"></div>');
-            $mform->addElement('html', '</div>');
-        } else {
-            $mform->addElement('textarea',
-                'namebcc',
-                get_string('bcc', 'block_binerbo'),
-                array('rows' => '1',
-                    'cols' => '65',
-                    'class' => 'textareacontacts',
-                    'disabled' => 'true'
-                )
-            );
-        }
+        $mform->addElement('autocomplete', 'sentto', get_string('for', 'block_binerbo'), $options, array('multiple' => 'multiple'));
+        $mform->addElement('autocomplete', 'sentcc', get_string('cc', 'block_binerbo'), $options, array('multiple' => 'multiple'));
+        $mform->addElement('autocomplete', 'sentbcc', get_string('bcc', 'block_binerbo'), $options, array('multiple' => 'multiple'));
 
         $mform->addElement('text',
             'subject',

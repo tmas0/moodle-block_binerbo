@@ -97,10 +97,6 @@ $options->folderoldid = $folderoldid;
 $fieldsmail = new stdClass();
 $fieldsmail->subject = $subject;
 
-$PAGE->requires->jquery();
-$PAGE->requires->js(new moodle_url('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js'));
-$PAGE->requires->css(new moodle_url('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css'));
-
 // Print the main part of the page.
 
 // Get actual folder, for show.
