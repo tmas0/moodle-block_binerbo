@@ -143,22 +143,20 @@ if ( $mailform->is_cancelled() ) {
     $redirect = new moodle_url('/blocks/binerbo/dashboard.php', array('id' => $courseid));
     redirect($redirect, '', '0');
 } else if ( $form = $mailform->get_data() ) {
-    // Print the page header.
-    echo $renderer->header();
-
-    if ( empty($form->to) and empty($form->cc) and empty($form->bcc) ) {
+    if ( empty($form->sentto) and empty($form->sentcc) and empty($form->sentbcc) ) {
+        echo $renderer->header();
         echo $OUTPUT->notification(get_string('nosenders', 'block_binerbo'));
         $mailform->set_data($form);
         $mailform->display();
-    } else if ( !empty($form->send) or !empty($form->draft)) {
+    } else if ( !empty($form->sent) or !empty($form->draft)) {
         // Create new eMail.
-        $email = new eMail($USER->id, $courseid);
+        $email = new \block_binerbo\email();
 
-        // User send mail.
+        // User sent mail.
         $email->set_writer($USER->id);
         $email->set_course($courseid);
 
-        // Generic URL for send mails errors.
+        // Generic URL for sent mails errors.
         $baseurl = new moodle_url('/blocks/binerbo/dashboard.php',
             array('id' => $courseid,
                 'mailid' => $form->id
@@ -196,14 +194,14 @@ if ( $mailform->is_cancelled() ) {
         $email->set_body($form->body);
 
         // Add users sent mail.
-        if ( isset($form->to) ) {
-            $email->set_sendusersbyto($form->to);
+        if ( isset($form->sentto) ) {
+            $email->set_sendusersbyto($form->sentto);
         }
-        if ( isset($form->cc) ) {
-            $email->set_sendusersbycc($form->cc);
+        if ( isset($form->sentcc) ) {
+            $email->set_sendusersbycc($form->sentcc);
         }
-        if ( isset($form->bcc) ) {
-            $email->set_sendusersbybcc($form->bcc);
+        if ( isset($form->sentbcc) ) {
+            $email->set_sendusersbybcc($form->sentbcc);
         }
 
         // Add type action and if corresponding old mail id.

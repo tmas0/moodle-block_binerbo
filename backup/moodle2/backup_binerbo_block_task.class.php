@@ -1,10 +1,31 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once($CFG->dirroot . '/blocks/binerbo/backup/moodle2/backup_binerbo_stepslib.php'); // We have structure steps
-require_once($CFG->dirroot . '/blocks/binerbo/backup/moodle2/backup_binerbo_settingslib.php'); // Because it exists (optional)
+/**
+ * Backup class for eMail.
+ *
+ * @package     email
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+require_once($CFG->dirroot . '/blocks/binerbo/backup/moodle2/backup_binerbo_stepslib.php'); // We have structure steps.
+require_once($CFG->dirroot . '/blocks/binerbo/backup/moodle2/backup_binerbo_settingslib.php'); // Because it exists (optional).
 
 
-// adrian.castillo CAM-1741
+// Add by adrian.castillo CAM-1741.
 class backup_binerbo_block_task extends backup_block_task {
 
     protected function define_my_settings() {
@@ -15,36 +36,12 @@ class backup_binerbo_block_task extends backup_block_task {
     }
 
     public function get_fileareas() {
-        ; /*
-        global $DB, $course_module_to_backup;
-        
-        ;//return array(); // HAY QUE VER COMO SE CALCULAN LAS AREAS DE FICHEROS !!!
-
-        $sql = ' select distinct  {files}.itemid, {files}.contextid from {files} inner join {email_send} on ( {files}.itemid = {email_send}.mailid) where  {email_send}.course = '. $course_module_to_backup ;
-        echo '<br>'.$sql;
-        $registros =  $DB->get_recordset_sql($sql);
-
-        $component = 'blocks_binerbo';
-        $filearea  = 'attachment';
-
-        $areas = array();
-
-        foreach ($registros as $registro) {
-            echo '<br>id->'.$registro->itemid . ', contextid->'.$registro->contextid;
-            $areas[$registro->itemid ] = array ($component, $filearea, $registro->itemid, $registro->contextid);
-        }
-var_dump($areas);
-        return $areas;
-        */
     }
 
     public function get_configdata_encoded_attributes() {
-        ;//return array(); // We need to encode some attrs in configdata
     }
 
     static public function encode_content_links($content) {
-        return $content; // No special encoding of links
+        return $content; // No special encoding of links.
     }
 }
-
-?>

@@ -1592,7 +1592,7 @@ function binerbo_print_tabs_options($courseid, $folderid, $action=null) {
     // Tab for writting new email.
     if ( has_capability('block/binerbo:sendmessage', $context)) {
         $tabrow[] = new tabobject('newmail',
-            new moodle_url('/blocks/binerbo/message.php', 
+            new moodle_url('/blocks/binerbo/message.php',
                 array('course' => $courseid, 'folderid' => $folderid)),
             get_string('newmail', 'block_binerbo')
         );

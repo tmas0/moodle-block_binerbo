@@ -113,15 +113,12 @@ class email_base {
     /**
      * Set body.
      *
-     * @param text $body Body
+     * @param array $body Body
      */
-    public function set_body( $body='' ) {
-
+    public function set_body( array $body = array() ) {
         if ( empty($body) ) {
             $this->body = ''; // Define one value.
         } else {
-            $context = get_context_instance(CONTEXT_COURSE, $this->course);
-            trusttext_after_edit($body, $context);
             $this->body = $body;
         }
     }
@@ -190,7 +187,7 @@ class email_base {
     public function insert_mail_record() {
         global $DB;
 
-        $mail = new object();
+        $mail = new \stdClass();
 
         $mail->userid = $this->userid;
         $mail->course = $this->course;
@@ -201,7 +198,7 @@ class email_base {
         if ( !$this->id = $DB->insert_record('binerbo_mail', $mail) ) {
             print_error('failinsertrecord',
                 'block_binerbo',
-                $CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $this->course);
+                $CFG->wwwroot . '/blocks/binerbo/dashboard.php?id=' . $this->course);
         }
     }
 
@@ -211,7 +208,7 @@ class email_base {
     public function update_mail_record() {
         global $DB;
 
-        $mail = new object();
+        $mail = new \stdClass();
 
         if ( $this->oldmailid <= 0 ) {
             print_error('failupdaterecord',
@@ -385,7 +382,7 @@ class email_base {
     public function reference_mail_folder($userid, $foldername) {
         global $DB;
 
-        $foldermail = new stdClass();
+        $foldermail = new \stdClass();
 
         $foldermail->mailid = $this->id;
 
@@ -394,7 +391,7 @@ class email_base {
         $foldermail->folderid = $folder->id;
 
         // Insert into inbox user.
-        if ( !$DB->insert_record('binerbo_foldermail', $foldermail) ) {
+        if ( !$DB->insert_record('binerbo_labelmail', $foldermail) ) {
             return false;
         }
 

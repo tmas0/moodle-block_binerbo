@@ -48,7 +48,7 @@ class block_binerbo_email_form extends moodleform {
         return array(
             'subdirs' => 0,
             'maxbytes' => $maxbytes,
-            'maxfiles' => 5,
+            'maxfiles' => EDITOR_UNLIMITED_FILES,
             'accepted_types' => '*',
             'return_types' => FILE_INTERNAL
         );
@@ -63,13 +63,13 @@ class block_binerbo_email_form extends moodleform {
      */
     public static function editor_options($context, $mailid) {
         global $COURSE, $PAGE, $CFG;
-        // TODO: add max files and max size support
+        // TODO: add max files and max size support.
         $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes, $COURSE->maxbytes);
         return array(
             'maxfiles' => EDITOR_UNLIMITED_FILES,
             'maxbytes' => $maxbytes,
-            'trusttext'=> true,
-            'return_types'=> FILE_INTERNAL | FILE_EXTERNAL,
+            'trusttext' => true,
+            'return_types' => FILE_INTERNAL | FILE_EXTERNAL,
             'subdirs' => file_area_contains_subdirs($context, 'block_binerbo', 'post', $mailid)
         );
     }
@@ -96,7 +96,13 @@ class block_binerbo_email_form extends moodleform {
         }
         $mform->addElement('autocomplete', 'sentto', get_string('for', 'block_binerbo'), $options, array('multiple' => 'multiple'));
         $mform->addElement('autocomplete', 'sentcc', get_string('cc', 'block_binerbo'), $options, array('multiple' => 'multiple'));
-        $mform->addElement('autocomplete', 'sentbcc', get_string('bcc', 'block_binerbo'), $options, array('multiple' => 'multiple'));
+        $mform->addElement(
+            'autocomplete',
+            'sentbcc',
+            get_string('bcc', 'block_binerbo'),
+            $options,
+            array('multiple' => 'multiple')
+        );
 
         $mform->addElement('text',
             'subject',
@@ -179,7 +185,7 @@ class block_binerbo_email_form extends moodleform {
 
         // Add 3 buttons (Send, Draft, Cancel).
         $buttonarray = array();
-        $buttonarray[] = $mform->createElement('submit', 'send', get_string('send', 'block_binerbo'));
+        $buttonarray[] = $mform->createElement('submit', 'sent', get_string('sent', 'block_binerbo'));
         $buttonarray[] = $mform->createElement('submit', 'draft', get_string('savedraft', 'block_binerbo'));
         $buttonarray[] = $mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);

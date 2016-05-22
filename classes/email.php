@@ -112,10 +112,10 @@ class email extends \block_binerbo\email_base {
         global $USER;
 
         // Security issues.
-        if ( isset( $USER->id ) ) {
-            if ( $USER->id != $userid or !$userid) {
+        if ( isset($USER->id) ) {
+            if ($USER->id != $userid or !$userid) {
                 // Display error.
-                print_error ( 'incorrectuserid', 'block_binerbo' );
+                print_error('incorrectuserid', 'block_binerbo');
                 return false;
             }
         }
@@ -454,7 +454,7 @@ class email extends \block_binerbo\email_base {
 
         // If mail has saved in draft, delete this reference.
         if ( $folderdraft = \block_binerbo\label::get_root($this->userid, EMAIL_DRAFT) ) {
-            if ($foldermail = email_get_reference2foldermail($this->id, $folderdraft->id) ) {
+            if ($foldermail = self::get_reference2foldermail($this->id, $folderdraft->id) ) {
                 if (! $DB->delete_records('binerbo_foldermail', 'id', $foldermail->id)) {
                     print_error( 'failremovingdraft', 'block_binerbo');
                 }

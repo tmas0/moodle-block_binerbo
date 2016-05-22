@@ -304,7 +304,7 @@ class block_binerbo_renderer extends plugin_renderer_base {
      * @return string. Preferences button if corresponding.
      * @todo Finish documenting this function.
      */
-    function binerbo_get_preferences_button($courseid) {
+    public function binerbo_get_preferences_button($courseid) {
         global $CFG, $OUTPUT, $PAGE;
 
         // Security.

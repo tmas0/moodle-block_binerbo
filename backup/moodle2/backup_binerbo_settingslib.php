@@ -1,10 +1,28 @@
 <?php
-// adrian.castillo CAM-1741
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Backup class for eMail.
+ *
+ * @package     email
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 /**
  * Indicates API features that the forum supports.
- *
- *********  NO HE ENCONTRADO DONDE APARECE EL SITIO EN EL QUE PONER EL FEATURE_BACKUP_MOODLE2
- *
  *
  * @uses FEATURE_GROUPS
  * @uses FEATURE_GROUPINGS
@@ -19,21 +37,9 @@
  */
 function binerbo_supports($feature) {
     switch($feature) {
-//        case FEATURE_GROUPS:                  return true;
-//        case FEATURE_GROUPINGS:               return true;
-//        case FEATURE_GROUPMEMBERSONLY:        return true;
-//        case FEATURE_MOD_INTRO:               return true;
-//        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-//        case FEATURE_COMPLETION_HAS_RULES:    return true;
-//        case FEATURE_GRADE_HAS_GRADE:         return true;
-//        case FEATURE_GRADE_OUTCOMES:          return true;
-//        case FEATURE_RATE:                    return true;
-        case FEATURE_BACKUP_MOODLE2:          return false /* quitado "temporalmente por mestebanez y crmas true*/;
-//        case FEATURE_SHOW_DESCRIPTION:        return true;
-//        case FEATURE_PLAGIARISM:              return true;
-        default: return null;
+        case FEATURE_BACKUP_MOODLE2:
+            return false;
+        default:
+            return null;
     }
 }
-
-
-?>
