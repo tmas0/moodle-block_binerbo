@@ -78,7 +78,7 @@ if ( !has_capability('block/binerbo:sendmessage', $context) ) {
     );
 }
 
-$stremail  = get_string('name', 'block_binerbo');
+$stremail = get_string('name', 'block_binerbo');
 
 // Set default page parameters.
 $PAGE->set_pagelayout('incourse');
@@ -115,20 +115,9 @@ binerbo_printblocks($USER->id, $courseid);
 // Get renderer.
 $renderer = $PAGE->get_renderer('block_binerbo');
 
-$mail = new stdClass();
-
-// Solve bug.
-if ( !isset( $mail->body ) ) {
-    $mail->body = '';
-}
-
-if ( !isset( $mail->subject ) ) {
-    $mail->subject = '';
-}
-
 // First create the form.
 $mailform = new block_binerbo_email_form(
-        'message.php',
+        new moodle_url('/blocks/binerbo/message.php'),
         array('oldmail' => $DB->get_record('binerbo_mail', array('id' => $mailid)),
             'action' => $action,
             'context' => $context

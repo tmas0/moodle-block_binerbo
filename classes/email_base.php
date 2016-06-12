@@ -192,7 +192,7 @@ class email_base {
         $mail->userid = $this->userid;
         $mail->course = $this->course;
         $mail->subject = $this->subject;
-        $mail->body = $this->body;
+        $mail->body = $this->body['text'];
         $mail->timecreated = $this->timecreated;
 
         if ( !$this->id = $DB->insert_record('binerbo_mail', $mail) ) {
