@@ -64,6 +64,12 @@ class email_base {
     public $body;
 
     /**
+     * Body format.
+     * @var int $bodyformat Body format of email
+     */
+    public $bodyformat;
+
+    /**
      * Attachments.
      * @var array $attachments Attachments
      */
@@ -193,6 +199,7 @@ class email_base {
         $mail->course = $this->course;
         $mail->subject = $this->subject;
         $mail->body = $this->body['text'];
+        $mail->bodyformat = $this->body['format'];
         $mail->timecreated = $this->timecreated;
 
         if ( !$this->id = $DB->insert_record('binerbo_mail', $mail) ) {
@@ -220,7 +227,8 @@ class email_base {
         $mail->userid = $this->userid;
         $mail->course = $this->course;
         $mail->subject = $this->subject;
-        $mail->body = $this->body;
+        $mail->body = $this->body['text'];
+        $mail->bodyformat = $this->body['format'];
         $mail->timecreated = time();
 
         if ( !$DB->update_record('binerbo_mail', $mail) ) {

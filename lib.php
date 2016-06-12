@@ -1030,21 +1030,6 @@ function binerbo_get_foldermail($mailid, $userid) {
 }
 
 /**
- * This function read Id to reference mail and folder.
- *
- * @param int $mailid Mail ID
- * @param int $folderid Folder ID
- * @return object Contain reference
- * @todo Finish documenting this function
- */
-function binerbo_get_reference2foldermail($mailid, $folderid) {
-    global $DB;
-
-    return $DB->get_record('binerbo_foldermail', array('mailid' => $mailid, 'folderid' => $folderid));
-
-}
-
-/**
  * This function move mail to folder indicated.
  *
  * @param int $mailid Mail ID

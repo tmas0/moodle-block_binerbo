@@ -236,7 +236,7 @@ if ( $mailform->is_cancelled() ) {
             $legend = get_string('draftok', 'block_binerbo');
         }
 
-        redirect($CFG->wwwroot . '/blocks/binerbo/email/index.php?id=' . $courseid, $legend, '4');
+        redirect($CFG->wwwroot . '/blocks/binerbo/dashboard.php?id=' . $courseid, $legend, '4');
     } else {
         print_error('Fatal error when sending or draft mail');
     }

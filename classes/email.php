@@ -454,7 +454,7 @@ class email extends \block_binerbo\email_base {
 
         // If mail has saved in draft, delete this reference.
         if ( $folderdraft = \block_binerbo\label::get_root($this->userid, EMAIL_DRAFT) ) {
-            if ($foldermail = self::get_reference2foldermail($this->id, $folderdraft->id) ) {
+            if ($foldermail = self::get_reference2labelmail($this->id, $folderdraft->id) ) {
                 if (! $DB->delete_records('binerbo_foldermail', 'id', $foldermail->id)) {
                     print_error( 'failremovingdraft', 'block_binerbo');
                 }
@@ -471,13 +471,13 @@ class email extends \block_binerbo\email_base {
         // If mail already exist ... (in draft).
         if ( $this->id ) {
             // Drop all records, and insert all again.
-            if (! $DB->delete_records('binerbo_sent', 'mailid', $this->id)) {
+            if (! $DB->delete_records('binerbo_sent', array('mailid' => $this->id))) {
                 return false;
             }
         }
 
         // Prepare send mail.
-        $send = new stdClass();
+        $send = new \stdClass();
         $send->userid   = $this->userid;
         $send->course   = $this->course;
         $send->mailid   = $this->id;
@@ -491,7 +491,7 @@ class email extends \block_binerbo\email_base {
             foreach ($this->to as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                \blocks_binerbo\label::create_parents($userid);
+                \block_binerbo\label::create_parents($userid);
 
                 $send->userid = $userid;
 
@@ -515,7 +515,7 @@ class email extends \block_binerbo\email_base {
             foreach ($this->cc as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                \blocks_binerbo\label::create_parents($userid);
+                \block_binerbo\label::create_parents($userid);
 
                 $send->userid = $userid;
 
@@ -539,7 +539,7 @@ class email extends \block_binerbo\email_base {
             foreach ($this->bcc as $userid) {
 
                 // In this moment, create if no exist this root folders.
-                \blocks_binerbo\label::create_parents($userid);
+                \block_binerbo\label::create_parents($userid);
 
                 $send->userid = $userid;
 
@@ -557,7 +557,7 @@ class email extends \block_binerbo\email_base {
             }
         }
 
-        add_to_log($this->course, 'email', "add mail", 'sendmail.php', "$this->subject", 0, $this->userid);
+        //add_to_log($this->course, 'email', "add mail", 'sendmail.php', "$this->subject", 0, $this->userid);
 
         return $this->id;
     }
@@ -597,7 +597,7 @@ class email extends \block_binerbo\email_base {
                 foreach ($this->to as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    \blocks_binerbo\label::create_parents($userid);
+                    \block_binerbo\label::create_parents($userid);
 
                     $send->userid = $userid;
 
@@ -616,7 +616,7 @@ class email extends \block_binerbo\email_base {
                 foreach ($this->cc as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    \blocks_binerbo\label::create_parents($userid);
+                    \block_binerbo\label::create_parents($userid);
 
                     $send->userid = $userid;
 
@@ -635,7 +635,7 @@ class email extends \block_binerbo\email_base {
                 foreach ($this->bcc as $userid) {
 
                     // In this moment, create if no exist this root folders.
-                    \blocks_binerbo\label::create_parents($userid);
+                    \block_binerbo\label::create_parents($userid);
 
                     $send->userid = $userid;
 
@@ -770,7 +770,7 @@ class email extends \block_binerbo\email_base {
             $removefolder = \block_binerbo\label::get_root($userid, EMAIL_TRASH);
 
             // Get actual folder.
-            $actualfolder = email_get_reference2foldermail($this->id, $folderid);
+            $actualfolder = email_get_reference2labelmail($this->id, $folderid);
 
             if ($actualfolder) {
                 // Move mails to trash.
@@ -1076,5 +1076,20 @@ class email extends \block_binerbo\email_base {
         }
 
         return $DB->get_records_sql($sql.$wheresql.$groupby.$sortsql, array(), $limitfrom, $limitnum);
+    }
+
+    /**
+     * This function read Id to reference mail and label.
+     *
+     * @param int $mailid Mail ID
+     * @param int $labelid Label ID
+     * @return object Contain reference
+     * @todo Finish documenting this function
+     */
+    public function get_reference2labelmail($mailid, $labelid) {
+        global $DB;
+
+        return $DB->get_record('binerbo_labelmail', array('mailid' => $mailid, 'labelid' => $labelid));
+
     }
 }
